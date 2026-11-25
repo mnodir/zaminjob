@@ -10,35 +10,35 @@ const PROFILES = [
   {
     id: 1,
     name: "Alisher Mamatov",
-    category: "Otboqar",
-    roleTitle: "Otboqar • Yilqichilik ustasi",
+    category: "Agronom",
+    roleTitle: "Agronom • Hosildorlik va o'g'itlash ustasi",
     district: "Baxmal tumani",
     lvl: 5,
     rating: 4.9,
     reviewsCount: 38,
-    wageUZS: 5500000,
+    wageUZS: 6500000,
     wageUnit: "oy",
     phoneMasked: "+998 91 ••• •• 14",
     phoneFull: "+998 91 542 88 14",
-    conditions: ["Yotoq joy bor", "Ovqat beriladi", "Oilaviy mumkin"],
+    conditions: ["Tuproq tahlili", "O'g'itlash sxemasi", "Dala nazorati"],
     exportInfo: null,
     mediaCount: "1 video (0:24) • 3 rasm",
     cameraVerified: true,
     mediaItems: [
-      { type: "Video", title: "Otxonada yilqilarni parvarishlash jarayoni (0:24)", icon: "🎬" },
-      { type: "Rasm", title: "Toychoqlarni oziqlantirish va yem ratsioni", icon: "🐎" },
-      { type: "Rasm", title: "Yashash xonasi va yaylov hududi", icon: "🏠" }
+      { type: "Video", title: "Intensiv bog'da hosildorlik va barg tahlili (0:24)", icon: "🎬" },
+      { type: "Rasm", title: "Mineral o'g'itlash va himoya jadvali", icon: "🌱" },
+      { type: "Rasm", title: "Mevali bog' va tomchilatib oziqlantirish", icon: "🍏" }
     ],
-    voiceSummary: "Assalomu alaykum, ismim Alisher. Baxmaldanman, 12 yildan beri yilqi va zotdor otlarga qarayman.",
+    voiceSummary: "Assalomu alaykum, ismim Alisher. Baxmaldanman, 12 yildan beri bog' va sabzavot ekinlari bo'yicha agronom bo'lib ishlayman.",
     reviews: [
-      { author: "Sardor Fermer (G'allaorol)", text: "Otlarga qarashi juda toza, mas'uliyatli usta." }
+      { author: "Sardor Fermer (G'allaorol)", text: "Tavsiyasi bilan bog'imiz hosildorligi 35 foizga oshdi." }
     ]
   },
   {
     id: 2,
-    name: "Erkin Qo'chqorov",
-    category: "Cho'pon",
-    roleTitle: "Cho'pon • Qo'zilatish va yaylov",
+    name: "Erkin Karimov",
+    category: "Bog'bon",
+    roleTitle: "Bog'bon • Issiqxona va payvandlash ustasi",
     district: "Forish tumani",
     lvl: 4,
     rating: 4.8,
@@ -47,18 +47,18 @@ const PROFILES = [
     wageUnit: "oy",
     phoneMasked: "+998 93 ••• •• 79",
     phoneFull: "+998 93 309 11 79",
-    conditions: ["Yotoq joy bor", "Ovqat beriladi", "Fermerlar maktabi"],
+    conditions: ["Issiqxona tajribasi", "Daraxt kesish", "Payvandlash"],
     exportInfo: null,
     mediaCount: "1 video (0:19) • 4 rasm",
     cameraVerified: true,
     mediaItems: [
-      { type: "Video", title: "Forish yaylovida 400 bosh qo'y podasi (0:19)", icon: "🎬" },
-      { type: "Rasm", title: "Qishki qo'ra va ozuqa zaxirasi", icon: "🐑" },
-      { type: "Rasm", title: "Qo'zilatish mavsumi natijalari", icon: "📸" }
+      { type: "Video", title: "Issiqxonada pomidor va bodring parvarishi (0:19)", icon: "🎬" },
+      { type: "Rasm", title: "Mevali daraxtlarga shakl berish va payvandlash", icon: "🌳" },
+      { type: "Rasm", title: "Ko'chatxona va bahorgi parvarish natijalari", icon: "📸" }
     ],
-    voiceSummary: "Forish tumanidan Erkin cho'ponman. Katta podalarni yaylovda boqish va qo'zilatish tajribam bor.",
+    voiceSummary: "Forish tumanidan Erkin bog'bonman. Issiqxona ekinlari, daraxt kesish va payvandlash bo'yicha 9 yillik tajribam bor.",
     reviews: [
-      { author: "Olimjon (Forish)", text: "Birorta qo'yni yo'qotmay, semirtirib topshirdi." }
+      { author: "Olimjon (Forish)", text: "500 tup olmani chiroyli payvandlab, bahorda zo'r natija berdi." }
     ]
   },
   {

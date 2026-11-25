@@ -1,14 +1,14 @@
 // ZaminJob — Kirishdagi "Sizga kim kerak?" AI kasb topuvchi va ovozli qidiruv mantiqi
 const AI_RULES = [
   {
-    category: "Otboqar",
-    keywords: ["ot", "yilqi", "otboqar", "toychoq", "otxona", "жылқы", "атбақар"],
-    explanation: "AI so'rovingizdan «Otboqar (Yilqichilik)» kasbini va yaylov sharoitini aniqladi."
+    category: "Agronom",
+    keywords: ["agronom", "o'g'it", "ogit", "dori", "tuproq", "hosildorlik", "kasallik", "zararkunanda", "агроном"],
+    explanation: "AI so'rovingizdan «Agronom (Hosildorlik va himoya)» mutaxassisini aniqladi."
   },
   {
-    category: "Cho'pon",
-    keywords: ["qo'y", "qoy", "echki", "cho'pon", "chopon", "poda", "yaylov", "jun", "қой", "шопан"],
-    explanation: "AI so'rovingizdan «Cho'pon (Chorvachilik)» mutaxassisini aniqladi."
+    category: "Bog'bon",
+    keywords: ["bog'", "bog", "bog'bon", "bogbon", "issiqxona", "teplitsa", "payvand", "kesish", "daraxt", "ko'chat", "kochat"],
+    explanation: "AI so'rovingizdan «Bog'bon va Issiqxona ustasi» kerakligini aniqladi."
   },
   {
     category: "Brigada",

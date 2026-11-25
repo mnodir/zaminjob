@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ZaminJob — Dehqonchilik, Chorvachilik va Agro-Savdo</title>
+  <title>ZaminJob — Dehqonchilik, Agro-Mutaxassislar va Agro-Savdo</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
@@ -19,7 +19,7 @@
         <img src="assets/icons/logo.svg" alt="ZaminJob logotipi" />
         <div>
           <div class="brand-title">ZaminJob</div>
-          <div class="brand-sub">Dehqonchilik • Chorvachilik • Savdo</div>
+          <div class="brand-sub">Dehqonchilik • Agro-Xizmat • Eksport</div>
         </div>
       </a>
 
@@ -50,18 +50,18 @@
     <!-- Kirishdagi "Sizga kim kerak?" AI qidiruv oynasi -->
     <section class="ai-hero">
       <h1>Sizga kim kerak?</h1>
-      <p>Kasbni yozing yoki ovozli tugmani bosing — AI sizga mos mutaxassis, brigada yoki eksportchini topib beradi.</p>
+      <p>Kasbni yozing yoki ovozli tugmani bosing — AI sizga mos agro-mutaxassis, brigada yoki eksportchini topib beradi.</p>
 
       <div class="ai-search-box">
         <input
           id="aiQueryInput"
           class="ai-input"
           type="text"
-          placeholder="Masalan: Otlarimga qaraydigan odam yoki 10 kishilik brigada kerak..."
+          placeholder="Masalan: Pomidor terishga 10 kishilik brigada yoki tajribali agronom kerak..."
           onkeydown="if(event.key==='Enter') handleAISearch()"
         />
         <button class="btn-primary" onclick="handleAISearch()">🔍 AI Topish</button>
-        <button class="btn-amber" onclick="runVoicePreset('Otlarimga qaraydigan tajribali otboqar kerak, yotoq joy bor')">
+        <button class="btn-amber" onclick="runVoicePreset('Bog va dalaga hosildorlikni oshirish uchun tajribali agronom kerak')">
           🎙️ Ovozli AI
         </button>
       </div>
@@ -70,20 +70,20 @@
 
       <div class="voice-presets">
         <span style="font-size:0.84rem; font-weight:800;">Tezkor AI misollar:</span>
-        <button class="voice-chip" onclick="runVoicePreset('Otlarimga qaraydigan odam kerak')">«Otlarimga qaraydigan odam»</button>
-        <button class="voice-chip" onclick="runVoicePreset('Forishga 400 bosh qoy boqishga chopon kerak')">«Qo'y boqishga cho'pon»</button>
+        <button class="voice-chip" onclick="runVoicePreset('Bog va dalaga tajribali agronom kerak')">«Tajribali agronom»</button>
+        <button class="voice-chip" onclick="runVoicePreset('Issiqxona va bog parvarishiga bogbon kerak')">«Bog'bon va issiqxona»</button>
         <button class="voice-chip" onclick="runVoicePreset('Pomidor terishga 10 kishilik brigada kerak')">«Pomidor terishga brigada»</button>
         <button class="voice-chip" onclick="runVoicePreset('Hosilni eksport qilishga ombori bor xaridor kerak')">«Eksportchi va ombor»</button>
       </div>
 
       <div class="category-pills">
-        <button class="pill active" data-cat="Barchasi" onclick="selectCategory('Barchasi')">🌾 Barchasi</button>
-        <button class="pill" data-cat="Otboqar" onclick="selectCategory('Otboqar')">🐎 Otboqar</button>
-        <button class="pill" data-cat="Cho'pon" onclick="selectCategory(this.dataset.cat)">🐑 Cho'pon</button>
-        <button class="pill" data-cat="Brigada" onclick="selectCategory('Brigada')">👥 Brigada</button>
-        <button class="pill" data-cat="Suvchi" onclick="selectCategory('Suvchi')">💧 Suvchi</button>
-        <button class="pill" data-cat="Texnika" onclick="selectCategory('Texnika')">🚜 Texnika</button>
-        <button class="pill" data-cat="Eksportchi" onclick="selectCategory('Eksportchi')">🌍 Eksportchi</button>
+        <button class="pill active" data-cat="Barchasi" onclick="selectCategory(this.dataset.cat)">🌾 Barchasi</button>
+        <button class="pill" data-cat="Agronom" onclick="selectCategory(this.dataset.cat)">🌱 Agronom</button>
+        <button class="pill" data-cat="Bog'bon" onclick="selectCategory(this.dataset.cat)">🌳 Bog'bon</button>
+        <button class="pill" data-cat="Brigada" onclick="selectCategory(this.dataset.cat)">👥 Brigada</button>
+        <button class="pill" data-cat="Suvchi" onclick="selectCategory(this.dataset.cat)">💧 Suvchi</button>
+        <button class="pill" data-cat="Texnika" onclick="selectCategory(this.dataset.cat)">🚜 Texnika</button>
+        <button class="pill" data-cat="Eksportchi" onclick="selectCategory(this.dataset.cat)">🌍 Eksportchi</button>
       </div>
     </section>
 
@@ -142,10 +142,10 @@
         <button class="close-btn" onclick="closeModal('postModal')">✕</button>
       </div>
       <p style="font-size:0.9rem; color:#374151; margin-bottom:12px;">
-        Ish jarayoni, otxona, qo'ra yoki sovutkichli ombor rasm-videosini yuklang — «Ilova kamerasi» belgisi ishonchni 3 baravar oshiradi.
+        Ish jarayoni, dala, issiqxona, bog' yoki sovutkichli ombor rasm-videosini yuklang — «Ilova kamerasi» belgisi ishonchni 3 baravar oshiradi.
       </p>
       <div style="display:flex; flex-direction:column; gap:10px;">
-        <input class="ai-input" type="text" placeholder="Kasb yoki yo'nalish (masalan: Otboqar / Eksportchi)" />
+        <input class="ai-input" type="text" placeholder="Kasb yoki yo'nalish (masalan: Agronom / Brigada / Eksportchi)" />
         <input class="ai-input" type="text" placeholder="Hudud (masalan: Jizzax, Forish tumani)" />
         <label class="btn-outline" style="justify-content:center;">
           📷 Rasm yoki Video tanlash (Ilova kamerasi)
