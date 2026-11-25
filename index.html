@@ -1,158 +1,1599 @@
-<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>ZaminISH — работа на земле</title>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#fff;--b2:#F5F6F4;--gl:#EAF1EC;--g1:#123D2B;--g2:#1D5A3D;--ink:#17211B;--mut:#707A73;--ln:#E5EAE6;--on:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-:root{color-scheme:light}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-*{box-sizing:border-box}
-body{margin:0;font:16px/1.55 Manrope,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg)}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
-a{color:inherit;text-decoration:none}
-h1,h2,h3{line-height:1.15;margin:0 0 .5em;letter-spacing:-.02em}
-h1{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:800;max-width:14em}h2{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800}h3{font-size:1.1rem;font-weight:700}
-p{margin:0 0 1em;max-width:62ch}
-.w{max-width:1140px;margin:0 auto;padding:0 20px}
-section{padding:56px 0}
-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--ln)}
-.nav{display:flex;align-items:center;gap:20px;height:64px}
-.logo{font-weight:800;font-size:1.3rem;color:var(--g1);letter-spacing:-.03em}.logo b{color:var(--g2);font-weight:600}
-nav{display:flex;gap:18px;margin-left:auto;align-items:center}
-nav a{color:var(--mut);font-size:.9rem;font-weight:600}nav a:hover,nav a.on{color:var(--g1)}
-.burger{display:none;margin-left:auto}
-.btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--g1);background:var(--g1);color:var(--on);padding:11px 20px;border-radius:10px;font:inherit;font-weight:600;font-size:.95rem;cursor:pointer;transition:background .2s}
-.btn:hover{background:var(--g2)}.btn.o{background:transparent;color:var(--g1)}.btn.o:hover{background:var(--gl)}.btn.s{padding:7px 14px;font-size:.85rem}
-:focus-visible{outline:2px solid var(--g2);outline-offset:2px}
-.grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
-.st{display:grid;gap:12px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.card{border:1px solid var(--ln);border-radius:14px;padding:20px;background:var(--bg);box-shadow:0 1px 2px rgba(18,61,43,.05);display:flex;flex-direction:column;gap:8px;align-items:flex-start}
-.card h3{margin:0}
-.tag{display:inline-block;background:var(--gl);color:var(--g1);border-radius:99px;padding:2px 10px;font-size:.78rem;font-weight:600}.tag.d{background:var(--b2);color:var(--mut)}
-.mut{color:var(--mut);font-size:.9rem}
-.demo{background:var(--b2);border:1px dashed var(--ln);border-radius:10px;padding:10px 14px;color:var(--mut);font-size:.85rem;margin:12px 0;max-width:none}
-input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--ln);border-radius:10px;padding:10px 12px;width:100%}
-input[aria-invalid=true],select[aria-invalid=true],textarea[aria-invalid=true]{border-color:#b3261e}
-label{font-size:.85rem;font-weight:600;display:block;margin:12px 0 4px}
-.err{color:#b3261e;font-size:.8rem;min-height:1.1em}
-.bar{display:grid;gap:10px;grid-template-columns:2fr repeat(auto-fit,minmax(150px,1fr));margin:20px 0 28px}
-.av{width:48px;height:48px;flex:none;border-radius:50%;background:var(--gl);color:var(--g1);display:grid;place-items:center;font-weight:800}.av.l{width:84px;height:84px;font-size:1.6rem}
-.hero{background:var(--gl);position:relative;overflow:hidden;padding:88px 0 96px}
-.hero svg{position:absolute;right:0;bottom:0;width:62%;color:var(--g2)}.hero .w{position:relative}
-.hero p{font-size:1.15rem;color:var(--mut)}
-.tabs{display:flex;gap:6px;border-bottom:1px solid var(--ln);overflow-x:auto;margin:16px 0 22px}
-.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:10px 14px;font:inherit;font-weight:600;font-size:.9rem;color:var(--mut);cursor:pointer;white-space:nowrap}
-.tabs [aria-selected=true]{color:var(--g1);border-bottom-color:var(--g1)}
-.pb{height:8px;background:var(--gl);border-radius:9px;width:100%}.pb i{display:block;height:100%;background:var(--g2);border-radius:9px}
-.num{font-size:2rem;font-weight:800;color:var(--g1)}
-.alt{background:var(--b2)}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;z-index:50;padding:16px}
-.modal>div{background:var(--bg);border-radius:14px;padding:24px;max-width:520px;width:100%;max-height:90vh;overflow:auto}
-#toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--g1);color:var(--on);padding:10px 18px;border-radius:10px;z-index:60;font-size:.9rem;max-width:90vw}
-footer{background:var(--b2);border-top:1px solid var(--ln);padding:36px 0}
-@media(max-width:860px){nav{display:none;position:absolute;top:64px;left:0;right:0;flex-direction:column;align-items:flex-start;background:var(--bg);padding:16px 20px;border-bottom:1px solid var(--ln)}nav.open{display:flex}.burger{display:block}.hero svg{width:100%;opacity:.35}section{padding:40px 0}.bar{grid-template-columns:1fr 1fr}.bar input{grid-column:1/-1}}
-</style></head><body>
-<header><div class="w nav"><a class="logo" href="#home">Zamin<b>ISH</b></a><button class="burger btn o s" data-a="burger" aria-label="Меню">Меню</button><nav id="nav"></nav></div></header>
-<main id="app"></main>
-<footer><div class="w row" style="justify-content:space-between;align-items:flex-start;gap:24px"><div><div class="logo">Zamin<b>ISH</b></div><p class="mut">Земля объединяет. Работа развивает.</p></div><p class="mut">Демонстрационный MVP: все профили, вакансии и цифры вымышлены. Платежей, защиты оплаты и государственной проверки нет. Узбекский язык — скоро.</p></div></footer>
-<div id="toast" role="status" hidden></div>
-<script>
-const REG=["Ташкентская","Самаркандская","Ферганская","Андижанская","Наманганская","Бухарская","Кашкадарьинская","Сурхандарьинская","Хорезмская"].map(r=>r+" область");
-const SP=["Сезонные рабочие","Трактористы","Поливальщики","Агрономы","Работники теплиц","Садоводы","Овощеводы","Сборщики урожая"];
-const J=[["Сборщик винограда",7,1,3200,"Сезонная","Ф/х «Шарк Боги»","Сбор и сортировка винограда в ящики, питание и проживание в хозяйстве."],
-["Тракторист МТЗ-82",1,2,5000,"Постоянная","Ф/х «Фаргона Агро»","Вспашка, культивация, обслуживание техники. Опыт от 3 лет."],
-["Поливальщик (мираб)",2,3,3500,"Сезонная","Ф/х «Сув Нур»","Организация полива хлопковых полей по графику."],
-["Агроном-полевод",3,6,5800,"Постоянная","Ф/х «Кашка Агро»","Контроль севооборота, внесение удобрений, защита растений и повышение урожайности."],
-["Работник теплицы",4,0,4000,"Постоянная","«Ташкент Грин»","Уход за томатами и огурцами, полив, подвязка."],
-["Садовод-обрезчик",5,1,4500,"Сезонная","Ф/х «Ширин Мева»","Обрезка и формирование крон, прививка саженцев."],
-["Овощевод",6,4,3800,"Сезонная","Ф/х «Давон Агро»","Выращивание и уход за томатами, луком и картофелем в открытом грунте."],
-["Сборщик хлопка",7,7,3000,"Сезонная","Ф/х «Сурхон Пахта»","Ручной сбор хлопка, оплата по весу, транспорт до поля."],
-["Комбайнёр",1,5,5500,"Сезонная","Ф/х «Бухоро Дон»","Уборка зерновых на комбайне, опыт обязателен."],
-["Помощник садовода",5,8,3300,"Сезонная","Ф/х «Хоразм Боги»","Уход за садом, обрезка, сбор плодов."],
-["Оператор капельного полива",2,3,3900,"Постоянная","Ф/х «Томчи»","Контроль системы капельного полива, мелкий ремонт."],
-["Бригадир теплиц",4,2,6000,"Постоянная","Ф/х «Гулзор»","Руководство группой из 8 человек, планирование посадок."]
-].map((a,i)=>({id:i+1,t:a[0],sp:a[1],rg:a[2],pay:a[3],ty:a[4],em:a[5],d:a[6]}));
-const W=[["Рустам Каримов",1,1,8,"Трактор МТЗ,Пахота,Ремонт техники","Доступен сейчас",21],["Диёр Юсупов",2,2,5,"Капельный полив,Мелиорация,Ремонт насосов","Доступен сейчас",12],
-["Нодира Абдуллаева",0,4,4,"Томаты,Огурцы,Рассада","С 1 декабря",9],["Бахром Исмоилов",6,3,12,"Агрономия,Удобрения,Защита растений","Доступен сейчас",30],
-["Санжар Турсунов",3,6,6,"Выращивание овощей,Посадка,Прополка","С февраля",14],["Гульнора Хасанова",1,7,3,"Сбор винограда,Сортировка","Доступен сейчас",7],
-["Азиз Рахимов",5,5,7,"Прививка,Обрезка,Опрыскивание","Доступен сейчас",16],["Жамшид Нормуродов",7,7,2,"Сбор хлопка,Погрузка","Доступен сейчас",4],
-["Малика Эргашева",8,5,9,"Уход за садом,Орошение","С февраля",18],["Отабек Сатторов",2,1,10,"Трактор,Комбайн,Сеялка","С 1 декабря",25],
-["Достон Холиков",1,0,1,"Сбор урожая,Фасовка","Доступен сейчас",2],["Зарина Мирзаева",4,4,5,"Теплицы,Рассада,Полив","С февраля",11]
-].map((a,i)=>({id:i+1,n:a[0],rg:a[1],sp:a[2],ex:a[3],sk:a[4].split(","),av:a[5],jb:a[6]}));
-const B=[["«Заррин Хосил»",14,1,7,"7 лет","Доступна сейчас","Анвар Бекмуродов","Сбор винограда и фруктов, сортировка и упаковка прямо в поле."],
-["«Чашма»",8,2,2,"5 лет","С 1 декабря","Шухрат Эшонов","Монтаж и обслуживание систем капельного полива, мелиорация."],
-["«Тепло Агро»",10,0,4,"4 года","Доступна сейчас","Лола Назарова","Посадка рассады, уход и сбор урожая в теплицах."],
-["«Хосилдор»",12,6,6,"9 лет","С февраля","Эльёр Мамаджонов","Посадка, прополка и уборка овощных культур (картофель, лук, морковь) на больших площадях."]
-].map((a,i)=>({id:i+1,n:a[0],size:a[1],rg:a[2],sp:a[3],ex:a[4],av:a[5],ld:a[6],d:a[7]}));
-const RV=["Работает аккуратно и приходит вовремя.","Хорошо знает дело, контроль не нужен.","Честно выполнил весь объём, рекомендую."];
-const lvl=n=>n<5?"Новичок":n<15?"Опытный":"Профи",yr=n=>n%10==1&&n!=11?"год":[2,3,4].includes(n%10)&&(n<10||n>20)?"года":"лет";
-const ini=n=>n.split(" ").map(x=>x[0]).join(""),pay=j=>(j.pay*1000).toLocaleString("ru-RU")+" сум / мес";
-const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const PH=/^\+998(\s?\d){9}$/,$=s=>document.querySelector(s);
-let S={sj:[],sw:[],ap:[],vc:[],u:null,in:0};try{S={...S,...JSON.parse(localStorage.getItem("zi"))}}catch(e){}
-const save=()=>{try{localStorage.setItem("zi",JSON.stringify(S))}catch(e){}};
-const allJ=()=>J.concat(S.vc),me=()=>S.in&&S.u,jl=a=>a.map(i=>allJ().find(j=>j.id==i)).filter(Boolean);
-let DT=0,RR="w",FS={j:{q:"",rg:"",sp:"",pay:"0",ty:"",so:"new"},w:{q:"",rg:"",sp:"",av:""}};
-const O=(a,s)=>a.map((x,i)=>`<option value="${i}"${s!==undefined&&s!==""&&i==s?" selected":""}>${x}</option>`).join("");
-const em=(t,s,b="")=>`<div class="card" style="grid-column:1/-1;align-items:center;text-align:center;padding:40px"><h3>${t}</h3><p class="mut">${s}</p>${b}</div>`;
-const fld=(n,l,t="text",x="")=>`<label for="${n}">${l}</label><input id="${n}" name="${n}" type="${t}" ${x}><div class="err" data-e="${n}"></div>`;
-const sel=(n,l,o)=>`<label for="${n}">${l}</label><select id="${n}" name="${n}"><option value="">Выберите</option>${o}</select><div class="err" data-e="${n}"></div>`;
-const toast=m=>{const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2600)};
-const close=()=>document.querySelectorAll(".modal").forEach(m=>m.remove());
-const modal=h=>{close();const m=document.createElement("div");m.className="modal";m.innerHTML=`<div role="dialog" aria-modal="true">${h}</div>`;m.onclick=e=>{if(e.target==m)close()};document.body.append(m);const f=m.querySelector("input,select,textarea,button");f&&f.focus()};
-addEventListener("keydown",e=>e.key=="Escape"&&close());
-const chk=(f,r)=>{let ok=1;for(const k in r){const el=f.elements[k],bad=!r[k][0].test(el.value.trim());f.querySelector(`[data-e=${k}]`).textContent=bad?r[k][1]:"";el.setAttribute("aria-invalid",bad);if(bad)ok=0}return ok};
-const jobCard=j=>`<article class="card"><span class="tag">${SP[j.sp]}</span><h3>${j.t}</h3><div class="mut">${j.em}<br>${REG[j.rg]}</div><div><b>${pay(j)}</b> <span class="mut">· ${j.ty}</span></div><div class="row"><button class="btn s" data-a="job" data-i="${j.id}">Подробнее</button><button class="btn o s" data-a="sj" data-i="${j.id}">${S.sj.includes(j.id)?"Сохранено":"Сохранить"}</button></div></article>`;
-const wCard=w=>`<article class="card"><div class="row"><div class="av">${ini(w.n)}</div><div><h3>${w.n}</h3><div class="mut">${REG[w.rg]}</div></div></div><div class="row"><span class="tag">${SP[w.sp]}</span><span class="tag">${lvl(w.jb)}</span><span class="tag d">Демо</span></div><div class="mut">Опыт ${w.ex} ${yr(w.ex)} · ${w.av}<br>${w.sk.slice(0,3).join(", ")}</div><div class="row"><a class="btn s" href="#worker-${w.id}">Профиль</a><button class="btn o s" data-a="sw" data-i="${w.id}">${S.sw.includes(w.id)?"Сохранён":"Сохранить"}</button></div></article>`;
-const bCard=b=>`<article class="card"><h3>${b.n}</h3><div class="mut">${REG[b.rg]} · ${b.size} человек</div><div class="row"><span class="tag">${SP[b.sp]}</span><span class="tag d">Демо</span></div><div class="mut">Опыт: ${b.ex} · ${b.av}<br>Бригадир: ${b.ld}</div><a class="btn s" href="#brigade-${b.id}">Смотреть бригаду</a></article>`;
-const jobList=()=>{const F=FS.j,q=F.q.toLowerCase();const a=allJ().filter(j=>(!q||j.t.toLowerCase().includes(q))&&(F.rg===""||j.rg==F.rg)&&(F.sp===""||j.sp==F.sp)&&j.pay>=+F.pay&&(!F.ty||j.ty==F.ty));a.sort(F.so=="hi"?(x,y)=>y.pay-x.pay:F.so=="lo"?(x,y)=>x.pay-y.pay:(x,y)=>y.id-x.id);return a.length?a.map(jobCard).join(""):em("Вакансий не найдено","Измените запрос или сбросьте фильтры.")};
-const wList=()=>{const F=FS.w,q=F.q.toLowerCase();const a=W.filter(w=>(!q||(w.n+w.sk.join()).toLowerCase().includes(q))&&(F.rg===""||w.rg==F.rg)&&(F.sp===""||w.sp==F.sp)&&(!F.av||w.av==F.av));return a.length?a.map(wCard).join(""):em("Работники не найдены","Измените запрос или сбросьте фильтры.")};
-const V={};
-V.home=()=>`<div class="hero"><svg viewBox="0 0 600 300" fill="none" stroke="currentColor" stroke-width="2" opacity=".3" aria-hidden="true"><circle cx="500" cy="70" r="42" fill="currentColor" opacity=".25" stroke="none"/>${[0,1,2,3,4,5,6,7].map(i=>`<path d="M0 300Q240 ${230-i*14} 600 ${60+i*28}"/>`).join("")}</svg><div class="w"><h1>Работа на земле. Возможности для каждого.</h1><p>Находите надёжных работников, бригады и сельскохозяйственные вакансии в одном месте.</p><div class="row"><a class="btn" href="#jobs">Найти работу</a><a class="btn o" href="#workers">Найти работников</a></div></div></div>
-<section><div class="w"><div class="grid">${[["1 240","работников"],["380","вакансий"],["96","бригад"],["9","регионов"]].map(s=>`<div><div class="num">${s[0]}</div><div class="mut">${s[1]}</div></div>`).join("")}</div><p class="demo">Цифры демонстрационные: платформа ещё не запущена.</p></div></section>
-<section class="alt"><div class="w"><h2>Как работает ZaminISH</h2><div class="grid">${[["Создайте профиль или вакансию","Работник заполняет Agro-Паспорт, фермер описывает, кто ему нужен."],["Найдите подходящий вариант","Фильтры по региону, специальности и зарплате сокращают поиск."],["Договоритесь напрямую","Отклик, сообщение или запрос бригады — дальше стороны решают сами."]].map(s=>`<div class="card"><h3>${s[0]}</h3><p class="mut">${s[1]}</p></div>`).join("")}</div></div></section>
-<section><div class="w"><h2>Популярные специальности</h2><div class="row">${SP.map((s,i)=>`<a class="btn o" href="#jobs" data-a="chip" data-i="${i}">${s}</a>`).join("")}</div></div></section>
-<section class="alt"><div class="w"><h2>Свежие вакансии</h2><div class="grid">${J.slice(0,3).map(jobCard).join("")}</div></div></section>
-<section><div class="w"><h2>Работники</h2><div class="grid">${W.slice(0,3).map(wCard).join("")}</div></div></section>
-<section class="alt"><div class="w"><h2>Почему ZaminISH</h2><div class="grid">${[["Agro-Паспорт","Навыки, опыт и отзывы работника собраны в одном профиле."],["Бригады целиком","Фермер находит готовую команду, а не нанимает по одному."],["История работ","В будущем каждая подтверждённая работа будет повышать уровень."]].map(s=>`<div class="card"><h3>${s[0]}</h3><p class="mut">${s[1]}</p></div>`).join("")}</div></div></section>
-<section><div class="w"><div class="card" style="background:var(--gl);padding:40px"><h2>Начните сегодня</h2><p>Зарегистрируйтесь как фермер или работник и попробуйте демо-версию.</p><a class="btn" href="#register">Создать аккаунт</a></div></div></section>`;
-V.jobs=()=>`<section><div class="w"><h2>Найти работу</h2><div class="bar"><input data-g="j" data-f="q" placeholder="Поиск по названию" aria-label="Поиск по названию"><select data-g="j" data-f="rg" aria-label="Регион"><option value="">Все регионы</option>${O(REG)}</select><select data-g="j" data-f="sp" aria-label="Специальность"><option value="">Все специальности</option>${O(SP)}</select><select data-g="j" data-f="pay" aria-label="Зарплата"><option value="0">Любая зарплата</option><option value="3500">от 3 500 000</option><option value="4500">от 4 500 000</option><option value="5500">от 5 500 000</option></select><select data-g="j" data-f="ty" aria-label="Тип занятости"><option value="">Любая занятость</option><option>Сезонная</option><option>Постоянная</option></select><select data-g="j" data-f="so" aria-label="Сортировка"><option value="new">Сначала новые</option><option value="hi">Зарплата выше</option><option value="lo">Зарплата ниже</option></select></div><div class="grid" id="list">${jobList()}</div></div></section>`;
-V.workers=()=>`<section><div class="w"><h2>Найти работников</h2><div class="bar"><input data-g="w" data-f="q" placeholder="Имя или навык" aria-label="Поиск"><select data-g="w" data-f="rg" aria-label="Регион"><option value="">Все регионы</option>${O(REG)}</select><select data-g="w" data-f="sp" aria-label="Специальность"><option value="">Все специальности</option>${O(SP)}</select><select data-g="w" data-f="av" aria-label="Доступность"><option value="">Любая доступность</option><option>Доступен сейчас</option><option>С 1 декабря</option><option>С февраля</option></select></div><div class="grid" id="list">${wList()}</div></div></section>`;
-V.worker=id=>{const w=W[id-1];if(!w)return nf();return `<section><div class="w"><a class="mut" href="#workers">← Все работники</a><p class="demo">Агро-Паспорт — демонстрационный. Человек вымышлен, подтверждения и отзывы имитируются, настоящей проверки нет.</p><div class="row" style="gap:20px;margin:16px 0"><div class="av l">${ini(w.n)}</div><div><h2 style="margin:0">${w.n}</h2><div class="mut">${REG[w.rg]} · ${SP[w.sp]}</div></div></div><div class="row"><button class="btn" data-a="msg" data-t="${w.n}">Связаться</button><button class="btn o" data-a="sw" data-i="${w.id}">${S.sw.includes(w.id)?"Сохранён":"Сохранить"}</button></div><div class="grid" style="margin-top:28px"><div class="card"><h3>Основное</h3><div>Опыт: ${w.ex} ${yr(w.ex)}</div><div>Доступность: ${w.av}</div><div>Уровень: <span class="tag">${lvl(w.jb)}</span> <span class="tag d">демо</span></div><div class="mut">Выполнено работ: ${w.jb} (демо)</div></div><div class="card"><h3>Навыки</h3><div class="row">${w.sk.map(s=>`<span class="tag">${s}</span>`).join("")}</div></div><div class="card"><h3>Квалификации</h3><div class="mut">Профильный курс — запись демонстрационная, не проверена. Государственной верификации нет.</div></div></div><h3 style="margin-top:28px">Выполненные работы (демо)</h3><div class="st">${[0,1,2].map(k=>{const j=J[(id+k*3)%12];return `<div class="card">${j.em}: ${j.t.toLowerCase()}, ${2025-k}</div>`}).join("")}</div><h3 style="margin-top:28px">Отзывы работодателей (демо)</h3><div class="st">${[id%3,(id+1)%3].map((r,k)=>`<div class="card"><div>${RV[r]}</div><div class="mut">${J[(id+k)%12].em}</div></div>`).join("")}</div></div></section>`};
-V.brigades=()=>`<section><div class="w"><h2>Бригады</h2><p class="mut">Готовые команды для крупных сезонных работ.</p><div class="grid">${B.map(bCard).join("")}</div></div></section>`;
-V.brigade=id=>{const b=B[id-1];if(!b)return nf();return `<section><div class="w"><a class="mut" href="#brigades">← Все бригады</a><p class="demo">Демонстрационная бригада: состав и данные вымышлены.</p><h2>${b.n}</h2><div class="row"><span class="tag">${SP[b.sp]}</span><span class="tag">${REG[b.rg]}</span></div><p style="margin-top:16px">${b.d}</p><div class="grid"><div class="card"><h3>Состав</h3><div>${b.size} человек</div><div class="mut">Бригадир: ${b.ld}</div></div><div class="card"><h3>Опыт и доступность</h3><div>Опыт: ${b.ex}</div><div>${b.av}</div></div></div><br><button class="btn" data-a="msg" data-t="${b.n}">Запросить бригаду</button></div></section>`};
-V.about=()=>`<section><div class="w" style="max-width:760px"><h1>О платформе</h1>${[["Зачем нужна платформа","Сельскохозяйственная работа в Узбекистане часто строится на личных знакомствах. Фермеру сложно быстро найти людей к сезону, а работнику — узнать, где ищут именно его."],["Какую проблему решает","ZaminISH собирает вакансии, профили и бригады в одном месте, чтобы поиск занимал часы, а не недели."],["Пользу для фермеров","Единый каталог работников и готовых бригад, понятные профили и отклики в одном кабинете."],["Пользу для работников","Agro-Паспорт показывает навыки и опыт, а будущая история подтверждённых работ поможет вырасти в уровне."],["Видение","Доверительный рынок аграрного труда, где репутация строится на реально выполненных работах."]].map(s=>`<h2 style="margin-top:36px">${s[0]}</h2><p>${s[1]}</p>`).join("")}<p class="demo">Сейчас это демонстрационный MVP. Реальных платежей, защиты оплаты и государственной верификации нет.</p></div></section>`;
-V.login=()=>`<section><div class="w" style="max-width:440px"><h2>Вход</h2><p class="demo">Демо: данные хранятся только в вашем браузере, настоящей авторизации нет.</p><form data-s="login" novalidate>${fld("ph","Телефон","tel",'placeholder="+998 90 123 45 67"')}${fld("pw","Пароль","password")}<button class="btn" style="width:100%;margin-top:12px">Войти</button></form><p class="mut" style="margin-top:16px">Нет аккаунта? <a href="#register" style="color:var(--g1);font-weight:700">Регистрация</a></p></div></section>`;
-V.register=()=>`<section><div class="w" style="max-width:480px"><h2>Регистрация</h2><div class="tabs"><button data-a="role" data-i="f" aria-selected="${RR=="f"}">Фермер / Работодатель</button><button data-a="role" data-i="w" aria-selected="${RR=="w"}">Работник</button></div><form data-s="reg" novalidate>${fld("fn",RR=="f"?"Контактное лицо":"Имя и фамилия")}${fld("ph","Телефон","tel",'placeholder="+998 90 123 45 67"')}${sel("rg","Регион",O(REG))}${RR=="f"?fld("x","Название хозяйства"):sel("x","Специальность",O(SP))}${fld("pw","Пароль (от 6 символов)","password")}<button class="btn" style="width:100%;margin-top:12px">Создать аккаунт</button></form></div></section>`;
-const nf=()=>`<section><div class="w"><div class="grid">${em("Страница не найдена","Проверьте адрес или вернитесь на главную.",'<a class="btn" href="#home">На главную</a>')}</div></div></section>`;
-const pc=u=>40+15*[u.x,u.ex,u.sk,u.bio].filter(Boolean).length;
-const vacForm=()=>modal(`<h2>Новая вакансия</h2><form data-s="vac" novalidate>${fld("t","Название")}${sel("sp","Специальность",O(SP))}${sel("rg","Регион",O(REG))}${fld("pay","Зарплата, сум в месяц","number",'placeholder="4000000"')}<label for="ty">Тип занятости</label><select id="ty" name="ty"><option>Сезонная</option><option>Постоянная</option></select><label for="d">Описание</label><textarea id="d" name="d" rows="3"></textarea><div class="err" data-e="d"></div><div class="row" style="margin-top:12px"><button class="btn">Опубликовать</button><button type="button" class="btn o" data-a="close">Отмена</button></div></form>`);
-const pfForm=u=>`<form data-s="pf" novalidate>${fld("fn","Имя и фамилия","text",`value="${u.fn}"`)}${sel("rg","Регион",O(REG,u.rg))}${sel("x","Специальность",O(SP,u.x))}${fld("ex","Опыт, лет","text",`value="${u.ex||""}"`)}${fld("sk","Навыки через запятую","text",`value="${u.sk||""}"`)}<label for="bio">О себе</label><textarea id="bio" name="bio" rows="3">${u.bio||""}</textarea><button class="btn" style="margin-top:12px">Сохранить профиль</button></form>`;
-const D={f:[()=>`<button class="btn" data-a="post">Создать вакансию</button><br><br>`+(S.vc.length?`<div class="st">${S.vc.map(j=>`<div class="card"><h3>${j.t}</h3><div class="mut">${REG[j.rg]} · ${pay(j)}</div><button class="btn o s" data-a="delv" data-i="${j.id}">Закрыть вакансию</button></div>`).join("")}</div>`:`<div class="grid">${em("Пока нет вакансий","Создайте первую — она появится в разделе «Найти работу».")}</div>`),
-()=>S.vc.length?`<p class="demo">Демо: отклики подставлены для примера.</p><div class="grid">${W.slice(0,3).map(wCard).join("")}</div>`:`<div class="grid">${em("Откликов пока нет","Они появятся после публикации вакансии.")}</div>`,
-()=>`<div class="grid">${S.sw.length?S.sw.map(i=>wCard(W[i-1])).join(""):em("Нет сохранённых работников","Нажмите «Сохранить» в каталоге работников.",'<a class="btn" href="#workers">Открыть каталог</a>')}</div>`,
-()=>`<p class="demo">Демо: настоящей истории найма пока нет.</p><div class="grid">${[3,5].map(i=>wCard(W[i])).join("")}</div>`],
-w:[u=>`<div class="card" style="width:100%"><h3>Профиль заполнен на ${pc(u)}%</h3><div class="pb"><i style="width:${pc(u)}%"></i></div><p class="mut">Добавьте опыт, навыки и описание во вкладке «Профиль».</p></div><h3 style="margin:28px 0 14px">Рекомендуемые вакансии</h3><div class="grid">${[...new Set(allJ().filter(j=>j.sp==u.x).concat(allJ()))].slice(0,3).map(jobCard).join("")}</div>`,
-()=>`<div class="grid">${S.ap.length?jl(S.ap).map(jobCard).join(""):em("Откликов пока нет","Откликнитесь на вакансию, и она появится здесь.",'<a class="btn" href="#jobs">Найти работу</a>')}</div>`,
-()=>`<div class="grid">${S.sj.length?jl(S.sj).map(jobCard).join(""):em("Нет сохранённых вакансий","Нажмите «Сохранить» на карточке вакансии.",'<a class="btn" href="#jobs">Найти работу</a>')}</div>`,
-u=>`<p class="demo">История работ: подтверждённых работ пока нет. В реальной версии они появятся после найма.</p>${pfForm(u)}`]};
-V.dashboard=()=>{const u=me();if(!u)return `<section><div class="w"><div class="grid">${em("Нужен вход","Войдите, чтобы открыть кабинет.",'<a class="btn" href="#login">Войти</a>')}</div></div></section>`;const f=u.role=="f",T=f?["Вакансии","Отклики","Сохранённые работники","Нанятые ранее"]:["Обзор","Отклики","Сохранённые вакансии","Профиль"];return `<section><div class="w"><h2>${f?"Кабинет фермера":"Кабинет работника"}</h2><div class="mut">${u.fn}${f?" · "+u.x:""}</div><div class="tabs" role="tablist">${T.map((t,i)=>`<button role="tab" aria-selected="${i==DT}" data-a="tab" data-i="${i}">${t}</button>`).join("")}</div>${D[u.role][DT](u)}</div></section>`};
-const draw=keep=>{const[p,id]=(location.hash.slice(1)||"home").split("-");$("#app").innerHTML=(V[p]||nf)(+id);document.querySelectorAll("[data-f]").forEach(el=>el.value=FS[el.dataset.g][el.dataset.f]);$("#nav").innerHTML=[["home","Главная"],["jobs","Найти работу"],["workers","Найти работников"],["brigades","Бригады"],["about","О платформе"]].map(a=>`<a href="#${a[0]}"${a[0]==p?' class="on"':""}>${a[1]}</a>`).join("")+(me()?'<a href="#dashboard">Кабинет</a><a href="#home" data-a="out">Выйти</a>':'<a href="#login">Войти</a>')+'<button class="btn s" data-a="post">Разместить вакансию</button>';if(!keep)scrollTo(0,0)};
-const tg=(k,i)=>{const a=S[k],x=a.indexOf(i);x<0?a.push(i):a.splice(x,1);save();toast(x<0?"Добавлено в сохранённые":"Убрано из сохранённых");draw(1)};
-const A={burger:()=>$("#nav").classList.toggle("open"),close,sj:i=>tg("sj",i),sw:i=>tg("sw",i),tab:i=>{DT=i;draw(1)},role:i=>{RR=i;draw(1)},
-chip:i=>{FS.j={q:"",rg:"",sp:String(i),pay:"0",ty:"",so:"new"}},
-out:()=>{S.in=0;DT=0;save();toast("Вы вышли из аккаунта");draw()},
-delv:i=>{S.vc=S.vc.filter(j=>j.id!=i);save();toast("Вакансия закрыта");draw(1)},
-job:i=>{const j=allJ().find(x=>x.id==i);modal(`<h2>${j.t}</h2><p class="mut">${j.em} · ${REG[j.rg]}</p><div class="row"><span class="tag">${SP[j.sp]}</span><span class="tag">${j.ty}</span></div><p style="margin-top:14px">${j.d}</p><p><b>${pay(j)}</b></p><div class="row"><button class="btn" data-a="apply" data-i="${i}">Откликнуться</button><button class="btn o" data-a="close">Закрыть</button></div>`)},
-apply:i=>{const u=me();if(!u){close();toast("Войдите как работник, чтобы откликнуться");location.hash="login";return}if(u.role!="w"){toast("Откликаться могут работники");return}if(S.ap.includes(i)){toast("Вы уже откликнулись");return}S.ap.push(i);save();close();toast("Отклик отправлен (демо)");draw(1)},
-post:()=>{const u=me();if(!u){RR="f";toast("Зарегистрируйтесь как работодатель");location.hash="register";draw(1)}else if(u.role!="f")toast("Вакансии размещают работодатели");else vacForm()},
-msg:(i,b)=>modal(`<h2>Связаться: ${b.dataset.t}</h2><p class="demo">Демо: сообщение никуда не отправляется, контакты не раскрываются.</p><form data-s="msg" novalidate><label for="msg">Сообщение</label><textarea id="msg" name="msg" rows="4"></textarea><div class="err" data-e="msg"></div><div class="row" style="margin-top:12px"><button class="btn">Отправить</button><button type="button" class="btn o" data-a="close">Отмена</button></div></form>`)};
-const g=(f,k)=>esc(f.elements[k].value.trim()),H={
-login:f=>{if(!chk(f,{ph:[PH,"Формат: +998 90 123 45 67"],pw:[/.{6,}/,"Минимум 6 символов"]}))return;const p=v=>v.replace(/\s/g,"");if(!S.u||p(S.u.ph)!=p(f.elements.ph.value)){f.querySelector("[data-e=ph]").textContent="Аккаунт не найден. Это демо: сначала зарегистрируйтесь.";return}S.in=1;DT=0;save();location.hash="dashboard"},
-reg:f=>{const fm=RR=="f";if(!chk(f,{fn:[/.{2,}/,"Введите имя"],ph:[PH,"Формат: +998 90 123 45 67"],rg:[/\d/,"Выберите регион"],x:[fm?/.{2,}/:/\d/,fm?"Введите название хозяйства":"Выберите специальность"],pw:[/.{6,}/,"Минимум 6 символов"]}))return;S.u={role:RR,fn:g(f,"fn"),ph:g(f,"ph"),rg:g(f,"rg"),x:g(f,"x")};S.in=1;DT=0;save();toast("Аккаунт создан (демо)");location.hash="dashboard"},
-vac:f=>{if(!chk(f,{t:[/.{3,}/,"Минимум 3 символа"],sp:[/\d/,"Выберите специальность"],rg:[/\d/,"Выберите регион"],pay:[/^\d{6,8}$/,"Укажите сумму от 100 000"],d:[/.{10,}/,"Опишите работу минимум в 10 символов"]}))return;S.vc.push({id:100+Date.now()%100000,t:g(f,"t"),sp:+f.elements.sp.value,rg:+f.elements.rg.value,pay:Math.round(f.elements.pay.value/1000),ty:g(f,"ty"),em:S.u.x,d:g(f,"d")});save();close();DT=0;toast("Вакансия опубликована (демо)");draw(1)},
-pf:f=>{if(!chk(f,{fn:[/.{2,}/,"Введите имя"],rg:[/\d/,"Выберите регион"],x:[/\d/,"Выберите специальность"],ex:[/^\d{0,2}$/,"Укажите число лет"]}))return;Object.assign(S.u,{fn:g(f,"fn"),rg:g(f,"rg"),x:g(f,"x"),ex:g(f,"ex"),sk:g(f,"sk"),bio:g(f,"bio")});save();toast("Профиль сохранён");draw(1)},
-msg:f=>{if(!chk(f,{msg:[/.{10,}/,"Напишите минимум 10 символов"]}))return;close();toast("Сообщение принято (демо, никуда не отправлено)")}};
-document.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b)return;const n=+b.dataset.i;A[b.dataset.a]?.(isNaN(n)?b.dataset.i:n,b)});
-document.addEventListener("submit",e=>{e.preventDefault();H[e.target.dataset.s]?.(e.target)});
-addEventListener("input",e=>{const t=e.target,k=t.dataset.g;if(!k)return;FS[k][t.dataset.f]=t.value;$("#list").innerHTML=k=="j"?jobList():wList()});
-addEventListener("hashchange",()=>draw());draw();
-</script></body></html>
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ZaminJob — AI Agro-Savdo va Xizmatlar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fff;
+      --b2: #F5F6F4;
+      --gl: #EAF1EC;
+      --g1: #123D2B;
+      --g2: #1D5A3D;
+      --ink: #17211B;
+      --mut: #707A73;
+      --ln: #E5EAE6;
+      --on: #fff;
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      color-scheme: light;
+    }
+
+    :root[data-theme=dark] {
+      color-scheme: dark;
+      --bg: #0f1512;
+      --b2: #161e19;
+      --gl: #1b2a21;
+      --g1: #7fc9a0;
+      --g2: #5fb085;
+      --ink: #e8efe9;
+      --mut: #9aa69e;
+      --ln: #26332b;
+      --on: #0f1512;
+    }
+
+    :root[data-theme=dark] .err { color: #ff8a80; }
+
+    html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font: 16px/1.55 Manrope, system-ui, -apple-system, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0 0 auto;
+      height: env(safe-area-inset-top, 0px);
+      background: var(--bg);
+      z-index: 30;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    h1, h2, h3 { line-height: 1.15; margin: 0 0 .5em; letter-spacing: -.02em; }
+    h1 { font-size: clamp(2rem, 4.8vw, 3.6rem); font-weight: 800; max-width: 15em; }
+    h2 { font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 800; }
+    h3 { font-size: 1.08rem; font-weight: 700; }
+    p { margin: 0 0 1em; max-width: 62ch; }
+
+    .w { max-width: 1140px; margin: 0 auto; padding: 0 20px; }
+    section { padding: 56px 0; }
+
+    header {
+      position: sticky;
+      top: env(safe-area-inset-top, 0px);
+      z-index: 20;
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      -webkit-backdrop-filter: saturate(180%) blur(14px);
+      backdrop-filter: saturate(180%) blur(14px);
+      border-bottom: 1px solid var(--ln);
+    }
+
+    .nav { display: flex; align-items: center; gap: 18px; height: 64px; }
+    .logo { font-weight: 800; font-size: 1.24rem; color: var(--g1); letter-spacing: -.04em; white-space: nowrap; }
+    .logo b { color: var(--g2); font-weight: 600; }
+
+    .lks, .acts { display: flex; align-items: center; }
+    .lks { gap: 20px; }
+    .acts { gap: 14px; }
+
+    nav { display: flex; gap: 18px; margin-left: auto; align-items: center; }
+    nav a {
+      font-size: .88rem;
+      font-weight: 600;
+      color: var(--mut);
+      white-space: nowrap;
+      padding: 4px 0;
+      border-bottom: 2px solid transparent;
+    }
+    nav a:hover { color: var(--ink); }
+    nav a.on { color: var(--g1); border-bottom-color: var(--g1); }
+
+    .ctl { display: flex; gap: 4px; align-items: center; margin-left: 8px; }
+    .ctl button {
+      background: none;
+      border: 0;
+      color: var(--mut);
+      border-radius: 8px;
+      height: 32px;
+      min-width: 32px;
+      padding: 0 7px;
+      font: inherit;
+      font-size: .8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+    }
+    .ctl button:hover { background: var(--b2); color: var(--ink); }
+    .ctl button[aria-pressed=true] { background: var(--gl); color: var(--g1); }
+
+    .burger { display: none; margin-left: auto; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 1px solid var(--g1);
+      background: var(--g1);
+      color: var(--on);
+      padding: 11px 20px;
+      border-radius: 10px;
+      font: inherit;
+      font-weight: 600;
+      font-size: .92rem;
+      cursor: pointer;
+      transition: background .2s, opacity .15s;
+    }
+    .btn:hover { background: var(--g2); }
+    .btn.o { background: transparent; color: var(--g1); }
+    .btn.o:hover { background: var(--gl); }
+    .btn.s { padding: 7px 13px; font-size: .84rem; }
+    .acts .btn { padding: 8px 14px; font-size: .84rem; white-space: nowrap; }
+
+    :focus-visible { outline: 2px solid var(--g2); outline-offset: 2px; }
+
+    .grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
+    .st { display: grid; gap: 12px; }
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+    .card {
+      border: 1px solid var(--ln);
+      border-radius: 12px;
+      padding: 20px;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start;
+      transition: border-color .2s;
+    }
+    .card:hover { border-color: var(--g2); }
+    .card h3 { margin: 0; }
+
+    .tag {
+      display: inline-block;
+      background: var(--gl);
+      color: var(--g1);
+      border-radius: 99px;
+      padding: 2px 10px;
+      font-size: .76rem;
+      font-weight: 700;
+    }
+    .tag.d { background: var(--b2); color: var(--mut); }
+    .tag.ai { background: var(--g1); color: var(--on); }
+
+    .mut { color: var(--mut); font-size: .9rem; }
+    .demo {
+      background: var(--b2);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: var(--mut);
+      font-size: .85rem;
+      margin: 12px 0;
+      max-width: none;
+    }
+
+    input, select, textarea {
+      font: inherit;
+      color: var(--ink);
+      background: var(--bg);
+      border: 1px solid var(--ln);
+      border-radius: 10px;
+      padding: 10px 12px;
+      width: 100%;
+    }
+    input:focus, select:focus, textarea:focus { outline: 0; border-color: var(--g2); }
+    input[aria-invalid=true], select[aria-invalid=true], textarea[aria-invalid=true] { border-color: #b3261e; }
+    label { font-size: .85rem; font-weight: 600; display: block; margin: 12px 0 4px; }
+    .err { color: #b3261e; font-size: .8rem; min-height: 1.1em; }
+
+    .bar {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 2fr repeat(auto-fit, minmax(150px, 1fr));
+      margin: 20px 0 28px;
+    }
+
+    .av {
+      width: 48px;
+      height: 48px;
+      flex: none;
+      border-radius: 50%;
+      background: var(--gl);
+      color: var(--g1);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+    }
+    .av.l { width: 84px; height: 84px; font-size: 1.6rem; }
+
+    .hero {
+      background: var(--bg);
+      border-bottom: 1px solid var(--ln);
+      position: relative;
+      overflow: hidden;
+      padding: 72px 0 64px;
+    }
+    .hero svg { position: absolute; right: 0; bottom: 0; width: 55%; color: var(--g2); opacity: .28; pointer-events: none; }
+    .hero .w { position: relative; }
+    .hero p { font-size: 1.1rem; color: var(--mut); }
+
+    /* AI Box */
+    .ai-box {
+      margin-top: 24px;
+      background: var(--bg);
+      border: 1.5px solid var(--g1);
+      border-radius: 14px;
+      padding: 16px;
+      max-width: 860px;
+    }
+    .ai-row { display: flex; gap: 10px; }
+    .ai-row input { flex: 1; }
+    .ai-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; align-items: center; }
+    .ai-chip {
+      background: var(--b2);
+      border: 1px solid var(--ln);
+      color: var(--ink);
+      border-radius: 99px;
+      padding: 5px 12px;
+      font: inherit;
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .ai-chip:hover { border-color: var(--g1); color: var(--g1); background: var(--gl); }
+    .ai-res { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--ln); }
+    .ai-msg {
+      background: var(--gl);
+      color: var(--g1);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: .88rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .tbl-w { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+    th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--ln); }
+    th { color: var(--mut); font-size: .78rem; font-weight: 700; }
+
+    .offer-pre {
+      background: var(--b2);
+      border: 1px solid var(--ln);
+      border-radius: 10px;
+      padding: 14px;
+      white-space: pre-wrap;
+      font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+      max-height: 270px;
+      overflow: auto;
+      width: 100%;
+    }
+    .adv-box {
+      background: var(--gl);
+      color: var(--g1);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: .84rem;
+      margin-top: 8px;
+    }
+
+    .tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--ln); overflow-x: auto; margin: 16px 0 22px; }
+    .tabs button {
+      background: none;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 600;
+      font-size: .9rem;
+      color: var(--mut);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .tabs [aria-selected=true] { color: var(--g1); border-bottom-color: var(--g1); }
+
+    .pb { height: 8px; background: var(--gl); border-radius: 9px; width: 100%; }
+    .pb i { display: block; height: 100%; background: var(--g2); border-radius: 9px; }
+    .num { font-size: 2rem; font-weight: 800; color: var(--g1); }
+
+    .alt { background: var(--bg); border-top: 1px solid var(--ln); }
+
+    [data-a=chip] {
+      border-color: var(--ln);
+      color: var(--ink);
+      font-weight: 500;
+      font-size: .88rem;
+      padding: 8px 16px;
+      border-radius: 99px;
+    }
+    [data-a=chip]:hover { border-color: var(--g1); background: var(--gl); }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .5);
+      display: grid;
+      place-items: center;
+      z-index: 50;
+      padding: 16px;
+    }
+    .modal > div {
+      background: var(--bg);
+      border: 1px solid var(--ln);
+      border-radius: 14px;
+      padding: 24px;
+      max-width: 560px;
+      width: 100%;
+      max-height: 90vh;
+      overflow: auto;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--g1);
+      color: var(--on);
+      padding: 10px 18px;
+      border-radius: 10px;
+      z-index: 60;
+      font-size: .9rem;
+      max-width: 90vw;
+    }
+
+    footer { background: var(--bg); border-top: 1px solid var(--ln); padding: 36px 0; }
+
+    @media (min-width: 1081px) {
+      nav { display: contents; }
+      .nav { height: 72px; gap: 22px; }
+      .lks { margin: 0 auto; order: 1; }
+      .ctl { order: 2; margin: 0; }
+      .acts { order: 3; }
+      .burger { order: 4; }
+    }
+
+    @media (min-width: 861px) {
+      .stats { grid-template-columns: repeat(4, 1fr); gap: 0; }
+      .stats > div { padding: 4px 24px; border-left: 1px solid var(--ln); }
+      .stats > div:first-child { border: 0; padding-left: 0; }
+      .num { font-size: 2.3rem; letter-spacing: -.03em; }
+    }
+
+    @media (max-width: 860px) {
+      .burger { display: block; margin-left: 0; order: 4; }
+      .ctl { margin-left: auto; }
+      nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        background: var(--bg);
+        padding: 8px 20px 20px;
+        border-bottom: 1px solid var(--ln);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, .08);
+      }
+      nav.open { display: flex; }
+      .lks { flex-direction: column; align-items: stretch; gap: 0; }
+      .lks a { font-size: 1rem; padding: 12px 0; border-bottom: 1px solid var(--ln); }
+      .acts { flex-direction: column; align-items: stretch; gap: 10px; margin-top: 14px; }
+      .ai-row { flex-direction: column; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .bar { grid-template-columns: 1fr 1fr; }
+      .bar input { grid-column: 1 / -1; }
+      .modal { align-items: end; padding: 0; }
+      .modal > div { border-radius: 18px 18px 0 0; max-height: 92vh; padding: 20px 16px; }
+      footer .w { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="w nav">
+      <a class="logo" href="#home">Zamin<b>Job</b></a>
+      <nav id="nav"></nav>
+      <div class="ctl">
+        <button data-a="lg" data-i="ru" id="lr">RU</button>
+        <button data-a="lg" data-i="uz" id="lu">UZ</button>
+        <button data-a="th" id="th"></button>
+      </div>
+      <button class="burger btn o s" data-a="burger" id="bg"></button>
+    </div>
+  </header>
+
+  <main id="app"></main>
+
+  <footer>
+    <div class="w row" style="justify-content:space-between;align-items:flex-start;gap:24px">
+      <div>
+        <div class="logo">Zamin<b>Job</b></div>
+        <p class="mut">AI агро-торговля, экспорт, земля и услуги на земле.</p>
+      </div>
+      <p class="mut">Демонстрационный MVP: все профили, лоты, вакансии и цифры вымышлены. Реальные платежи и интеграции подключаются на следующем этапе.</p>
+    </div>
+  </footer>
+
+  <div id="toast" role="status" hidden></div>
+
+  <script>
+    const REG = [
+      "Ташкентская область",
+      "Самаркандская область",
+      "Ферганская область",
+      "Андижанская область",
+      "Наманганская область",
+      "Бухарская область",
+      "Кашкадарьинская область",
+      "Сурхандарьинская область",
+      "Хорезмская область",
+      "Джизакская область",
+      "Сырдарьинская область",
+      "Навоийская область",
+      "Республика Каракалпакстан",
+      "город Ташкент"
+    ];
+
+    // 100% Agro (chorvachilik va brigadalar olib tashlangan)
+    const SP = [
+      "Сезонные рабочие",
+      "Трактористы",
+      "Поливальщики",
+      "Агрономы",
+      "Работники теплиц",
+      "Садоводы",
+      "Овощеводы",
+      "Сборщики урожая"
+    ];
+
+    const LOTS = [
+      { id: 1, crop: "uzum", rg: 1, tons: 35, priceUsd: 1.35, incoterm: "FOB / EXW", gap: 1, farm: "Ф/х «Шарк Боги»", grade: "Class A · 18–22мм", harvest: "Сентябрь – Ноябрь", t: "Виноград Кишмиш и Хусайни (Экспорт)", pack: "Ящик 5 кг, холодильник +2°C" },
+      { id: 2, crop: "gilos", rg: 2, tons: 18, priceUsd: 3.10, incoterm: "FOB Ташкент", gap: 1, farm: "«Фаргона Мева Экспорт»", grade: "Калибр 26мм+", harvest: "Май – Июнь", t: "Экспортная черешня (26мм+)", pack: "Короб 2 кг, гидрокулинг" },
+      { id: 3, crop: "pomidor", rg: 0, tons: 45, priceUsd: 1.15, incoterm: "EXW Ташкент", gap: 0, farm: "«Ташкент Грин Хаус»", grade: "Pink Paradise · Class A", harvest: "Круглый год (Теплица)", t: "Тепличный розовый томат (Пинк)", pack: "Гофрокороб 6 кг, еженедельно" },
+      { id: 4, crop: "piyoz", rg: 7, tons: 120, priceUsd: 0.28, incoterm: "EXW / FCA", gap: 0, farm: "Ф/х «Сурхон Хосил»", grade: "50–70мм, сухой", harvest: "Апрель – Май", t: "Ранний репчатый лук (Фурами)", pack: "Сетка 30 кг, погрузка по 20 т" },
+      { id: 5, crop: "qovun", rg: 9, tons: 40, priceUsd: 0.68, incoterm: "EXW Джизак", gap: 1, farm: "«Мирзачуль Агро Трейд»", grade: "Торпеда · 4–6 кг", harvest: "Июль – Сентябрь", t: "Дыня Торпеда (Мирзачуль)", pack: "Экспортный короб, фитосертификат" },
+      { id: 6, crop: "olma", rg: 9, tons: 65, priceUsd: 0.85, incoterm: "EXW Бахмал", gap: 0, farm: "«Бахмал Боглари»", grade: "Golden / Fuji · 70мм+", harvest: "Сентябрь – Февраль", t: "Яблоки интенсивного сада Бахмал", pack: "Короб 12 кг, склад-холодильник 200 т" }
+    ];
+
+    const LANDS = [
+      { id: 101, rg: 0, type: "Теплица", area: "1.5 га", deal: "Партнёрство 50/50 или аренда", price: "$2 200 / мес", owner: "«Кибрай Агро Инвест»", water: "Капельный полив + отопление", t: "Современная гидропонная теплица (Кибрай)" },
+      { id: 102, rg: 1, type: "Земля / Сад", area: "8 га", deal: "Совместное выращивание на экспорт (50/50)", price: "Доля урожая 50/50", owner: "Ф/х «Ургут Замин»", water: "Артезианская скважина + капельный полив", t: "8 га плодородной земли под виноград и овощи" },
+      { id: 103, rg: 9, type: "Земля / Сад", area: "12 га", deal: "Долгосрочная аренда (3–5 лет)", price: "$350 / га в год", owner: "Ф/х «Бахмал Замин»", water: "Горная вода + резервуар", t: "12 га под интенсивный яблоневый и черешневый сад" },
+      { id: 104, rg: 2, type: "Теплица", area: "2 га", deal: "Аренда или инвестор в долю", price: "$2 800 / мес", owner: "«Кува Грин»", water: "Автополив + 380В", t: "Теплица под экспортный томат и перец (2 га)" }
+    ];
+
+    const TECH = [
+      { id: 201, rg: 2, t: "Трактор МТЗ-82 + плуг и культиватор", owner: "Жасур Механизатор", pay: "450 000 сум / га", spec: "Вспашка, чизель, посев", av: "Доступен сейчас" },
+      { id: 202, rg: 1, t: "Агро-дрон DJI Agras T40 (опрыскивание)", owner: "«Smart Spray Agro»", pay: "180 000 сум / га", spec: "GPS-обработка до 40 га в день", av: "Доступен сейчас" },
+      { id: 203, rg: 5, t: "Зерновой комбайн Claas Dominator", owner: "«Бухоро Техника»", pay: "650 000 сум / га", spec: "Уборка пшеницы и ячменя", av: "По предзаписи" },
+      { id: 204, rg: 9, t: "Садовый трактор + укладчик капельной ленты", owner: "Отабек Агро-Сервис", pay: "500 000 сум / день", spec: "Междурядная обработка сада", av: "Доступен сейчас" }
+    ];
+
+    const J = [
+      ["Сборщик винограда", 7, 1, 3200, "Сезонная", "Ф/х «Шарк Боги»", "Сбор и сортировка винограда в ящики, питание и проживание в хозяйстве."],
+      ["Тракторист МТЗ-82", 1, 2, 5000, "Постоянная", "Ф/х «Фаргона Агро»", "Вспашка, культивация, обслуживание техники. Опыт от 3 лет."],
+      ["Поливальщик (мираб)", 2, 3, 3500, "Сезонная", "Ф/х «Сув Нур»", "Организация полива хлопковых полей по графику."],
+      ["Агроном-полевод", 3, 6, 5800, "Постоянная", "Ф/х «Кашка Агро»", "Контроль севооборота, защита растений и повышение урожайности."],
+      ["Работник теплицы", 4, 0, 4000, "Постоянная", "«Ташкент Грин»", "Уход за томатами и огурцами, полив, подвязка."],
+      ["Садовод-обрезчик", 5, 1, 4500, "Сезонная", "Ф/х «Ширин Мева»", "Обрезка и формирование крон, прививка саженцев."],
+      ["Овощевод", 6, 4, 3800, "Сезонная", "Ф/х «Давон Агро»", "Выращивание томатов, лука и картофеля в открытом грунте."],
+      ["Сборщик хлопка", 7, 7, 3000, "Сезонная", "Ф/х «Сурхон Пахта»", "Ручной сбор хлопка, оплата по весу, транспорт до поля."],
+      ["Комбайнёр", 1, 5, 5500, "Сезонная", "Ф/х «Бухоро Дон»", "Уборка зерновых на комбайне, опыт обязателен."],
+      ["Помощник садовода", 5, 8, 3300, "Сезонная", "Ф/х «Хоразм Боги»", "Уход за садом, обрезка, сбор плодов."],
+      ["Оператор капельного полива", 2, 3, 3900, "Постоянная", "Ф/х «Томчи»", "Контроль системы капельного полива, мелкий ремонт."],
+      ["Технолог теплиц", 4, 2, 6000, "Постоянная", "Ф/х «Гулзор»", "Контроль микроклимата и планирование посадок в теплице."]
+    ].map((a, i) => ({ id: i + 1, t: a[0], sp: a[1], rg: a[2], pay: a[3], ty: a[4], em: a[5], d: a[6] }));
+
+    const W = [
+      ["Рустам Каримов", 1, 1, 8, "Трактор МТЗ,Пахота,Ремонт техники", "Доступен сейчас", 21],
+      ["Диёр Юсупов", 2, 2, 5, "Капельный полив,Мелиорация,Ремонт насосов", "Доступен сейчас", 12],
+      ["Нодира Абдуллаева", 0, 4, 4, "Томаты,Огурцы,Рассада", "С 1 декабря", 9],
+      ["Бахром Исмоилов", 9, 3, 12, "Агрономия,Защита растений,GlobalG.A.P.", "Доступен сейчас", 30],
+      ["Санжар Турсунов", 3, 6, 6, "Овощеводство,Посадка,Прополка", "С февраля", 14],
+      ["Гульнора Хасанова", 1, 7, 3, "Сбор винограда,Сортировка", "Доступен сейчас", 7],
+      ["Азиз Рахимов", 5, 5, 7, "Прививка,Обрезка,Опрыскивание", "Доступен сейчас", 16],
+      ["Жамшид Нормуродов", 7, 7, 2, "Сбор хлопка,Погрузка", "Доступен сейчас", 4],
+      ["Малика Эргашева", 8, 5, 9, "Уход за садом,Орошение", "С февраля", 18],
+      ["Отабек Сатторов", 2, 1, 10, "Трактор,Комбайн,Сеялка", "С 1 декабря", 25],
+      ["Достон Холиков", 1, 0, 1, "Сбор урожая,Фасовка", "Доступен сейчас", 2],
+      ["Зарина Мирзаева", 4, 4, 5, "Теплицы,Рассада,Полив", "С февраля", 11]
+    ].map((a, i) => ({ id: i + 1, n: a[0], rg: a[1], sp: a[2], ex: a[3], sk: a[4].split(","), av: a[5], jb: a[6] }));
+
+    const RV = [
+      "Работает аккуратно и приходит вовремя.",
+      "Хорошо знает дело, контроль не нужен.",
+      "Честно выполнил весь объём, рекомендую."
+    ];
+
+    const PRICE_AI = {
+      uzum: { range: "$1.15 – $1.55 / кг", mk: "Казахстан, Россия, ОАЭ, Польша", tip: "Ящик 5 кг + охлаждение +2°C повышают экспортную цену на 20%." },
+      gilos: { range: "$2.40 – $3.80 / кг", mk: "Китай, Южная Корея, ОАЭ, Россия", tip: "Калибр 26мм+ и гидрокулинг обеспечивают премиум-контракты." },
+      pomidor: { range: "$0.95 – $1.40 / кг", mk: "Казахстан, Россия, Кыргызстан", tip: "Калибровка и гофрокороб 6 кг ускоряют оптовые поставки." },
+      piyoz: { range: "$0.22 – $0.35 / кг", mk: "Казахстан, Россия, Беларусь", tip: "Сухой калиброванный лук в сетках по 30 кг отгружается фурами по 20 т." },
+      qovun: { range: "$0.55 – $0.85 / кг", mk: "Россия, Германия, Латвия, Казахстан", tip: "Индивидуальные ячейки в коробе снижают потери в пути." },
+      olma: { range: "$0.70 – $1.05 / кг", mk: "Казахстан, Россия, Ирак", tip: "Холодильное хранение позволяет продать урожай зимой на 30% дороже." }
+    };
+
+    const lvl = n => n < 5 ? "Новичок" : n < 15 ? "Опытный" : "Профи";
+    const yr = n => n % 10 == 1 && n != 11 ? "год" : [2, 3, 4].includes(n % 10) && (n < 10 || n > 20) ? "года" : "лет";
+    const ini = n => n.split(" ").map(x => x[0]).join("");
+    const pay = j => (j.pay * 1000).toLocaleString("ru-RU") + " сум / мес";
+    const esc = s => String(s || "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+    const PH = /^\+998(\s?\d){9}$/;
+    const $ = s => document.querySelector(s);
+    const PHX = 'placeholder="+998 90 123 45 67" inputmode="tel" autocomplete="tel" maxlength="17" value="+998 "';
+    const fmtPh = v => {
+      let d = v.replace(/\D/g, "");
+      if (d.startsWith("998")) d = d.slice(3);
+      d = d.slice(0, 9);
+      return "+998 " + [d.slice(0, 2), d.slice(2, 5), d.slice(5, 7), d.slice(7, 9)].filter(Boolean).join(" ");
+    };
+
+    let S = { sj: [], sw: [], ap: [], vc: [], ul: [], uland: [], rfq: [], u: null, in: 0, pro: 0, th: 'light', lg: 'uz', lgv: 1 };
+    try {
+      const saved = JSON.parse(localStorage.getItem("zi"));
+      if (saved && typeof saved === "object") {
+        S = { ...S, ...saved };
+        if (!Array.isArray(S.ul)) S.ul = [];
+        if (!Array.isArray(S.uland)) S.uland = [];
+        if (!Array.isArray(S.rfq)) S.rfq = [];
+      }
+    } catch (e) {}
+
+    const save = () => { try { localStorage.setItem("zi", JSON.stringify(S)); } catch (e) {} };
+    const allJ = () => J.concat(S.vc);
+    const allLots = () => S.ul.concat(LOTS);
+    const allLands = () => S.uland.concat(LANDS);
+    const me = () => S.in && S.u;
+    const jl = a => a.map(i => allJ().find(j => j.id == i)).filter(Boolean);
+
+    const MOON = `<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z'/></svg>`;
+    const SUN = `<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5'/></svg>`;
+
+    const E = {
+      'Главная': 'Bosh sahifa',
+      'Экспорт': 'Eksport & Savdo',
+      'Земля': 'Yer & Issiqxona',
+      'Техника': 'Agro-Texnika',
+      'Кабинет': 'Kabinet',
+      'Выйти': 'Chiqish',
+      'Войти': 'Kirish',
+      'Вход': 'Kirish',
+      'Регистрация': 'Ro‘yxatdan o‘tish',
+      'О платформе': 'Platforma haqida',
+      'Работники': 'Mutaxassislar',
+      'Работник': 'Mutaxassis',
+      'Профиль': 'Profil',
+      'Сохранить': 'Saqlash',
+      'Сохранено': 'Saqlandi',
+      'Сохранён': 'Saqlandi',
+      'Связаться': 'Bog‘lanish',
+      'Регион': 'Hudud',
+      'Специальность': 'Mutaxassislik',
+      'Зарплата': 'Maosh',
+      'Сортировка': 'Saralash',
+      'Поиск': 'Qidiruv',
+      'Телефон': 'Telefon',
+      'Пароль': 'Parol',
+      'Вакансии': 'Vakansiyalar',
+      'Отклики': 'Arizalar',
+      'Запросы': 'Eksport so‘rovlari',
+      'Обзор': 'Umumiy ko‘rinish',
+      'Основное': 'Asosiy',
+      'Навыки': 'Ko‘nikmalar',
+      'Видение': 'Vizyon',
+      'Название': 'Nomi',
+      'Описание': 'Tavsif',
+      'Отмена': 'Bekor qilish',
+      'Закрыть': 'Yopish',
+      'Откликнуться': 'Ariza yuborish',
+      'Сообщение': 'Xabar',
+      'Отправить': 'Yuborish',
+      'О себе': 'O‘zim haqimda',
+      'Выберите': 'Tanlang',
+      'Опубликовать': 'E’lon qilish',
+      'Подробнее': 'Batafsil',
+      'Квалификации': 'Malakalar',
+      'Демо': 'Demo',
+      'Меню': 'Menyu',
+      'Доступность': 'Mavjudlik',
+      'Тип занятости': 'Ish turi',
+      'Новичок': 'Boshlovchi',
+      'Опытный': 'Tajribali',
+      'Профи': 'Professional',
+      'Теплица': 'Issiqxona',
+      'Земля / Сад': 'Yer / Bog‘',
+      'Забронировать': 'Band qilish',
+      'Копировать': 'Nusxalash'
+    };
+
+    const U = {
+      'Ташкентская область': 'Toshkent viloyati',
+      'Самаркандская область': 'Samarqand viloyati',
+      'Ферганская область': 'Farg‘ona viloyati',
+      'Андижанская область': 'Andijon viloyati',
+      'Наманганская область': 'Namangan viloyati',
+      'Бухарская область': 'Buxoro viloyati',
+      'Кашкадарьинская область': 'Qashqadaryo viloyati',
+      'Сурхандарьинская область': 'Surxondaryo viloyati',
+      'Хорезмская область': 'Xorazm viloyati',
+      'Джизакская область': 'Jizzax viloyati',
+      'Сырдарьинская область': 'Sirdaryo viloyati',
+      'Навоийская область': 'Navoiy viloyati',
+      'Республика Каракалпакстан': 'Qoraqalpog‘iston Respublikasi',
+      'город Ташкент': 'Toshkent shahri',
+      'Сезонные рабочие': 'Mavsumiy ishchilar',
+      'Трактористы': 'Traktorchilar',
+      'Поливальщики': 'Sug‘orish ustalari',
+      'Агрономы': 'Agronomlar',
+      'Работники теплиц': 'Issiqxona ustalari',
+      'Садоводы': 'Bog‘bonlar',
+      'Овощеводы': 'Sabzavotchilar',
+      'Сборщики урожая': 'Hosil terimchilari',
+      'Сборщик винограда': 'Uzum terimchisi',
+      'Тракторист МТЗ-82': 'MTZ-82 traktorchisi',
+      'Поливальщик (мираб)': 'Sug‘orish ustasi (mirob)',
+      'Агроном-полевод': 'Agronom-dalachi',
+      'Работник теплицы': 'Issiqxona ishchisi',
+      'Садовод-обрезчик': 'Bog‘bon (butash)',
+      'Овощевод': 'Sabzavotchi',
+      'Сборщик хлопка': 'Paxta terimchisi',
+      'Комбайнёр': 'Kombaynchi',
+      'Помощник садовода': 'Bog‘bon yordamchisi',
+      'Оператор капельного полива': 'Tomchilatib sug‘orish operatori',
+      'Технолог теплиц': 'Issiqxona texnologi',
+      'Виноград Кишмиш и Хусайни (Экспорт)': 'Kishmish va Husayni uzumi (Eksport)',
+      'Экспортная черешня (26мм+)': 'Eksport gilosi (26mm+)',
+      'Тепличный розовый томат (Пинк)': 'Issiqxona pushti pomidori (Pink)',
+      'Ранний репчатый лук (Фурами)': 'Ertagi piyoz (Fura partiya)',
+      'Дыня Торпеда (Мирзачуль)': 'Mirzacho‘l Torpeda qovuni',
+      'Яблоки интенсивного сада Бахмал': 'Baxmal intensiv bog‘ olmasi',
+      'Современная гидропонная теплица (Кибрай)': 'Zamonaviy gidroponika issiqxona (Qibray)',
+      '8 га плодородной земли под виноград и овощи': 'Uzum va sabzavot uchun 8 ga unumdor yer',
+      '12 га под интенсивный яблоневый и черешневый сад': 'Intensiv olma va gilos bog‘i uchun 12 ga yer',
+      'Теплица под экспортный томат и перец (2 га)': 'Eksport pomidor va qalampir issiqxonasi (2 ga)',
+      'Трактор МТЗ-82 + плуг и культиватор': 'Traktor MTZ-82 + plug va kultivator',
+      'Агро-дрон DJI Agras T40 (опрыскивание)': 'Agro-dron DJI Agras T40 (dori purkash)',
+      'Зерновой комбайн Claas Dominator': 'G‘alla kombayni Claas Dominator',
+      'Садовый трактор + укладчик капельной ленты': 'Bog‘ traktori + tomchilatib shlang yotqizgich',
+      'Трактор МТЗ': 'MTZ traktori',
+      'Пахота': 'Shudgor',
+      'Ремонт техники': 'Texnika ta’miri',
+      'Капельный полив': 'Tomchilatib sug‘orish',
+      'Мелиорация': 'Melioratsiya',
+      'Ремонт насосов': 'Nasos ta’miri',
+      'Томаты': 'Pomidor',
+      'Огурцы': 'Bodring',
+      'Рассада': 'Ko‘chat',
+      'Агрономия': 'Agronomiya',
+      'Защита растений': 'O‘simliklarni himoya qilish',
+      'Овощеводство': 'Sabzavotchilik',
+      'Посадка': 'Ekish',
+      'Прополка': 'O‘toq',
+      'Сбор винограда': 'Uzum terish',
+      'Сортировка': 'Saralash',
+      'Прививка': 'Payvandlash',
+      'Обрезка': 'Butash',
+      'Опрыскивание': 'Purkash',
+      'Сбор хлопка': 'Paxta terish',
+      'Погрузка': 'Yuk ortish',
+      'Уход за садом': 'Bog‘ parvarishi',
+      'Орошение': 'Sug‘orish',
+      'Трактор': 'Traktor',
+      'Комбайн': 'Kombayn',
+      'Сеялка': 'Seyalka',
+      'Сбор урожая': 'Hosil yig‘ish',
+      'Фасовка': 'Qadoqlash',
+      'Теплицы': 'Issiqxona',
+      'Полив': 'Sug‘orish',
+      'Ф/х': 'F/x',
+      'Сезонная': 'Mavsumiy',
+      'Постоянная': 'Doimiy',
+      'Доступен сейчас': 'Hozir bo‘sh',
+      'По предзаписи': 'Oldindan band qilish',
+      'С 1 декабря': '1-dekabrdan',
+      'С февраля': 'Fevraldan',
+      'сум / мес': 'so‘m / oy',
+      'сум / га': 'so‘m / ga',
+      'сум / день': 'so‘m / kun',
+      'Найти работников': 'Mutaxassislar',
+      'Найти работу': 'Vakansiyalar',
+      'Разместить вакансию': '+ E’lon berish',
+      'AI агро-торговля, экспорт, земля и услуги на земле.': 'AI agro-savdo, eksport, yerlar va agro-xizmatlar.',
+      'Демонстрационный MVP: все профили, лоты, вакансии и цифры вымышлены. Реальные платежи и интеграции подключаются на следующем этапе.': 'Demo MVP: barcha profillar, lotlar va raqamlar namoyish uchun. Real to‘lovlar keyingi bosqichda ulanadi.',
+      'AI-платформа для агро-торговли, экспорта и услуг.': 'AI Agro-Savdo, Eksport va Xizmatlar platformasi.',
+      'Находите экспортные лоты, свободные земли и теплицы, агротехнику и специалистов с помощью AI.': 'AI yordamida eksport lotlari, bo‘sh yer va issiqxonalar, agro-texnika va mutaxassislarni bir joydan toping.',
+      'Найти с AI': 'AI Topish',
+      'Быстрые запросы:': 'Tezkor AI misollar:',
+      'Экспортные лоты': 'Eksport lotlari',
+      'Земля и теплицы': 'Yer va issiqxonalar',
+      'Агротехника': 'Agro-texnika',
+      'Экспорт и контракты': 'Eksport va shartnomalar',
+      'AI Контракт (EN/RU)': 'AI Shartnoma (EN/RU)',
+      'Запрос / RFQ': 'Buyurtma / RFQ',
+      'Предложить партнёрство': 'Hamkorlik taklifi',
+      'Добавить экспортный лот': '+ Yangi eksport loti',
+      'Добавить землю / теплицу': '+ Yer / Issiqxona qo‘shish',
+      'Цифры демонстрационные: платформа ещё не запущена.': 'Raqamlar namunaviy: platforma demo bosqichida.',
+      'экспортных лотов': 'eksport lotlari',
+      'земель и теплиц': 'yer va issiqxonalar',
+      'техники и специалистов': 'texnika va mutaxassis',
+      'регионов': 'hudud',
+      'Популярные специальности': 'Agro-mutaxassisliklar',
+      'Свежие вакансии': 'Yangi vakansiyalar',
+      'Начните сегодня': 'Tadbirkor va Eksportchilar uchun PRO',
+      'Для фермеров бесплатно. PRO-подписка открывает безлимитные контакты, AI-контракты и базу проверенных хозяйств.': 'Dehqonlar uchun 100% bepul. PRO obuna tadbirkorlar uchun cheksiz kontakt, AI eksport shartnomalari va tasdiqlangan xo‘jaliklar bazasini ochadi.',
+      'Попробовать PRO': 'PRO rejimni sinash',
+      'PRO Активен': 'PRO Faol',
+      'Создать аккаунт': 'Akkaunt yaratish',
+      'Agro-Паспорт': 'Agro-Pasport',
+      'Агро-Паспорт — демонстрационный. Человек вымышлен, подтверждения и отзывы имитируются, настоящей проверки нет.': 'Agro-Pasport namunaviy. Ma’lumotlar demo maqsadida keltirilgan.',
+      'Опыт, лет': 'Tajriba, yil',
+      'Опыт:': 'Tajriba:',
+      'Опыт ': 'Tajriba ',
+      'Доступность:': 'Mavjudlik:',
+      'Уровень:': 'Daraja:',
+      'Выполнено работ:': 'Bajarilgan ishlar:',
+      'Выполненные работы': 'Bajarilgan ishlar',
+      'Отзывы работодателей': 'Fermerlar sharhlari',
+      '← Все работники': '← Barcha mutaxassislar',
+      'Зачем нужна платформа': 'Platforma nega kerak',
+      'Какую проблему решает': 'Qanday muammoni hal qiladi',
+      'Польза для фермеров': 'Dehqonlar uchun foyda',
+      'Польза для бизнеса и экспорта': 'Tadbirkor va eksportchilar uchun foyda',
+      'Демо: данные хранятся только в вашем браузере, настоящей авторизации нет.': 'Demo: ma’lumotlar faqat brauzeringizda saqlanadi.',
+      'Нет аккаунта?': 'Akkaunt yo‘qmi?',
+      'Фермер / Экспортёр': 'Fermer / Tadbirkor',
+      'Контактное лицо': 'Aloqa shaxsi',
+      'Имя и фамилия': 'Ism va familiya',
+      'Название хозяйства': 'Xo‘jalik / Kompaniya nomi',
+      'Пароль (от 6 символов)': 'Parol (kamida 6 ta belgi)',
+      'Формат:': 'Format:',
+      'Минимум 6 символов': 'Kamida 6 ta belgi',
+      'Минимум 3 символа': 'Kamida 3 ta belgi',
+      'Введите имя': 'Ismni kiriting',
+      'Введите название хозяйства': 'Xo‘jalik nomini kiriting',
+      'Выберите регион': 'Hududni tanlang',
+      'Выберите специальность': 'Mutaxassislikni tanlang',
+      'Укажите сумму': 'Summani kiriting:',
+      'Опишите работу минимум в 10 символов': 'Kamida 10 ta belgida tavsif yozing',
+      'Укажите число лет': 'Yillar sonini kiriting',
+      'Напишите минимум 10 символов': 'Kamida 10 ta belgi yozing',
+      'Аккаунт не найден. Это демо: сначала зарегистрируйтесь.': 'Akkaunt topilmadi. Avval ro‘yxatdan o‘ting.',
+      'Добавлено в сохранённые': 'Saqlanganlarga qo‘shildi',
+      'Убрано из сохранённых': 'Saqlanganlardan olindi',
+      'Вы вышли из аккаунта': 'Akkauntdan chiqdingiz',
+      'Вакансия закрыта': 'Vakansiya yopildi',
+      'Отклик отправлен (демо)': 'Ariza yuborildi (demo)',
+      'Запрос сохранён в кабинете': 'So‘rov Kabinetda saqlandi',
+      'Контракт скопирован': 'AI shartnoma nusxalandi',
+      'Аккаунт создан (демо)': 'Akkaunt yaratildi',
+      'Вакансия опубликована (демо)': 'Vakansiya e’lon qilindi',
+      'Лот опубликован': 'Yangi eksport loti qo‘shildi',
+      'Объявление о земле опубликовано': 'Yer / Issiqxona e’loni qo‘shildi',
+      'Профиль сохранён': 'Profil saqlandi',
+      'Сообщение принято (демо, никуда не отправлено)': 'Xabar qabul qilindi (demo)',
+      'Кабинет фермера / бизнеса': 'Fermer / Tadbirkor kabineti',
+      'Кабинет работника': 'Mutaxassis kabineti',
+      'Сохранённые работники': 'Saqlangan mutaxassislar',
+      'Сохранённые вакансии': 'Saqlangan vakansiyalar',
+      'Создать вакансию': 'Vakansiya yaratish',
+      'Пока нет вакансий': 'Hozircha vakansiyalar yo‘q',
+      'Закрыть вакансию': 'Vakansiyani yopish',
+      'Откликов пока нет': 'Hozircha arizalar yo‘q',
+      'Запросов пока нет': 'Hozircha eksport/hamkorlik so‘rovlari yo‘q',
+      'Нужен вход': 'Kirish kerak',
+      'Войдите, чтобы открыть кабинет.': 'Kabinetni ochish uchun kiring yoki ro‘yxatdan o‘ting.',
+      'Страница не найдена': 'Sahifa topilmadi',
+      'На главную': 'Bosh sahifaga',
+      'Новая вакансия': 'Yangi vakansiya',
+      'Зарплата, сум в месяц': 'Maosh, so‘m/oy',
+      'Связаться:': 'Bog‘lanish:',
+      'Навыки через запятую': 'Ko‘nikmalar (vergul bilan)',
+      'Сохранить профиль': 'Profilni saqlash',
+      'Поиск по названию': 'Nomi bo‘yicha qidirish',
+      'Все регионы': 'Barcha hududlar',
+      'Все специальности': 'Barcha mutaxassisliklar',
+      'Любая зарплата': 'Istalgan maosh',
+      'Любая занятость': 'Istalgan ish turi',
+      'Сначала новые': 'Avval yangilari',
+      'Зарплата выше': 'Maosh yuqori',
+      'Зарплата ниже': 'Maosh past',
+      'Вакансий не найдено': 'Vakansiya topilmadi',
+      'Работники не найдены': 'Mutaxassis topilmadi',
+      'Имя или навык': 'Ism yoki ko‘nikma',
+      'Любая доступность': 'Istalgan mavjudlik',
+      'Светлая тема': 'Yorug‘ rejim',
+      'Тёмная тема': 'Tungi rejim',
+      'Партнёрство 50/50 или аренда': '50/50 hamkorlik yoki ijara',
+      'Совместное выращивание на экспорт (50/50)': 'Eksportga birga yetishtirish (50/50)',
+      'Долгосрочная аренда (3–5 лет)': 'Uzoq muddatli ijara (3–5 yil)',
+      'Аренда или инвестор в долю': 'Ijara yoki investor bilan sheriklik',
+      'Доля урожая 50/50': 'Hosil ulushi 50/50',
+      'Капельный полив + отопление': 'Tomchilatib sug‘orish + isitish',
+      'Артезианская скважина + капельный полив': 'Artezian quduq + tomchilatib sug‘orish',
+      'Горная вода + резервуар': 'Tog‘ suvi + basseyn',
+      'Автополив + 380В': 'Avtosug‘orish + 380V elektr',
+      'Вспашка, чизель, посев': 'Shudgor, chizel, ekish',
+      'GPS-обработка до 40 га в день': 'Kuniga 40 ga gacha GPS purkash',
+      'Уборка пшеницы и ячменя': 'Bug‘doy va arpa o‘rimi',
+      'Междурядная обработка сада': 'Bog‘ qator orasi ishlovi'
+    };
+
+    const RX = [
+      [/(\d+) (?:год|года|лет)(?![а-яё])/g, '$1 yil'],
+      [/(^|[^А-Яа-яЁё])([Дд])емо(?![А-Яа-яЁё])/g, (m, p, c) => p + (c == 'Д' ? 'Demo' : 'demo')],
+      [/от (\d[\d ]*)/g, '$1 dan']
+    ];
+    const DK = Object.entries(U).sort((a, b) => b[0].length - a[0].length);
+
+    const AU = [
+      'O‘zbekistonda dehqon mahsulotini to‘g‘ridan-to‘g‘ri eksportga chiqarish, bo‘sh yerlarni tadbirkorga berish va kerakli agro-xizmatni topish ko‘pincha tarqoq kechadi.',
+      'ZaminJob AI savdo qidiruvi, eksport shartnomalari, yer va issiqxona hamkorligi, traktor hamda agro-mutaxassislarni bitta ekotizimga jamlaydi.',
+      'Dehqon o‘z hosilini vositachilarsiz sotadi, bo‘sh yeridan daromad oladi va kerakli texnika/agronomni tez topadi.',
+      'Tadbirkor va chet ellik xaridorlar AI orqali eng mos eksport lotlarini solishtiradi va bir tugmada ingliz/rus tilida shartnoma tayyorlaydi.',
+      'O‘zbekiston qishloq xo‘jaligini shaffof raqamli eksport va samarali yer foydalanish darajasiga olib chiqish.'
+    ];
+
+    const JDU = [
+      'Uzumni terish va qutilarga saralash, xo‘jalikda ovqat va turar joy.',
+      'Shudgor, kultivatsiya, texnikaga xizmat ko‘rsatish. 3 yildan ortiq tajriba.',
+      'G‘o‘za dalalarini jadval bo‘yicha sug‘orishni tashkil qilish.',
+      'Almashlab ekish nazorati, o‘simliklarni himoya qilish va hosildorlikni oshirish.',
+      'Pomidor va bodring parvarishi, sug‘orish, bog‘lash.',
+      'Butash, tojni shakllantirish, ko‘chat payvandlash.',
+      'Ochiq maydonda pomidor, piyoz va kartoshka yetishtirish.',
+      'Paxtani qo‘lda terish, haq vazn bo‘yicha, dalagacha transport.',
+      'Don hosilini kombaynda yig‘ish, tajriba shart.',
+      'Bog‘ parvarishi, butash, meva terish.',
+      'Tomchilatib sug‘orish tizimini nazorat qilish, mayda ta’mirlash.',
+      'Issiqxona mikroiqlimini nazorat qilish va ekishni rejalashtirish.'
+    ];
+
+    const RVU = [
+      'Puxta ishlaydi va o‘z vaqtida keladi.',
+      'Ishni yaxshi biladi, nazorat shart emas.',
+      'Butun hajmni halol bajardi, tavsiya qilaman.'
+    ];
+
+    const tr = s => {
+      if (S.lg != 'uz') return s;
+      const k = s.trim();
+      if (E[k]) return s.replace(k, E[k]);
+      for (const [a, b] of DK) s = s.split(a).join(b);
+      for (const [a, b] of RX) s = s.replace(a, b);
+      return s;
+    };
+
+    const tx = r => {
+      if (S.lg != 'uz') return;
+      const w = document.createTreeWalker(r, NodeFilter.SHOW_TEXT);
+      let n;
+      while (n = w.nextNode()) {
+        if (n.parentElement && n.parentElement.classList.contains("no-tr")) continue;
+        if (n.nodeValue.trim()) n.nodeValue = tr(n.nodeValue);
+      }
+      r.querySelectorAll('[placeholder],[aria-label]').forEach(e =>
+        ['placeholder', 'aria-label'].forEach(a =>
+          e.hasAttribute(a) && e.setAttribute(a, tr(e.getAttribute(a)))
+        )
+      );
+    };
+
+    // --- ZaminJob AI Engine ---
+    const REG_KW = [
+      [0, ["toshkent", "ташкент", "qibray", "кибрай"]],
+      [1, ["samarqand", "самарканд", "urgut", "ургут"]],
+      [2, ["farg", "ферган", "quva", "кува"]],
+      [3, ["andij", "андиж"]],
+      [4, ["namang", "наманг"]],
+      [5, ["buxor", "бухар"]],
+      [6, ["qashq", "кашкад"]],
+      [7, ["surx", "сурхан"]],
+      [8, ["xorazm", "хорезм"]],
+      [9, ["jizzax", "джизак", "baxmal", "бахмал", "mirzach", "мирзач"]]
+    ];
+
+    const aiMatch = qRaw => {
+      const q = (qRaw || "").toLowerCase().trim();
+      if (!q) return null;
+      let rg = -1;
+      for (const [idx, ws] of REG_KW) if (ws.some(w => q.includes(w))) { rg = idx; break; }
+      const intentWords = {
+        trade: ["eksport", "экспорт", "uzum", "виноград", "gilos", "черешн", "pomidor", "томат", "piyoz", "лук", "qovun", "дын", "olma", "яблок", "tonna", "тонн", "lot", "лот", "savdo", "торгов"],
+        lands: ["yer", "земл", "issiqxona", "теплиц", "gektar", "гектар", "ijara", "аренд", "hamkor", "партнер", "партнёр"],
+        tech: ["traktor", "трактор", "kombayn", "комбайн", "dron", "дрон", "texnika", "техник", "shudgor", "вспаш"],
+        workers: ["agronom", "агроном", "bog", "садовод", "suvchi", "полив", "mutaxassis", "специалист", "ishchi", "работн"]
+      };
+      let intent = "trade", best = 0;
+      for (const [k, ws] of Object.entries(intentWords)) {
+        const sc = ws.filter(w => q.includes(w)).length;
+        if (sc > best) { best = sc; intent = k; }
+      }
+      const pool = intent === "trade" ? allLots() : intent === "lands" ? allLands() : intent === "tech" ? TECH : W;
+      const toks = q.split(/[\s,.;!?]+/).filter(x => x.length >= 3);
+      const ranked = pool.map(item => {
+        let s = 72;
+        const hay = (JSON.stringify(item) + " " + tr(item.t || item.n || "")).toLowerCase();
+        if (rg >= 0 && item.rg === rg) s += 16;
+        s += Math.min(toks.filter(t => hay.includes(t)).length * 6, 11);
+        return { item, score: Math.min(s, 99) };
+      }).sort((a, b) => b.score - a.score).slice(0, 3);
+      return { intent, rg, ranked };
+    };
+
+    const makeOfferText = (l, lang, buyer, qty) => {
+      const q = Number(qty) > 0 ? Number(qty) : l.tons;
+      const sum = (q * 1000 * l.priceUsd).toLocaleString("en-US", { maximumFractionDigits: 0 });
+      const b = (buyer || "").trim() || (lang === "en" ? "International Buyer" : lang === "ru" ? "Партнёр-покупатель" : "Hamkor xaridor");
+      const dt = new Date().toISOString().slice(0, 10);
+      if (lang === "en") {
+        return `COMMERCIAL OFFER & EXPORT CONTRACT DRAFT (AI)\nDate: ${dt} | Ref: ZJ-EXP-${l.id}\n--------------------------------------------\nSeller: ${l.farm} (${REG[l.rg]}, Uzbekistan)\nBuyer: ${b}\nProduct: ${l.t} (${l.grade})\nVolume: ${q} MT (Available: ${l.tons} MT)\nPrice: $${l.priceUsd.toFixed(2)} / kg (${l.incoterm})\nTotal Value: $${sum} USD\nPackaging: ${l.pack}\nCertificates: Phytosanitary, ST-1${l.gap ? ", GlobalG.A.P." : ""}\nShipment: ${l.harvest}\nPayment: 30% advance / 70% on loading\n--------------------------------------------\nGenerated by ZaminJob AI Trade.`;
+      }
+      if (lang === "ru") {
+        return `КОММЕРЧЕСКОЕ ПРЕДЛОЖЕНИЕ И ПРОЕКТ КОНТРАКТА (AI)\nДата: ${dt} | № ZJ-EXP-${l.id}\n--------------------------------------------\nПоставщик: ${l.farm} (${REG[l.rg]}, Узбекистан)\nПокупатель: ${b}\nПродукция: ${l.t} (${l.grade})\nОбъём: ${q} тонн (В наличии: ${l.tons} т)\nЦена: $${l.priceUsd.toFixed(2)} / кг (${l.incoterm})\nСумма контракта: $${sum} USD\nУпаковка: ${l.pack}\nДокументы: Фитосанитарный сертификат, СТ-1${l.gap ? ", GlobalG.A.P." : ""}\nОтгрузка: ${l.harvest}\nОплата: 30% предоплата / 70% при погрузке\n--------------------------------------------\nСформировано через ZaminJob AI Trade.`;
+      }
+      return `EKSPORT TIJORAT TAKLIFI VA SHARTNOMA LOYIHASI (AI)\nSana: ${dt} | № ZJ-EXP-${l.id}\n--------------------------------------------\nSotuvchi: ${tr(l.farm)} (${tr(REG[l.rg])}, O'zbekiston)\nXaridor: ${b}\nMahsulot: ${tr(l.t)} (${l.grade})\nHajm: ${q} tonna (Mavjud: ${l.tons} t)\nNarx: $${l.priceUsd.toFixed(2)} / kg (${l.incoterm})\nUmumiy summa: $${sum} USD\nQadoqlash: ${tr(l.pack)}\nHujjatlar: Fitosanitariya, ST-1${l.gap ? ", GlobalG.A.P." : ""}\nYuklash muddati: ${l.harvest}\nTo'lov: 30% avans / 70% yuklashda\n--------------------------------------------\nZaminJob AI Savdo orqali tayyorlandi.`;
+    };
+
+    let DT = 0, RR = "f", AIQ = "", AIR = null;
+    let FS = {
+      j: { q: "", rg: "", sp: "", pay: "0", ty: "", so: "new" },
+      w: { q: "", rg: "", sp: "", av: "" },
+      t: { q: "", rg: "", crop: "" },
+      l: { q: "", rg: "", type: "" }
+    };
+
+    const O = (a, s) => a.map((x, i) => `<option value="${i}"${s !== undefined && s !== "" && i == s ? " selected" : ""}>${x}</option>`).join("");
+    const em = (t, s, b = "") => `<div class="card" style="grid-column:1/-1;align-items:center;text-align:center;padding:40px"><h3>${t}</h3><p class="mut">${s}</p>${b}</div>`;
+    const fld = (n, l, t = "text", x = "") => `<label for="${n}">${l}</label><input id="${n}" name="${n}" type="${t}" ${x}><div class="err" data-e="${n}"></div>`;
+    const sel = (n, l, o) => `<label for="${n}">${l}</label><select id="${n}" name="${n}"><option value="">Выберите</option>${o}</select><div class="err" data-e="${n}"></div>`;
+
+    const toast = m => {
+      const t = $("#toast");
+      t.textContent = tr(m);
+      t.hidden = false;
+      clearTimeout(toast.t);
+      toast.t = setTimeout(() => t.hidden = true, 2600);
+    };
+
+    const close = () => document.querySelectorAll(".modal").forEach(m => m.remove());
+    const modal = h => {
+      close();
+      const m = document.createElement("div");
+      m.className = "modal";
+      m.innerHTML = `<div role="dialog" aria-modal="true">${h}</div>`;
+      m.onclick = e => { if (e.target == m) close(); };
+      document.body.append(m);
+      tx(m);
+      const f = m.querySelector("input,select,textarea,button");
+      f && f.focus();
+    };
+    addEventListener("keydown", e => e.key == "Escape" && close());
+
+    const chk = (f, r) => {
+      let ok = 1;
+      for (const k in r) {
+        const el = f.elements[k];
+        const bad = !r[k][0].test(el.value.trim());
+        f.querySelector(`[data-e=${k}]`).textContent = bad ? tr(r[k][1]) : '';
+        el.setAttribute("aria-invalid", bad);
+        if (bad) ok = 0;
+      }
+      return ok;
+    };
+
+    const lotCard = l => `
+      <article class="card">
+        <div class="row">
+          <span class="tag">${REG[l.rg]}</span>
+          <span class="tag ai">Export</span>
+          ${l.gap ? '<span class="tag d">GlobalG.A.P.</span>' : ''}
+        </div>
+        <h3>${l.t}</h3>
+        <div class="mut">${l.farm} · ${l.grade}</div>
+        <div><b>$${Number(l.priceUsd).toFixed(2)} / kg</b> <span class="mut">· ${l.tons} т (${l.incoterm})</span></div>
+        <div class="mut">${l.pack} · ${l.harvest}</div>
+        <div class="row">
+          <button class="btn s" data-a="aioffer" data-i="${l.id}">✨ AI Контракт (EN/RU)</button>
+          <button class="btn o s" data-a="rfq" data-t="${esc(l.t + ' — ' + l.farm)}">Запрос / RFQ</button>
+        </div>
+      </article>`;
+
+    const landCard = l => `
+      <article class="card">
+        <div class="row"><span class="tag">${l.type}</span><span class="tag d">${REG[l.rg]}</span></div>
+        <h3>${l.t}</h3>
+        <div class="mut">${l.owner} · <b>${l.area}</b></div>
+        <div><b>${l.price}</b></div>
+        <div class="mut">${l.deal}<br>${l.water}</div>
+        <button class="btn s" data-a="rfq" data-t="${esc(l.t)}">Предложить партнёрство</button>
+      </article>`;
+
+    const techCard = m => `
+      <article class="card">
+        <div class="row"><span class="tag">${REG[m.rg]}</span><span class="tag d">${m.av}</span></div>
+        <h3>${m.t}</h3>
+        <div class="mut">${m.owner}</div>
+        <div><b>${m.pay}</b></div>
+        <div class="mut">${m.spec}</div>
+        <button class="btn s" data-a="rfq" data-t="${esc(m.t)}">Забронировать</button>
+      </article>`;
+
+    const jobCard = j => `
+      <article class="card">
+        <span class="tag">${SP[j.sp]}</span>
+        <h3>${j.t}</h3>
+        <div class="mut">${j.em}<br>${REG[j.rg]}</div>
+        <div><b>${pay(j)}</b> <span class="mut">· ${j.ty}</span></div>
+        <div class="row">
+          <button class="btn s" data-a="job" data-i="${j.id}">Подробнее</button>
+          <button class="btn o s" data-a="sj" data-i="${j.id}">${S.sj.includes(j.id) ? "Сохранено" : "Сохранить"}</button>
+        </div>
+      </article>`;
+
+    const wCard = w => `
+      <article class="card">
+        <div class="row">
+          <div class="av">${ini(w.n)}</div>
+          <div><h3>${w.n}</h3><div class="mut">${REG[w.rg]}</div></div>
+        </div>
+        <div class="row"><span class="tag">${SP[w.sp]}</span><span class="tag">${lvl(w.jb)}</span><span class="tag d">Демо</span></div>
+        <div class="mut">Опыт ${w.ex} ${yr(w.ex)} · ${w.av}<br>${w.sk.slice(0, 3).join(", ")}</div>
+        <div class="row">
+          <a class="btn s" href="#worker-${w.id}">Профиль</a>
+          <button class="btn o s" data-a="sw" data-i="${w.id}">${S.sw.includes(w.id) ? "Сохранён" : "Сохранить"}</button>
+        </div>
+      </article>`;
+
+    const renderAiBlock = () => {
+      if (!AIR) return "";
+      const names = { trade: "Экспорт и контракты", lands: "Земля и теплицы", tech: "Агротехника", workers: "Работники" };
+      const rows = AIR.ranked.map(({ item, score }) => {
+        if (AIR.intent === "trade") return `<tr><td><b>${item.t}</b><div class="mut">${item.farm}</div></td><td>${REG[item.rg]}</td><td><b>$${Number(item.priceUsd).toFixed(2)}/kg</b> · ${item.tons} т</td><td><span class="tag ai">${score}%</span></td><td><button class="btn s" data-a="aioffer" data-i="${item.id}">✨ AI Контракт (EN/RU)</button></td></tr>`;
+        if (AIR.intent === "lands") return `<tr><td><b>${item.t}</b><div class="mut">${item.owner}</div></td><td>${REG[item.rg]}</td><td><b>${item.area}</b> · ${item.price}</td><td><span class="tag ai">${score}%</span></td><td><button class="btn s" data-a="rfq" data-t="${esc(item.t)}">Предложить партнёрство</button></td></tr>`;
+        if (AIR.intent === "tech") return `<tr><td><b>${item.t}</b><div class="mut">${item.owner}</div></td><td>${REG[item.rg]}</td><td><b>${item.pay}</b></td><td><span class="tag ai">${score}%</span></td><td><button class="btn s" data-a="rfq" data-t="${esc(item.t)}">Забронировать</button></td></tr>`;
+        return `<tr><td><b>${item.n}</b><div class="mut">${SP[item.sp]}</div></td><td>${REG[item.rg]}</td><td>Опыт ${item.ex} ${yr(item.ex)}</td><td><span class="tag ai">${score}%</span></td><td><a class="btn s" href="#worker-${item.id}">Профиль</a></td></tr>`;
+      }).join("");
+      return `<div class="ai-res">
+        <div class="ai-msg">🤖 ZaminJob AI: <b>${names[AIR.intent]}</b>${AIR.rg >= 0 ? " · " + REG[AIR.rg] : ""} — Top-3</div>
+        <div class="tbl-w"><table><thead><tr><th>Название</th><th>Регион</th><th>Условия</th><th>AI</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+      </div>`;
+    };
+
+    const tradeList = () => {
+      const F = FS.t, q = F.q.toLowerCase();
+      const a = allLots().filter(l => (!q || (l.t + tr(l.t) + l.farm).toLowerCase().includes(q)) && (F.rg === "" || l.rg == F.rg) && (!F.crop || l.crop == F.crop));
+      return a.length ? a.map(lotCard).join("") : em("Вакансий не найдено", "Измените запрос или сбросьте фильтры.");
+    };
+
+    const landList = () => {
+      const F = FS.l, q = F.q.toLowerCase();
+      const a = allLands().filter(l => (!q || (l.t + tr(l.t) + l.water).toLowerCase().includes(q)) && (F.rg === "" || l.rg == F.rg) && (!F.type || l.type == F.type));
+      return a.length ? a.map(landCard).join("") : em("Вакансий не найдено", "Измените запрос или сбросьте фильтры.");
+    };
+
+    const jobList = () => {
+      const F = FS.j, q = F.q.toLowerCase();
+      const a = allJ().filter(j => (!q || (j.t + tr(j.t)).toLowerCase().includes(q)) && (F.rg === "" || j.rg == F.rg) && (F.sp === "" || j.sp == F.sp) && j.pay >= +F.pay && (!F.ty || j.ty == F.ty));
+      a.sort(F.so == "hi" ? (x, y) => y.pay - x.pay : F.so == "lo" ? (x, y) => x.pay - y.pay : (x, y) => y.id - x.id);
+      return a.length ? a.map(jobCard).join("") : em("Вакансий не найдено", "Измените запрос или сбросьте фильтры.");
+    };
+
+    const wList = () => {
+      const F = FS.w, q = F.q.toLowerCase();
+      const a = W.filter(w => (!q || (w.n + w.sk.join() + tr(w.sk.join())).toLowerCase().includes(q)) && (F.rg === "" || w.rg == F.rg) && (F.sp === "" || w.sp == F.sp) && (!F.av || w.av == F.av));
+      return a.length ? a.map(wCard).join("") : em("Работники не найдены", "Измените запрос или сбросьте фильтры.");
+    };
+
+    const V = {};
+
+    V.home = () => {
+      const chips = S.lg == "uz"
+        ? ["Samarqandda eksportga 20 tonna uzum kerak", "Toshkentda issiqxona hamkorlikka kerak", "Farg'onada traktor MTZ-82 kerak", "Jizzaxda tajribali agronom kerak"]
+        : ["Нужен экспортный виноград 20 тонн в Самарканде", "Нужна теплица в Ташкенте для партнёрства", "Нужен трактор МТЗ-82 в Фергане", "Нужен опытный агроном в Джизаке"];
+      return `
+      <div class="hero">
+        <svg viewBox="0 0 600 300" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="500" cy="70" r="42" fill="currentColor" opacity=".25" stroke="none"/>
+          ${[0, 1, 2, 3, 4, 5, 6, 7].map(i => `<path d="M0 300Q240 ${230 - i * 14} 600 ${60 + i * 28}"/>`).join("")}
+        </svg>
+        <div class="w">
+          <h1>AI-платформа для агро-торговли, экспорта и услуг.</h1>
+          <p>Находите экспортные лоты, свободные земли и теплицы, агротехнику и специалистов с помощью AI.</p>
+          <div class="ai-box">
+            <form data-s="ai" class="ai-row">
+              <input name="q" value="${esc(AIQ)}" placeholder="${S.lg == 'uz' ? 'Masalan: Samarqandda eksportga 20 tonna uzum kerak...' : 'Например: Нужен экспортный виноград 20 тонн в Самарканде...'}" />
+              <button class="btn" type="submit">✨ Найти с AI</button>
+            </form>
+            <div class="ai-chips">
+              <span class="mut" style="font-size:.8rem;font-weight:700">Быстрые запросы:</span>
+              ${chips.map(c => `<button type="button" class="ai-chip no-tr" data-a="aichip" data-t="${esc(c)}">${esc(c)}</button>`).join("")}
+            </div>
+            ${renderAiBlock()}
+          </div>
+        </div>
+      </div>
+
+      <section>
+        <div class="w">
+          <div class="grid stats">
+            ${[["480+", "экспортных лотов"], ["120+", "земель и теплиц"], ["310+", "техники и специалистов"], ["14", "регионов"]].map(s => `<div><div class="num">${s[0]}</div><div class="mut">${s[1]}</div></div>`).join("")}
+          </div>
+          <p class="demo">Цифры демонстрационные: платформа ещё не запущена.</p>
+        </div>
+      </section>
+
+      <section class="alt">
+        <div class="w">
+          <div class="row" style="justify-content:space-between;margin-bottom:18px"><h2>Экспортные лоты</h2><a class="mut" href="#trade" style="font-weight:700;color:var(--g1)">Подробнее →</a></div>
+          <div class="grid">${allLots().slice(0, 3).map(lotCard).join("")}</div>
+        </div>
+      </section>
+
+      <section>
+        <div class="w">
+          <div class="row" style="justify-content:space-between;margin-bottom:18px"><h2>Земля и теплицы</h2><a class="mut" href="#lands" style="font-weight:700;color:var(--g1)">Подробнее →</a></div>
+          <div class="grid">${allLands().slice(0, 2).map(landCard).join("")}</div>
+        </div>
+      </section>
+
+      <section class="alt">
+        <div class="w">
+          <h2>Популярные специальности</h2>
+          <div class="row">${SP.map((s, i) => `<a class="btn o" href="#jobs" data-a="chip" data-i="${i}">${s}</a>`).join("")}</div>
+        </div>
+      </section>
+
+      <section>
+        <div class="w">
+          <div class="card" style="background:var(--gl);padding:34px;width:100%">
+            <span class="tag ai">PRO · B2B SaaS</span>
+            <h2>Начните сегодня</h2>
+            <p>Для фермеров бесплатно. PRO-подписка открывает безлимитные контакты, AI-контракты и базу проверенных хозяйств.</p>
+            <div class="row">
+              <button class="btn" data-a="pro">${S.pro ? "✓ PRO Активен" : "Попробовать PRO"}</button>
+              <a class="btn o" href="#register">Создать аккаунт</a>
+            </div>
+          </div>
+        </div>
+      </section>`;
+    };
+
+    V.trade = () => `
+      <section><div class="w">
+        <div class="row" style="justify-content:space-between">
+          <h2>Экспорт и контракты</h2>
+          <button class="btn s" data-a="addlot">Добавить экспортный лот</button>
+        </div>
+        <div class="bar">
+          <input data-g="t" data-f="q" placeholder="Поиск по названию">
+          <select data-g="t" data-f="rg"><option value="">Все регионы</option>${O(REG)}</select>
+          <select data-g="t" data-f="crop">
+            <option value="">Все специальности</option>
+            <option value="uzum">Uzum / Виноград</option>
+            <option value="gilos">Gilos / Черешня</option>
+            <option value="pomidor">Pomidor / Томат</option>
+            <option value="piyoz">Piyoz / Лук</option>
+            <option value="qovun">Qovun / Дыня</option>
+            <option value="olma">Olma / Яблоки</option>
+          </select>
+        </div>
+        <div class="grid" id="list">${tradeList()}</div>
+      </div></section>`;
+
+    V.lands = () => `
+      <section><div class="w">
+        <div class="row" style="justify-content:space-between">
+          <h2>Земля и теплицы</h2>
+          <button class="btn s" data-a="addland">Добавить землю / теплицу</button>
+        </div>
+        <div class="bar">
+          <input data-g="l" data-f="q" placeholder="Поиск по названию">
+          <select data-g="l" data-f="rg"><option value="">Все регионы</option>${O(REG)}</select>
+          <select data-g="l" data-f="type"><option value="">Любая занятость</option><option value="Теплица">Теплица</option><option value="Земля / Сад">Земля / Сад</option></select>
+        </div>
+        <div class="grid" id="list">${landList()}</div>
+      </div></section>`;
+
+    V.tech = () => `
+      <section><div class="w">
+        <h2>Агротехника</h2>
+        <div class="grid">${TECH.map(techCard).join("")}</div>
+      </div></section>`;
+
+    V.jobs = () => `
+      <section><div class="w">
+        <h2>Найти работу</h2>
+        <div class="bar">
+          <input data-g="j" data-f="q" placeholder="Поиск по названию">
+          <select data-g="j" data-f="rg"><option value="">Все регионы</option>${O(REG)}</select>
+          <select data-g="j" data-f="sp"><option value="">Все специальности</option>${O(SP)}</select>
+          <select data-g="j" data-f="pay"><option value="0">Любая зарплата</option><option value="3500">от 3 500 000</option><option value="4500">от 4 500 000</option><option value="5500">от 5 500 000</option></select>
+          <select data-g="j" data-f="ty"><option value="">Любая занятость</option><option>Сезонная</option><option>Постоянная</option></select>
+          <select data-g="j" data-f="so"><option value="new">Сначала новые</option><option value="hi">Зарплата выше</option><option value="lo">Зарплата ниже</option></select>
+        </div>
+        <div class="grid" id="list">${jobList()}</div>
+      </div></section>`;
+
+    V.workers = () => `
+      <section><div class="w">
+        <h2>Найти работников</h2>
+        <div class="bar">
+          <input data-g="w" data-f="q" placeholder="Имя или навык">
+          <select data-g="w" data-f="rg"><option value="">Все регионы</option>${O(REG)}</select>
+          <select data-g="w" data-f="sp"><option value="">Все специальности</option>${O(SP)}</select>
+          <select data-g="w" data-f="av"><option value="">Любая доступность</option><option>Доступен сейчас</option><option>С 1 декабря</option><option>С февраля</option></select>
+        </div>
+        <div class="grid" id="list">${wList()}</div>
+      </div></section>`;
+
+    V.worker = id => {
+      const w = W[id - 1];
+      if (!w) return nf();
+      return `<section><div class="w">
+        <a class="mut" href="#workers">← Все работники</a>
+        <p class="demo">Агро-Паспорт — демонстрационный. Человек вымышлен, подтверждения и отзывы имитируются, настоящей проверки нет.</p>
+        <div class="row" style="gap:20px;margin:16px 0"><div class="av l">${ini(w.n)}</div><div><h2 style="margin:0">${w.n}</h2><div class="mut">${REG[w.rg]} · ${SP[w.sp]}</div></div></div>
+        <div class="row"><button class="btn" data-a="msg" data-t="${w.n}">Связаться</button><button class="btn o" data-a="sw" data-i="${w.id}">${S.sw.includes(w.id) ? "Сохранён" : "Сохранить"}</button></div>
+        <div class="grid" style="margin-top:28px">
+          <div class="card"><h3>Основное</h3><div>Опыт: ${w.ex} ${yr(w.ex)}</div><div>Доступность: ${w.av}</div><div>Уровень: <span class="tag">${lvl(w.jb)}</span> <span class="tag d">демо</span></div><div class="mut">Выполнено работ: ${w.jb} (демо)</div></div>
+          <div class="card"><h3>Навыки</h3><div class="row">${w.sk.map(s => `<span class="tag">${s}</span>`).join("")}</div></div>
+        </div>
+        <h3 style="margin-top:28px">Выполненные работы (демо)</h3>
+        <div class="st">${[0, 1, 2].map(k => { const j = J[(id + k * 3) % 12]; return `<div class="card">${j.em}: ${j.t}, ${2025 - k}</div>`; }).join("")}</div>
+        <h3 style="margin-top:28px">Отзывы работодателей (демо)</h3>
+        <div class="st">${[id % 3, (id + 1) % 3].map((r, k) => `<div class="card"><div>${S.lg == 'uz' ? RVU[r] : RV[r]}</div><div class="mut">${J[(id + k) % 12].em}</div></div>`).join("")}</div>
+      </div></section>`;
+    };
+
+    V.about = () => `<section><div class="w" style="max-width:760px">
+      <h1>О платформе</h1>
+      ${[
+        ["Зачем нужна платформа", "Фермерам в Узбекистане сложно напрямую выходить на экспорт, передавать свободные земли предпринимателям и быстро находить технику или агрономов."],
+        ["Какую проблему решает", "ZaminJob объединяет AI-подбор экспортных лотов, аренду земли и теплиц, агротехнику и проверенных специалистов в одной системе."],
+        ["Польза для фермеров", "Прямой выход на покупателей без посредников, доход от свободной земли и быстрый поиск техники и специалистов."],
+        ["Польза для бизнеса и экспорта", "AI-сравнение предложений и мгновенный генератор экспортных контрактов на английском и русском языках."],
+        ["Видение", "Прозрачная цифровая экосистема агро-торговли и эффективного землепользования в Узбекистане."]
+      ].map((s, i) => `<h2 style="margin-top:32px">${s[0]}</h2><p>${S.lg == 'uz' ? AU[i] : s[1]}</p>`).join("")}
+    </div></section>`;
+
+    V.login = () => `<section><div class="w" style="max-width:440px">
+      <h2>Вход</h2>
+      <p class="demo">Демо: данные хранятся только в вашем браузере, настоящей авторизации нет.</p>
+      <form data-s="login" novalidate>${fld("ph", "Телефон", "tel", PHX)}${fld("pw", "Пароль", "password")}<button class="btn" style="width:100%;margin-top:12px">Войти</button></form>
+      <p class="mut" style="margin-top:16px">Нет аккаунта? <a href="#register" style="color:var(--g1);font-weight:700">Регистрация</a></p>
+    </div></section>`;
+
+    V.register = () => `<section><div class="w" style="max-width:480px">
+      <h2>Регистрация</h2>
+      <div class="tabs">
+        <button data-a="role" data-i="f" aria-selected="${RR == "f"}">Фермер / Экспортёр</button>
+        <button data-a="role" data-i="w" aria-selected="${RR == "w"}">Работник</button>
+      </div>
+      <form data-s="reg" novalidate>
+        ${fld("fn", RR == "f" ? "Контактное лицо" : "Имя и фамилия")}
+        ${fld("ph", "Телефон", "tel", PHX)}
+        ${sel("rg", "Регион", O(REG))}
+        ${RR == "f" ? fld("x", "Название хозяйства") : sel("x", "Специальность", O(SP))}
+        ${fld("pw", "Пароль (от 6 символов)", "password")}
+        <button class="btn" style="width:100%;margin-top:12px">Создать аккаунт</button>
+      </form>
+    </div></section>`;
+
+    const nf = () => `<section><div class="w"><div class="grid">${em("Страница не найдена", "Проверьте адрес или вернитесь на главную.", '<a class="btn" href="#home">На главную</a>')}</div></div></section>`;
+    const pc = u => 40 + 15 * [u.x, u.ex, u.sk, u.bio].filter(Boolean).length;
+
+    const vacForm = () => modal(`
+      <h2>Новая вакансия</h2>
+      <form data-s="vac" novalidate>
+        ${fld("t", "Название")}
+        ${sel("sp", "Специальность", O(SP))}
+        ${sel("rg", "Регион", O(REG))}
+        ${fld("pay", "Зарплата, сум в месяц", "number", 'placeholder="4000000"')}
+        <label for="ty">Тип занятости</label><select id="ty" name="ty"><option>Сезонная</option><option>Постоянная</option></select>
+        <label for="d">Описание</label><textarea id="d" name="d" rows="3"></textarea><div class="err" data-e="d"></div>
+        <div class="row" style="margin-top:12px"><button class="btn">Опубликовать</button><button type="button" class="btn o" data-a="close">Отмена</button></div>
+      </form>`);
+
+    const lotForm = () => {
+      modal(`
+        <h2>Добавить экспортный лот</h2>
+        <form data-s="lot" novalidate>
+          <label for="crop">Специальность / Ekin</label>
+          <select id="crop" name="crop">
+            <option value="uzum">Uzum / Виноград</option>
+            <option value="gilos">Gilos / Черешня</option>
+            <option value="pomidor">Pomidor / Томат</option>
+            <option value="piyoz">Piyoz / Лук</option>
+            <option value="qovun">Qovun / Дыня</option>
+            <option value="olma">Olma / Яблоки</option>
+          </select>
+          <div id="ai-adv" class="adv-box no-tr"></div>
+          ${fld("t", "Название", "text", 'placeholder="Kishmish uzumi (Eksport)"')}
+          ${fld("farm", "Название хозяйства", "text", 'placeholder="«Baraka Agro» F/X"')}
+          ${sel("rg", "Регион", O(REG))}
+          <div class="row">
+            <div style="flex:1">${fld("tons", "Hajm (tonna)", "number", 'value="20"')}</div>
+            <div style="flex:1">${fld("usd", "Narx ($ / kg)", "number", 'step="0.05" value="1.30"')}</div>
+          </div>
+          <div class="row" style="margin-top:12px"><button class="btn">Опубликовать</button><button type="button" class="btn o" data-a="close">Отмена</button></div>
+        </form>`);
+      const upd = () => {
+        const info = PRICE_AI[$("#crop").value];
+        if (!info) return;
+        $("#ai-adv").innerHTML = `🤖 <b>AI Maslahat:</b> ${info.range} · ${info.mk}<br>${info.tip}`;
+      };
+      $("#crop").onchange = upd;
+      upd();
+    };
+
+    const landForm = () => modal(`
+      <h2>Добавить землю / теплицу</h2>
+      <form data-s="land" novalidate>
+        ${fld("t", "Название", "text", 'placeholder="5 ga tomchilatib sug‘oriladigan yer"')}
+        <label>Тип</label><select name="type"><option value="Теплица">Теплица</option><option value="Земля / Сад">Земля / Сад</option></select>
+        ${sel("rg", "Регион", O(REG))}
+        ${fld("area", "Maydon (ga / sotix)", "text", 'placeholder="2 ga"')}
+        ${fld("price", "Narx / Shart", "text", 'placeholder="$1500/oy yoki 50/50"')}
+        ${fld("water", "Suv / Infratuzilma", "text", 'placeholder="Tomchilatib sug‘orish, 380V"')}
+        <div class="row" style="margin-top:12px"><button class="btn">Опубликовать</button><button type="button" class="btn o" data-a="close">Отмена</button></div>
+      </form>`);
+
+    const openAiOffer = id => {
+      const l = allLots().find(x => x.id == id);
+      if (!l) return;
+      let ol = "en";
+      const show = (buyer = "", qty = l.tons) => {
+        const txt = makeOfferText(l, ol, buyer, qty);
+        modal(`
+          <h2>✨ AI Контракт (EN/RU)</h2>
+          <div class="tabs" style="margin:8px 0 12px">
+            <button type="button" aria-selected="${ol == 'en'}" data-ol="en">🇬🇧 English</button>
+            <button type="button" aria-selected="${ol == 'ru'}" data-ol="ru">🇷🇺 Русский</button>
+            <button type="button" aria-selected="${ol == 'uz'}" data-ol="uz">🇺🇿 O‘zbekcha</button>
+          </div>
+          <div class="row">
+            <div style="flex:1"><label style="margin-top:0">Покупатель / Kompaniya</label><input id="ob" value="${esc(buyer)}" placeholder="Al-Baraka Trading LLC"></div>
+            <div style="width:110px"><label style="margin-top:0">Тонн</label><input id="oq" type="number" min="1" value="${esc(qty)}"></div>
+          </div>
+          <div class="offer-pre no-tr" id="op" style="margin-top:12px">${esc(txt)}</div>
+          <div class="row" style="margin-top:14px">
+            <button class="btn s" id="ocopy">Копировать</button>
+            <button class="btn o s" id="osend">Отправить</button>
+            <button class="btn o s" data-a="close">Закрыть</button>
+          </div>`);
+        document.querySelectorAll("[data-ol]").forEach(b => b.onclick = () => { ol = b.dataset.ol; show($("#ob").value, $("#oq").value); });
+        const ref = () => { $("#op").textContent = makeOfferText(l, ol, $("#ob").value, $("#oq").value); };
+        $("#ob").oninput = ref;
+        $("#oq").oninput = ref;
+        $("#ocopy").onclick = () => { navigator.clipboard?.writeText($("#op").textContent); toast("Контракт скопирован"); };
+        $("#osend").onclick = () => {
+          S.rfq.unshift({ t: `${l.t} (${$("#oq").value || l.tons} т, ${ol.toUpperCase()})`, m: ($("#ob").value || "Buyer") + " — AI Contract", dt: new Date().toISOString().slice(0, 10) });
+          save();
+          close();
+          toast("Запрос сохранён в кабинете");
+        };
+      };
+      show();
+    };
+
+    const pfForm = u => `<form data-s="pf" novalidate>${fld("fn", "Имя и фамилия", "text", `value="${u.fn}"`)}${sel("rg", "Регион", O(REG, u.rg))}${sel("x", "Специальность", O(SP, u.x))}${fld("ex", "Опыт, лет", "text", `value="${u.ex || ""}"`)}${fld("sk", "Навыки через запятую", "text", `value="${u.sk || ""}"`)}<label for="bio">О себе</label><textarea id="bio" name="bio" rows="3">${u.bio || ""}</textarea><button class="btn" style="margin-top:12px">Сохранить профиль</button></form>`;
+
+    const D = {
+      f: [
+        () => `<div class="row" style="margin-bottom:16px"><button class="btn s" data-a="addlot">Добавить экспортный лот</button><button class="btn o s" data-a="addland">Добавить землю / теплицу</button><button class="btn o s" data-a="post">Создать вакансию</button></div>` + (
+          S.vc.length || S.ul.length
+            ? `<div class="st">${S.ul.map(lotCard).join("")}${S.vc.map(j => `<div class="card"><h3>${j.t}</h3><div class="mut">${REG[j.rg]} · ${pay(j)}</div><button class="btn o s" data-a="delv" data-i="${j.id}">Закрыть вакансию</button></div>`).join("")}</div>`
+            : `<div class="grid">${em("Пока нет вакансий", "Создайте первую — она появится в каталоге.")}</div>`
+        ),
+        () => `<div class="grid">${S.rfq.length ? S.rfq.map(r => `<div class="card"><span class="tag">${r.dt}</span><h3>${r.t}</h3><div class="mut">${r.m}</div></div>`).join("") : em("Запросов пока нет", "Отправьте AI-контракт или запрос в разделе Экспорт.")}</div>`,
+        () => `<div class="grid">${S.sw.length ? S.sw.map(i => wCard(W[i - 1])).join("") : em("Нет сохранённых работников", "Нажмите «Сохранить» в каталоге.", '<a class="btn" href="#workers">Найти работников</a>')}</div>`
+      ],
+      w: [
+        u => `<div class="card" style="width:100%"><h3>Профиль заполнен на ${pc(u)}%</h3><div class="pb"><i style="width:${pc(u)}%"></i></div></div><h3 style="margin:24px 0 12px">Свежие вакансии</h3><div class="grid">${[...new Set(allJ().filter(j => j.sp == u.x).concat(allJ()))].slice(0, 3).map(jobCard).join("")}</div>`,
+        () => `<div class="grid">${S.ap.length ? jl(S.ap).map(jobCard).join("") : em("Откликов пока нет", "Откликнитесь на вакансию.", '<a class="btn" href="#jobs">Найти работу</a>')}</div>`,
+        () => `<div class="grid">${S.sj.length ? jl(S.sj).map(jobCard).join("") : em("Нет сохранённых вакансий", "Нажмите «Сохранить» на вакансии.", '<a class="btn" href="#jobs">Найти работу</a>')}</div>`,
+        u => pfForm(u)
+      ]
+    };
+
+    V.dashboard = () => {
+      const u = me();
+      if (!u) return `<section><div class="w"><div class="grid">${em("Нужен вход", "Войдите, чтобы открыть кабинет.", '<a class="btn" href="#login">Войти</a>')}</div></div></section>`;
+      const f = u.role == "f";
+      const T = f ? ["Вакансии", "Запросы", "Сохранённые работники"] : ["Обзор", "Отклики", "Сохранённые вакансии", "Профиль"];
+      return `<section><div class="w">
+        <div class="row" style="justify-content:space-between">
+          <div><h2>${f ? "Кабинет фермера / бизнеса" : "Кабинет работника"} ${S.pro ? '<span class="tag ai">PRO</span>' : ''}</h2><div class="mut">${u.fn}${f ? " · " + u.x : ""}</div></div>
+          <button class="btn o s" data-a="pro">${S.pro ? "✓ PRO Активен" : "Попробовать PRO"}</button>
+        </div>
+        <div class="tabs" role="tablist">${T.map((t, i) => `<button role="tab" aria-selected="${i == DT}" data-a="tab" data-i="${i}">${t}</button>`).join("")}</div>
+        ${(D[u.role][DT] || D[u.role][0])(u)}
+      </div></section>`;
+    };
+
+    const draw = keep => {
+      const [p, id] = (location.hash.slice(1) || "home").split("-");
+      $("#app").innerHTML = (V[p] || nf)(+id);
+      document.querySelectorAll("[data-f]").forEach(el => { if (FS[el.dataset.g]) el.value = FS[el.dataset.g][el.dataset.f]; });
+      $("#nav").innerHTML = `
+        <div class="lks">
+          ${[["trade", "Экспорт"], ["lands", "Земля"], ["tech", "Техника"], ["jobs", "Найти работу"], ["workers", "Найти работников"], ["about", "О платформе"]]
+            .map(a => `<a href="#${a[0]}"${a[0] == p ? ' class="on"' : ""}>${a[1]}</a>`).join("")}
+        </div>
+        <div class="acts">
+          ${me() ? '<a href="#dashboard">Кабинет</a><a href="#home" data-a="out">Выйти</a>' : '<a href="#login">Войти</a>'}
+          <button class="btn s" data-a="addlot">Разместить вакансию</button>
+        </div>`;
+      document.documentElement.dataset.theme = S.th;
+      document.documentElement.lang = S.lg;
+      const ft = $('footer');
+      ft.dataset.o = ft.dataset.o || ft.innerHTML;
+      ft.innerHTML = ft.dataset.o;
+      $('#lr').setAttribute('aria-pressed', S.lg == 'ru');
+      $('#lu').setAttribute('aria-pressed', S.lg == 'uz');
+      $('#th').innerHTML = S.th == 'dark' ? SUN : MOON;
+      $('#th').setAttribute('aria-label', tr(S.th == 'dark' ? 'Светлая тема' : 'Тёмная тема'));
+      $('#bg').textContent = tr('Меню');
+      ['#app', '#nav', 'footer'].forEach(s => tx($(s)));
+      document.title = S.lg == 'uz' ? 'ZaminJob — AI Agro-Savdo va Xizmatlar' : 'ZaminJob — AI Агро-торговля и услуги';
+      if (!keep) scrollTo(0, 0);
+    };
+
+    const tg = (k, i) => {
+      const a = S[k], x = a.indexOf(i);
+      x < 0 ? a.push(i) : a.splice(x, 1);
+      save();
+      toast(x < 0 ? "Добавлено в сохранённые" : "Убрано из сохранённых");
+      draw(1);
+    };
+
+    const A = {
+      lg: i => { S.lg = i; S.lgv = 1; save(); draw(1); },
+      th: () => { S.th = S.th == 'dark' ? 'light' : 'dark'; save(); draw(1); },
+      pro: () => { S.pro = S.pro ? 0 : 1; save(); toast(S.pro ? "PRO Активен" : "Демо"); draw(1); },
+      burger: () => $("#nav").classList.toggle("open"),
+      close,
+      sj: i => tg("sj", i),
+      sw: i => tg("sw", i),
+      tab: i => { DT = i; draw(1); },
+      role: i => { RR = i; draw(1); },
+      chip: i => { FS.j = { q: "", rg: "", sp: String(i), pay: "0", ty: "", so: "new" }; },
+      aichip: (i, b) => { AIQ = b.dataset.t; AIR = aiMatch(AIQ); draw(1); },
+      aioffer: i => openAiOffer(i),
+      addlot: () => lotForm(),
+      addland: () => landForm(),
+      rfq: (i, b) => modal(`
+        <h2>Запрос / RFQ</h2>
+        <p class="mut"><b>${esc(b.dataset.t)}</b></p>
+        <form data-s="rfq" novalidate>
+          <input type="hidden" name="t" value="${esc(b.dataset.t)}">
+          ${fld("ph", "Телефон", "tel", PHX)}
+          <label for="msg">Сообщение</label><textarea id="msg" name="msg" rows="3"></textarea><div class="err" data-e="msg"></div>
+          <div class="row" style="margin-top:12px"><button class="btn">Отправить</button><button type="button" class="btn o" data-a="close">Отмена</button></div>
+        </form>`),
+      out: () => { S.in = 0; DT = 0; save(); toast("Вы вышли из аккаунта"); draw(); },
+      delv: i => { S.vc = S.vc.filter(j => j.id != i); save(); toast("Вакансия закрыта"); draw(1); },
+      job: i => {
+        const j = allJ().find(x => x.id == i);
+        modal(`<h2>${j.t}</h2><p class="mut">${j.em} · ${REG[j.rg]}</p><div class="row"><span class="tag">${SP[j.sp]}</span><span class="tag">${j.ty}</span></div><p style="margin-top:14px">${(S.lg == 'uz' && JDU[j.id - 1]) || j.d}</p><p><b>${pay(j)}</b></p><div class="row"><button class="btn" data-a="apply" data-i="${i}">Откликнуться</button><button class="btn o" data-a="close">Закрыть</button></div>`);
+      },
+      apply: i => {
+        const u = me();
+        if (!u) { close(); location.hash = "login"; return; }
+        if (!S.ap.includes(i)) S.ap.push(i);
+        save(); close(); toast("Отклик отправлен (демо)"); draw(1);
+      },
+      post: () => {
+        const u = me();
+        if (!u) { RR = "f"; location.hash = "register"; draw(1); }
+        else vacForm();
+      },
+      msg: (i, b) => modal(`<h2>Связаться: ${b.dataset.t}</h2><form data-s="msg" novalidate><label for="msg">Сообщение</label><textarea id="msg" name="msg" rows="4"></textarea><div class="err" data-e="msg"></div><div class="row" style="margin-top:12px"><button class="btn">Отправить</button><button type="button" class="btn o" data-a="close">Отмена</button></div></form>`)
+    };
+
+    const g = (f, k) => esc(f.elements[k].value.trim());
+
+    const H = {
+      ai: f => {
+        const q = f.elements.q.value.trim();
+        if (!q) return;
+        AIQ = q;
+        AIR = aiMatch(q);
+        draw(1);
+      },
+      rfq: f => {
+        if (!chk(f, { ph: [PH, "Формат: +998 90 123 45 67"], msg: [/.{5,}/, "Минимум 6 символов"] })) return;
+        S.rfq.unshift({ t: f.elements.t.value, m: g(f, "ph") + " · " + g(f, "msg"), dt: new Date().toISOString().slice(0, 10) });
+        save(); close(); toast("Запрос сохранён в кабинете");
+      },
+      lot: f => {
+        if (!chk(f, { t: [/.{3,}/, "Минимум 3 символа"], farm: [/.{2,}/, "Введите название хозяйства"], rg: [/\d/, "Выберите регион"] })) return;
+        S.ul.unshift({
+          id: 500 + Date.now() % 10000, crop: f.elements.crop.value, rg: +f.elements.rg.value,
+          tons: +f.elements.tons.value || 10, priceUsd: +f.elements.usd.value || 1.2, incoterm: "EXW", gap: 0,
+          farm: g(f, "farm"), grade: "Class A", harvest: "Mavjud", t: g(f, "t"), pack: "Eksport qadoqlash"
+        });
+        save(); close(); toast("Лот опубликован"); location.hash = "trade"; draw();
+      },
+      land: f => {
+        if (!chk(f, { t: [/.{3,}/, "Минимум 3 символа"], rg: [/\d/, "Выберите регион"] })) return;
+        S.uland.unshift({
+          id: 600 + Date.now() % 10000, rg: +f.elements.rg.value, type: f.elements.type.value,
+          area: g(f, "area") || "2 га", deal: "Партнёрство 50/50 или аренда", price: g(f, "price") || "По договорённости",
+          owner: me() ? S.u.x || S.u.fn : "Фермерское хозяйство", water: g(f, "water") || "Капельный полив", t: g(f, "t")
+        });
+        save(); close(); toast("Объявление о земле опубликовано"); location.hash = "lands"; draw();
+      },
+      login: f => {
+        if (!chk(f, { ph: [PH, "Формат: +998 90 123 45 67"], pw: [/.{6,}/, "Минимум 6 символов"] })) return;
+        const p = v => v.replace(/\s/g, "");
+        if (!S.u || p(S.u.ph) != p(f.elements.ph.value)) {
+          f.querySelector("[data-e=ph]").textContent = tr('Аккаунт не найден. Это демо: сначала зарегистрируйтесь.');
+          return;
+        }
+        S.in = 1; DT = 0; save(); location.hash = "dashboard";
+      },
+      reg: f => {
+        const fm = RR == "f";
+        if (!chk(f, { fn: [/.{2,}/, "Введите имя"], ph: [PH, "Формат: +998 90 123 45 67"], rg: [/\d/, "Выберите регион"], x: [fm ? /.{2,}/ : /\d/, fm ? "Введите название хозяйства" : "Выберите специальность"], pw: [/.{6,}/, "Минимум 6 символов"] })) return;
+        S.u = { role: RR, fn: g(f, "fn"), ph: g(f, "ph"), rg: g(f, "rg"), x: g(f, "x") };
+        S.in = 1; DT = 0; save(); toast("Аккаунт создан (демо)"); location.hash = "dashboard";
+      },
+      vac: f => {
+        if (!chk(f, { t: [/.{3,}/, "Минимум 3 символа"], sp: [/\d/, "Выберите специальность"], rg: [/\d/, "Выберите регион"], pay: [/^\d{6,8}$/, "Укажите сумму от 100 000"], d: [/.{10,}/, "Опишите работу минимум в 10 символов"] })) return;
+        S.vc.push({ id: 100 + Date.now() % 100000, t: g(f, "t"), sp: +f.elements.sp.value, rg: +f.elements.rg.value, pay: Math.round(f.elements.pay.value / 1000), ty: g(f, "ty"), em: S.u.x, d: g(f, "d") });
+        save(); close(); DT = 0; toast("Вакансия опубликована (демо)"); draw(1);
+      },
+      pf: f => {
+        if (!chk(f, { fn: [/.{2,}/, "Введите имя"], rg: [/\d/, "Выберите регион"], x: [/\d/, "Выберите специальность"], ex: [/^\d{0,2}$/, "Укажите число лет"] })) return;
+        Object.assign(S.u, { fn: g(f, "fn"), rg: g(f, "rg"), x: g(f, "x"), ex: g(f, "ex"), sk: g(f, "sk"), bio: g(f, "bio") });
+        save(); toast("Профиль сохранён"); draw(1);
+      },
+      msg: f => {
+        if (!chk(f, { msg: [/.{10,}/, "Напишите минимум 10 символов"] })) return;
+        close(); toast("Сообщение принято (демо, никуда не отправлено)");
+      }
+    };
+
+    document.addEventListener("click", e => {
+      const b = e.target.closest("[data-a]");
+      if (!b) return;
+      const n = +b.dataset.i;
+      A[b.dataset.a]?.(isNaN(n) ? b.dataset.i : n, b);
+    });
+
+    document.addEventListener("submit", e => {
+      e.preventDefault();
+      H[e.target.dataset.s]?.(e.target);
+    });
+
+    addEventListener("input", e => {
+      const t = e.target, k = t.dataset.g;
+      if (t.name == "ph") { t.value = fmtPh(t.value); return; }
+      if (!k) return;
+      FS[k][t.dataset.f] = t.value;
+      const fn = k == 'j' ? jobList : k == 'w' ? wList : k == 't' ? tradeList : landList;
+      $('#list').innerHTML = fn();
+      tx($('#list'));
+    });
+
+    addEventListener("hashchange", () => draw());
+    draw();
+  </script>
+</body>
+</html>
