@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZaminJob — Dehqonchilik, Chorvachilik va Agro-Savdo</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="offlineBanner" class="offline-banner">
+    📡 Internet uzildi — Oflayn rejim ishlamoqda. Keshdagi nomzodlar va ochilgan bitimlar saqlangan.
+  </div>
+
+  <!-- Tepa boshqaruv paneli -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="#" class="brand" onclick="resetFilters()">
+        <img src="assets/icons/logo.svg" alt="ZaminJob logotipi" />
+        <div>
+          <div class="brand-title">ZaminJob</div>
+          <div class="brand-sub">Dehqonchilik • Chorvachilik • Savdo</div>
+        </div>
+      </a>
+
+      <div class="top-controls">
+        <select aria-label="Davlat va valyuta" onchange="changeCurrency(this.value)">
+          <option value="UZS">🇺🇿 O'zbekiston • UZS</option>
+          <option value="KZT">🇰🇿 Qozog'iston • KZT</option>
+          <option value="KGS">🇰🇬 Qirg'iziston • KGS</option>
+          <option value="TJS">🇹🇯 Tojikiston • TJS</option>
+        </select>
+
+        <select aria-label="Tilni tanlash">
+          <option value="uz">O'zbekcha</option>
+          <option value="kk">Қазақша</option>
+          <option value="ky">Кыргызча</option>
+          <option value="tg">Тоҷикӣ</option>
+        </select>
+
+        <button id="offlineBtn" class="btn-outline" onclick="toggleOfflineMode()">🌐 Onlayn</button>
+        <button class="btn-primary" onclick="document.getElementById('postModal').classList.add('open')">
+          ➕ E'lon va Media qo'shish
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Kirishdagi "Sizga kim kerak?" AI qidiruv oynasi -->
+    <section class="ai-hero">
+      <h1>Sizga kim kerak?</h1>
+      <p>Kasbni yozing yoki ovozli tugmani bosing — AI sizga mos mutaxassis, brigada yoki eksportchini topib beradi.</p>
+
+      <div class="ai-search-box">
+        <input
+          id="aiQueryInput"
+          class="ai-input"
+          type="text"
+          placeholder="Masalan: Otlarimga qaraydigan odam yoki 10 kishilik brigada kerak..."
+          onkeydown="if(event.key==='Enter') handleAISearch()"
+        />
+        <button class="btn-primary" onclick="handleAISearch()">🔍 AI Topish</button>
+        <button class="btn-amber" onclick="runVoicePreset('Otlarimga qaraydigan tajribali otboqar kerak, yotoq joy bor')">
+          🎙️ Ovozli AI
+        </button>
+      </div>
+
+      <div id="aiStatusBox" class="ai-status-box"></div>
+
+      <div class="voice-presets">
+        <span style="font-size:0.84rem; font-weight:800;">Tezkor AI misollar:</span>
+        <button class="voice-chip" onclick="runVoicePreset('Otlarimga qaraydigan odam kerak')">«Otlarimga qaraydigan odam»</button>
+        <button class="voice-chip" onclick="runVoicePreset('Forishga 400 bosh qoy boqishga chopon kerak')">«Qo'y boqishga cho'pon»</button>
+        <button class="voice-chip" onclick="runVoicePreset('Pomidor terishga 10 kishilik brigada kerak')">«Pomidor terishga brigada»</button>
+        <button class="voice-chip" onclick="runVoicePreset('Hosilni eksport qilishga ombori bor xaridor kerak')">«Eksportchi va ombor»</button>
+      </div>
+
+      <div class="category-pills">
+        <button class="pill active" data-cat="Barchasi" onclick="selectCategory('Barchasi')">🌾 Barchasi</button>
+        <button class="pill" data-cat="Otboqar" onclick="selectCategory('Otboqar')">🐎 Otboqar</button>
+        <button class="pill" data-cat="Cho'pon" onclick="selectCategory(this.dataset.cat)">🐑 Cho'pon</button>
+        <button class="pill" data-cat="Brigada" onclick="selectCategory('Brigada')">👥 Brigada</button>
+        <button class="pill" data-cat="Suvchi" onclick="selectCategory('Suvchi')">💧 Suvchi</button>
+        <button class="pill" data-cat="Texnika" onclick="selectCategory('Texnika')">🚜 Texnika</button>
+        <button class="pill" data-cat="Eksportchi" onclick="selectCategory('Eksportchi')">🌍 Eksportchi</button>
+      </div>
+    </section>
+
+    <!-- Asosiy 2 ustunli bo'lim -->
+    <div class="main-grid">
+      <!-- Chap tomon: Mutaxassislar va Eksportchilar kartalari -->
+      <section>
+        <div id="cardsContainer" class="cards-grid"></div>
+      </section>
+
+      <!-- O'ng tomon: Agro-Pasport, Media va VMQ-806 Qonuniy Himoya -->
+      <aside class="side-panel">
+        <div class="panel-box">
+          <h2>🪪 Agro-Pasport va Eksport Tarixi</h2>
+          <div id="passportDetails"></div>
+        </div>
+
+        <div class="panel-box">
+          <h2>🛡️ VMQ-806 Qonuniy Shartnoma</h2>
+          <span class="legal-badge">Jarimalarsiz bir martalik ish bitimi</span>
+          <p style="font-size:0.9rem; color:#374151;">
+            Fermer va mavsumiy ishchi o'rtasidagi kelishuv o'zini o'zi band qilish qoidalari asosida raqamli dalolatnoma bilan rasmiylashtiriladi.
+          </p>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Media Galereya Modali -->
+  <div id="mediaModal" class="modal-backdrop" onclick="if(event.target===this) closeModal('mediaModal')">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="mediaModalTitle">Media Galereya</h3>
+        <button class="close-btn" onclick="closeModal('mediaModal')">✕</button>
+      </div>
+      <div id="mediaModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Bitim va VMQ-806 Modali -->
+  <div id="dealModal" class="modal-backdrop" onclick="if(event.target===this) closeModal('dealModal')">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Raqamli Bitim va Aloqa</h3>
+        <button class="close-btn" onclick="closeModal('dealModal')">✕</button>
+      </div>
+      <div id="dealModalBody"></div>
+    </div>
+  </div>
+
+  <!-- E'lon va Media qo'shish Modali -->
+  <div id="postModal" class="modal-backdrop" onclick="if(event.target===this) closeModal('postModal')">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Yangi E'lon va Media Qo'shish</h3>
+        <button class="close-btn" onclick="closeModal('postModal')">✕</button>
+      </div>
+      <p style="font-size:0.9rem; color:#374151; margin-bottom:12px;">
+        Ish jarayoni, otxona, qo'ra yoki sovutkichli ombor rasm-videosini yuklang — «Ilova kamerasi» belgisi ishonchni 3 baravar oshiradi.
+      </p>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <input class="ai-input" type="text" placeholder="Kasb yoki yo'nalish (masalan: Otboqar / Eksportchi)" />
+        <input class="ai-input" type="text" placeholder="Hudud (masalan: Jizzax, Forish tumani)" />
+        <label class="btn-outline" style="justify-content:center;">
+          📷 Rasm yoki Video tanlash (Ilova kamerasi)
+          <input type="file" accept="image/*,video/*" style="display:none;" onchange="alert('Media fayl muvaffaqiyatli biriktirildi!')" />
+        </label>
+        <button class="btn-primary" onclick="closeModal('postModal'); alert('E’lon va media galereya saqlandi!');">
+          ✅ E'lonni joylash
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobil pastki navigatsiya -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="resetFilters()">
+      <span>🏠</span>
+      <span>Bosh sahifa</span>
+    </button>
+    <button class="nav-item" onclick="openMediaModal(1)">
+      <span>🎥</span>
+      <span>Media</span>
+    </button>
+    <button class="nav-item" onclick="startDeal(1)">
+      <span>📄</span>
+      <span>Bitimlar</span>
+    </button>
+    <button class="nav-item" onclick="openMediaModal(5)">
+      <span>🌍</span>
+      <span>Eksport</span>
+    </button>
+  </nav>
+
+  <script src="js/data.js"></script>
+  <script src="js/ai-engine.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
