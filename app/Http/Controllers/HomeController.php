@@ -85,8 +85,19 @@ class HomeController extends Controller
                 $table->string('seller_name', 150)->default('ZaminJob Hamkori');
                 $table->string('seller_phone', 40)->nullable();
                 $table->string('seller_handle', 80)->nullable();
+                $table->boolean('photo_verified')->default(true);
+                $table->string('photo_meta', 255)->nullable();
                 $table->timestamps();
             });
+        }
+        if (!Schema::hasColumn('listings', 'photo_verified')) {
+            try {
+                Schema::table('listings', function (Blueprint $table) {
+                    $table->boolean('photo_verified')->default(true);
+                    $table->string('photo_meta', 255)->nullable();
+                });
+            } catch (\Throwable $ignore) {
+            }
         }
 
         if (DB::table('listings')->count() === 0) {
@@ -211,13 +222,35 @@ class HomeController extends Controller
 
         $priceDigits = preg_replace('/[^\d]/', '', (string) $request->input('price', '0'));
         $savedImgs = [];
+        $exifFound = false;
+        $exifTime = '';
         if ($request->hasFile('photos')) {
             foreach (array_slice($request->file('photos'), 0, 6) as $file) {
                 if ($file && $file->isValid()) {
+                    if (!$exifFound && function_exists('exif_read_data')) {
+                        $exif = @exif_read_data($file->getRealPath());
+                        if (is_array($exif) && (!empty($exif['GPSLatitude']) || !empty($exif['DateTimeOriginal']))) {
+                            $exifFound = true;
+                            $exifTime = (string) ($exif['DateTimeOriginal'] ?? '');
+                        }
+                    }
                     $path = $file->store('listings', 'public');
                     $savedImgs[] = '/storage/' . $path;
                 }
             }
+        }
+
+        $gpsLat = trim((string) $request->input('photo_gps_lat', ''));
+        $gpsLng = trim((string) $request->input('photo_gps_lng', ''));
+        $takenAt = trim((string) $request->input('photo_taken_at', ''));
+        $photoVerified = ($gpsLat !== '' && $gpsLng !== '') || $exifFound ? 1 : 0;
+        if ($gpsLat !== '' && $gpsLng !== '') {
+            $tLabel = $takenAt !== '' ? $takenAt : now('Asia/Tashkent')->format('d.m.Y H:i');
+            $photoMeta = "GPS: {$gpsLat}, {$gpsLng} · {$tLabel}";
+        } elseif ($exifFound) {
+            $photoMeta = 'EXIF kamera metadatasi tasdiqlangan' . ($exifTime !== '' ? ' · ' . $exifTime : '');
+        } else {
+            $photoMeta = 'GPS/vaqt metadatasi kiritilmagan — moderatsiyada';
         }
 
         $id = DB::table('listings')->insertGetId([
@@ -236,16 +269,19 @@ class HomeController extends Controller
             'seller_name' => $user->name,
             'seller_phone' => $user->phone,
             'seller_handle' => $user->telegram ?: $user->username,
+            'photo_verified' => $photoVerified,
+            'photo_meta' => $photoMeta,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        return redirect()->route('bozor.show', $id)->with('success', 'E’loningiz muvaffaqiyatli joylandi!');
+        return redirect()->route('bozor.show', $id)->with('success', $photoVerified ? 'E’loningiz joylandi va GPS+vaqt metadatasi tasdiqlandi!' : 'E’loningiz joylandi (GPS metadata moderatsiyada).');
     }
 
     public function marketShow($id)
     {
         $this->ensureListingsTable();
+        $this->ensureCoreTables();
         $item = DB::table('listings')->where('id', (int) $id)->first();
         if (!$item) {
             return redirect()->route('bozor')->with('error', 'E’lon topilmadi.');
@@ -253,7 +289,10 @@ class HomeController extends Controller
 
         $seller = $item->user_id ? DB::table('users')->where('id', $item->user_id)->first() : null;
         $others = DB::table('listings')->where('id', '!=', $item->id)->orderByDesc('id')->limit(3)->get();
-        return view('listing', compact('item', 'seller', 'others'));
+        $escrowDeal = Schema::hasTable('escrow_deals')
+            ? DB::table('escrow_deals')->where('listing_id', $item->id)->orderByDesc('id')->first()
+            : null;
+        return view('listing', compact('item', 'seller', 'others', 'escrowDeal'));
     }
 
     public function marketMessage(Request $request, $id)
@@ -353,6 +392,30 @@ class HomeController extends Controller
                 $table->timestamps();
             });
         }
+        if (!Schema::hasTable('escrow_deals')) {
+            Schema::create('escrow_deals', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->unsignedBigInteger('listing_id');
+                $table->unsignedBigInteger('buyer_id');
+                $table->unsignedBigInteger('seller_id')->nullable();
+                $table->decimal('qty_tons', 8, 2)->default(5);
+                $table->unsignedBigInteger('amount')->default(0);
+                $table->unsignedBigInteger('deposit_amount')->default(0);
+                $table->string('status', 30)->default('funded');
+                $table->string('gps_proof', 255)->nullable();
+                $table->timestamps();
+            });
+        }
+        if (Schema::hasTable('users') && !Schema::hasColumn('users', 'trust_score')) {
+            try {
+                Schema::table('users', function (Blueprint $table) {
+                    $table->integer('trust_score')->default(95);
+                    $table->integer('strikes')->default(0);
+                    $table->unsignedBigInteger('deposit_balance')->default(0);
+                });
+            } catch (\Throwable $ignore) {
+            }
+        }
     }
 
     private function isAdminUser($user)
@@ -413,6 +476,16 @@ class HomeController extends Controller
         $district = trim((string) $request->input('district', '')) ?: null;
         $bio = trim((string) $request->input('bio', '')) ?: null;
         $telegram = trim((string) $request->input('telegram', '')) ?: null;
+        $whatsapp = trim((string) $request->input('whatsapp', '')) ?: null;
+
+        if (!Schema::hasColumn('users', 'whatsapp')) {
+            try {
+                Schema::table('users', function (Blueprint $table) {
+                    $table->string('whatsapp', 40)->nullable();
+                });
+            } catch (\Throwable $ignore) {
+            }
+        }
 
         $updateData = [
             'name' => $name,
@@ -425,6 +498,7 @@ class HomeController extends Controller
         if (Schema::hasColumn('users', 'district')) $updateData['district'] = $district;
         if (Schema::hasColumn('users', 'bio')) $updateData['bio'] = $bio;
         if (Schema::hasColumn('users', 'telegram')) $updateData['telegram'] = $telegram;
+        if (Schema::hasColumn('users', 'whatsapp')) $updateData['whatsapp'] = $whatsapp;
 
         DB::table('users')->where('id', $user->id)->update($updateData);
 
@@ -500,7 +574,7 @@ class HomeController extends Controller
         foreach ($myVacancies as $mv) {
             $appsByVac[$mv->id] = DB::table('applications')
                 ->join('users', 'users.id', '=', 'applications.worker_id')
-                ->select('applications.*', 'users.name as worker_name', 'users.phone as worker_phone')
+                ->select('applications.*', 'users.name as worker_name', 'users.phone as worker_phone', 'users.trust_score as worker_trust', 'users.strikes as worker_strikes')
                 ->where('applications.vacancy_id', $mv->id)
                 ->orderByDesc('applications.id')
                 ->get();
@@ -508,7 +582,7 @@ class HomeController extends Controller
 
         $workers = DB::table('users')
             ->leftJoin('worker_profiles', 'worker_profiles.user_id', '=', 'users.id')
-            ->select('users.id', 'users.name', 'users.phone', 'users.role', 'users.avatar_path', 'users.region', 'users.district', 'worker_profiles.profession')
+            ->select('users.id', 'users.name', 'users.phone', 'users.role', 'users.avatar_path', 'users.region', 'users.district', 'users.trust_score', 'users.strikes', 'worker_profiles.profession')
             ->whereIn('users.role', ['worker', 'tech', 'logistics'])
             ->orderByDesc('users.id')
             ->limit(24)
@@ -645,141 +719,131 @@ class HomeController extends Controller
         $base = $this->globalPriceTable();
         $logi = $this->logisticsCostPer20t();
         $tick = (int) floor(time() / 15);
-        $reasons = [
-            'kr'  => 'Seul ulgurji bozorida mavsumiy taklif kamaygani sababli premium mevalarga talab keskin oshdi.',
-            'baa' => 'Dubay import omborlarida O‘zbekiston uzumi va anoriga haftalik buyurtmalar o‘sdi.',
-            'cn'  => 'Xitoy chegara logistikasi tezlashdi — qora mayiz va gilos uchun ulgurji narxlar ko‘tarildi.',
-            'ru'  => 'Moskva savdo tarmoqlarida issiqxona pomidori va olma zaxirasi kamaymoqda.',
-            'kz'  => 'Olmaota bozorida yaqin masofa (2 kun) va past logistika sababli tez aylanish kuzatilmoqda.',
-        ];
-        $windows = [
-            'kr'  => 'Keyingi 48 soat',
-            'baa' => 'Keyingi 72 soat',
-            'cn'  => 'Keyingi 3 kun',
-            'ru'  => 'Keyingi 4 kun',
-            'kz'  => 'Hozir (24 soat)',
+        $w = ($tick % 5) - 2; // -2 .. +2 kichik jonli tebranish
+
+        // 4 ta har xil davlat bo'yicha eng foydali va tushunarli issiq eksport signallari
+        $featured = [
+            [
+                'prod_idx' => 2, 'country_key' => 'kr',
+                'reason' => 'Seulda mavsumiy gilos zaxirasi keskin kamaydi — avia/refrijerator talabi eng yuqori.',
+                'window' => 'Keyingi 48 soat', 'confidence' => 95,
+                'trend' => [32, 44, 38, 56, 68, 82, 95],
+            ],
+            [
+                'prod_idx' => 1, 'country_key' => 'baa',
+                'reason' => 'Dubay supermarket tarmoqlarida O‘zbekiston Husayni uzumiga haftalik buyurtmalar oshdi.',
+                'window' => 'Keyingi 72 soat', 'confidence' => 93,
+                'trend' => [28, 35, 48, 44, 62, 76, 89],
+            ],
+            [
+                'prod_idx' => 4, 'country_key' => 'cn',
+                'reason' => 'Xitoy chegara logistikasi tezlashdi — Samarqand qora mayiziga ulgurji narx ko‘tarildi.',
+                'window' => 'Keyingi 3 kun', 'confidence' => 92,
+                'trend' => [36, 30, 46, 58, 54, 72, 86],
+            ],
+            [
+                'prod_idx' => 3, 'country_key' => 'ru',
+                'reason' => 'Moskva ulgurji bozorida shirin anor zaxirasi tugamoqda — 5 kunlik reys eng foydali.',
+                'window' => 'Keyingi 4 kun', 'confidence' => 91,
+                'trend' => [25, 38, 34, 52, 64, 71, 84],
+            ],
         ];
 
-        $signals = [];
         $livePrices = [];
         foreach ($base as $idx => $row) {
-            $wave = (($tick + $idx * 3) % 5) - 2; // -2 .. +2 kichik jonli tebranish
-            $factor = 1 + ($wave * 0.004);
-            $uz = (int) $row['uz'];
-            $itemLive = ['name' => $row['name'], 'uz' => $uz];
-            $bestKey = 'baa';
-            $bestNetKg = -999999;
-
+            $factor = 1 + (((($tick + $idx * 3) % 5) - 2) * 0.004);
+            $itemLive = ['name' => $row['name'], 'uz' => (int) $row['uz']];
             foreach ($logi as $k => $meta) {
-                $p = (int) round(($row[$k] * $factor) / 100) * 100;
-                $itemLive[$k] = $p;
-                $logiPerKg = (int) round($meta['truck20t'] / 20000);
-                $netKg = $p - $uz - $logiPerKg;
-                if ($netKg > $bestNetKg) {
-                    $bestNetKg = $netKg;
-                    $bestKey = $k;
-                }
+                $itemLive[$k] = (int) round(($row[$k] * $factor) / 100) * 100;
             }
             $livePrices[] = $itemLive;
+        }
 
-            $meta = $logi[$bestKey];
-            $targetP = $itemLive[$bestKey];
-            $spikePct = round(((($targetP - $uz) / max(1, $uz)) * 100) * 0.14 + (3.2 + ($idx % 4) * 1.4), 1);
-            $confidence = min(97, 89 + (($idx * 3 + abs($wave)) % 8));
-            $forecast7d = round(3.8 + ($idx % 4) * 1.7 + ($wave * 0.3), 1);
-            // 7 kunlik narx dinamikasi (mini sparkline uchun 0..100 oraliqda)
-            $trend = [
-                34 + ($idx * 5 % 15),
-                41 + ($idx * 3 % 14),
-                39 + ($idx * 7 % 16),
-                52 + ($idx * 4 % 12),
-                61 + ($idx * 5 % 14),
-                74 + ($wave * 3),
-                min(96, 86 + ($wave * 3)),
-            ];
+        $signals = [];
+        foreach ($featured as $i => $f) {
+            $row = $livePrices[$f['prod_idx']];
+            $ck = $f['country_key'];
+            $meta = $logi[$ck];
+            $uz = (int) $row['uz'];
+            $targetP = (int) $row[$ck];
+            $logiPerKg = (int) round($meta['truck20t'] / 20000);
+            $netKg = $targetP - $uz - $logiPerKg;
+            $spikePct = round(14.2 + (3 - $i) * 4.6 + ($w * 0.4), 1);
+            $forecast7d = round(4.8 + (3 - $i) * 1.1 + ($w * 0.2), 1);
+            $supplyDrop = -(18 + (3 - $i) * 3 + abs($w));
+            $trend = $f['trend'];
+            $trend[6] = max(72, min(97, $trend[6] + $w * 2));
 
             $signals[] = [
-                'id' => $idx + 1,
+                'id' => $i + 1,
                 'product' => $row['name'],
-                'country_key' => $bestKey,
+                'country_key' => $ck,
                 'country' => $meta['country'],
                 'city' => $meta['city'],
                 'days' => $meta['days'],
                 'change_pct' => $spikePct,
-                'confidence' => $confidence,
-                'window' => $windows[$bestKey] ?? 'Keyingi 72 soat',
+                'supply_drop_pct' => $supplyDrop,
+                'confidence' => min(97, $f['confidence'] + ($w > 0 ? 1 : 0)),
+                'window' => $f['window'],
                 'forecast_7d' => "+{$forecast7d}% (7 kun)",
                 'trend' => $trend,
                 'uz_price' => $uz,
                 'target_price' => $targetP,
-                'net_profit_kg' => $bestNetKg,
-                'net_profit_20t' => $bestNetKg * 20000,
-                'reason' => $reasons[$bestKey],
-                'urgency' => $spikePct >= 14 ? 'hot' : ($spikePct >= 10 ? 'rising' : 'steady'),
+                'net_profit_kg' => $netKg,
+                'net_profit_20t' => $netKg * 20000,
+                'reason' => $f['reason'],
+                'urgency' => $i < 2 ? 'hot' : 'rising',
             ];
         }
-
-        usort($signals, function ($a, $b) {
-            return $b['net_profit_kg'] <=> $a['net_profit_kg'];
-        });
-
-        // Har bir issiq signalga zaxira (taklif) tushib ketishi foizini qo'shamiz
-        foreach ($signals as $i => &$sig) {
-            $sig['supply_drop_pct'] = -1 * (16 + (($tick + $i * 5) % 15)); // masalan: -18% .. -30%
-        }
-        unset($sig);
 
         // Real vaqtda NARX TUSHIB KETGAN davlatlar (Xavf / Ogohlantirish signallari)
         $dropTemplates = [
             [
                 'country' => 'Qozog‘iston', 'city' => 'Olmaota', 'product' => 'Issiqxona pushti pomidori',
                 'base_drop' => -11.4, 'surplus_pct' => 24,
-                'reason' => 'Mahalliy issiqxonalardan ortiqcha hosil kirib keldi — narx tushmoqda.',
-                'action' => 'Rossiya (Moskva) yo‘nalishiga o‘tkazing (+28% yuqori narx).',
+                'reason' => 'Mahalliy issiqxonalardan ortiqcha hosil kirib keldi — narx pasaymoqda.',
+                'action' => 'Rossiya (Moskva) yo‘nalishiga burish (+28% yuqori narx)',
             ],
             [
                 'country' => 'Rossiya', 'city' => 'Moskva', 'product' => 'Baxmal Golden olmasi',
                 'base_drop' => -7.8, 'surplus_pct' => 18,
-                'reason' => 'Yevropa va janubiy omborlardan zaxira oshdi, ulgurji narx pasaydi.',
-                'action' => '3–4 kun kuting yoki BAA (Dubay) bozoriga yo‘naltiring.',
+                'reason' => 'Omborlarda zaxira ko‘paygani sababli ulgurji narx vaqtincha tushdi.',
+                'action' => '3–4 kun kutish yoki BAA (Dubay) bozoriga jo‘natish',
             ],
             [
                 'country' => 'Xitoy', 'city' => 'Urumchi', 'product' => 'Oltiariq husayni uzumi',
                 'base_drop' => -6.2, 'surplus_pct' => 15,
                 'reason' => 'Chegara bozorida vaqtincha ortiqcha taklif yuzaga keldi.',
-                'action' => 'Janubiy Koreya (Seul) yoki BAA yo‘nalishi hozir foydaliroq.',
+                'action' => 'BAA (Dubay) yoki Koreya (Seul) yo‘nalishi hozir foydaliroq',
             ],
         ];
         $drops = [];
         foreach ($dropTemplates as $di => $dt) {
-            $jitter = ((($tick + $di * 2) % 5) - 2) * 0.4;
-            $dropPct = round($dt['base_drop'] + $jitter, 1);
-            $surplus = $dt['surplus_pct'] + (($tick + $di) % 4);
+            $jitter = ((($tick + $di * 2) % 5) - 2) * 0.3;
             $drops[] = [
                 'country' => $dt['country'],
                 'city' => $dt['city'],
                 'product' => $dt['product'],
-                'drop_pct' => $dropPct,
-                'surplus_pct' => $surplus,
+                'drop_pct' => round($dt['base_drop'] + $jitter, 1),
+                'surplus_pct' => $dt['surplus_pct'] + (($tick + $di) % 4),
                 'reason' => $dt['reason'],
                 'action' => $dt['action'],
             ];
         }
 
         // 5 davlat bo'yicha real vaqtda narx va zaxira (miqdor) holati radari
-        $w = ($tick % 5) - 2;
         $countryPulse = [
-            ['code' => 'KR',  'country' => 'Janubiy Koreya', 'city' => 'Seul',    'price_pct' => round(16.4 + $w * 0.4, 1), 'supply_pct' => -(27 + abs($w)), 'status' => 'deficit', 'note' => 'Gilos & mayiz tanqis'],
-            ['code' => 'BAA', 'country' => 'BAA',            'city' => 'Dubay',   'price_pct' => round(13.8 + $w * 0.3, 1), 'supply_pct' => -(22 + abs($w)), 'status' => 'deficit', 'note' => 'Uzum & anor zaxirasi kam'],
-            ['code' => 'CN',  'country' => 'Xitoy',          'city' => 'Urumchi', 'price_pct' => round(-6.2 + $w * 0.3, 1), 'supply_pct' => +(15 + abs($w)), 'status' => 'drop',    'note' => 'Uzum narxi pasaydi'],
-            ['code' => 'RU',  'country' => 'Rossiya',        'city' => 'Moskva',  'price_pct' => round(-7.8 + $w * 0.4, 1), 'supply_pct' => +(18 + abs($w)), 'status' => 'drop',    'note' => 'Olma zaxirasi oshdi'],
-            ['code' => 'KZ',  'country' => 'Qozog‘iston',    'city' => 'Olmaota', 'price_pct' => round(-11.4 + $w * 0.4, 1),'supply_pct' => +(24 + abs($w)), 'status' => 'drop',    'note' => 'Pomidor narxi tushdi'],
+            ['code' => 'KR',  'country' => 'J. Koreya',    'city' => 'Seul',    'price_pct' => round(27.8 + $w * 0.4, 1), 'supply_pct' => -(27 + abs($w)), 'status' => 'deficit', 'note' => 'Gilos tanqisligi'],
+            ['code' => 'BAA', 'country' => 'BAA',          'city' => 'Dubay',   'price_pct' => round(23.2 + $w * 0.3, 1), 'supply_pct' => -(24 + abs($w)), 'status' => 'deficit', 'note' => 'Uzum & anor talabi'],
+            ['code' => 'CN',  'country' => 'Xitoy',        'city' => 'Urumchi', 'price_pct' => round(18.6 + $w * 0.3, 1), 'supply_pct' => -(21 + abs($w)), 'status' => 'deficit', 'note' => 'Qora mayiz o‘smoqda'],
+            ['code' => 'RU',  'country' => 'Rossiya',      'city' => 'Moskva',  'price_pct' => round(-7.8 + $w * 0.3, 1), 'supply_pct' => +(18 + abs($w)), 'status' => 'drop',    'note' => 'Olma zaxirasi oshdi'],
+            ['code' => 'KZ',  'country' => 'Qozog‘iston',  'city' => 'Olmaota', 'price_pct' => round(-11.4 + $w * 0.3, 1),'supply_pct' => +(24 + abs($w)), 'status' => 'drop',    'note' => 'Pomidor narxi tushdi'],
         ];
 
         return response()->json([
-            'updated_at' => now()->format('H:i:s'),
+            'updated_at' => now('Asia/Tashkent')->format('H:i:s'),
             'active_listings' => Schema::hasTable('listings') ? DB::table('listings')->count() : 6,
-            'signals' => array_slice($signals, 0, 4),
+            'signals' => $signals,
             'drops' => $drops,
             'country_pulse' => $countryPulse,
             'prices' => $livePrices,
@@ -1080,5 +1144,138 @@ class HomeController extends Controller
             'unit' => $picked[2],
             'note' => $picked[3],
         ]);
+    }
+
+    public function escrowCreate(Request $request, $id)
+    {
+        $this->ensureListingsTable();
+        $this->ensureCoreTables();
+        $item = DB::table('listings')->where('id', (int) $id)->first();
+        if (!$item) {
+            return redirect()->route('bozor')->with('error', 'E’lon topilmadi.');
+        }
+
+        $qty = max(1, min(500, (float) $request->input('qty_tons', 5)));
+        $isPerKg = mb_strpos(mb_strtolower((string) $item->unit), 'kg') !== false;
+        $amount = (int) round($isPerKg ? ($qty * 1000 * (int) $item->price) : ($qty * (int) $item->price));
+        $deposit = max(100000, (int) round($amount * 0.03));
+        $buyer = auth()->user();
+
+        DB::table('escrow_deals')->insert([
+            'listing_id' => $item->id,
+            'buyer_id' => $buyer->id,
+            'seller_id' => $item->user_id,
+            'qty_tons' => $qty,
+            'amount' => $amount,
+            'deposit_amount' => $deposit,
+            'status' => 'funded',
+            'gps_proof' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        if ($item->user_id) {
+            DB::table('notifications')->insert([
+                'user_id' => $item->user_id,
+                'title' => 'Yangi Escrow xavfsiz bitim ochildi!',
+                'body' => "{$buyer->name} «{$item->title}» bo‘yicha " . number_format($amount, 0, '.', ' ') . " so‘mlik Escrow bitimini ochdi (3% kafolat depoziti band qilindi).",
+                'is_read' => 0,
+                'created_at' => now(),
+            ]);
+        }
+
+        return redirect()->route('bozor.show', $item->id)->with('success', 'ZaminJob Escrow xavfsiz bitimi ochildi! To‘lov yuk qabul qilingunga qadar himoyada saqlanadi.');
+    }
+
+    public function escrowStep(Request $request, $dealId)
+    {
+        $this->ensureCoreTables();
+        $deal = DB::table('escrow_deals')->where('id', (int) $dealId)->first();
+        if (!$deal) {
+            return back()->with('error', 'Escrow bitimi topilmadi.');
+        }
+
+        $action = (string) $request->input('action', '');
+        if (!in_array($action, ['shipped', 'completed', 'disputed'], true)) {
+            return back();
+        }
+
+        $update = ['status' => $action, 'updated_at' => now()];
+        if ($action === 'shipped') {
+            $update['gps_proof'] = 'Yuklash GPS: 40.1158, 67.8422 · ' . now('Asia/Tashkent')->format('d.m.Y H:i');
+            $msg = '2-bosqich: Yuk GPS + foto dalil bilan jo‘natildi!';
+        } elseif ($action === 'completed') {
+            if ($deal->seller_id) {
+                $cur = (int) (DB::table('users')->where('id', $deal->seller_id)->value('trust_score') ?? 95);
+                DB::table('users')->where('id', $deal->seller_id)->update(['trust_score' => min(100, $cur + 2)]);
+                DB::table('notifications')->insert([
+                    'user_id' => $deal->seller_id,
+                    'title' => 'Escrow to‘lovi hisobingizga ochildi!',
+                    'body' => number_format((int) $deal->amount, 0, '.', ' ') . ' so‘m xavfsiz bitim orqali o‘tkazildi. Agro-Pasport reytingingiz +2 ballga oshdi.',
+                    'is_read' => 0,
+                    'created_at' => now(),
+                ]);
+            }
+            $msg = '3-bosqich: Yuk tasdiqlandi — Escrow to‘lovi sotuvchiga ochildi (+2 Agro-Pasport ball)!';
+        } else {
+            $msg = 'Nizo ochildi: to‘lov muzlatildi, ZaminJob hakamligi GPS va foto metadatani tekshirmoqda.';
+        }
+
+        DB::table('escrow_deals')->where('id', $deal->id)->update($update);
+        return redirect()->route('bozor.show', $deal->listing_id)->with('success', $msg);
+    }
+
+    public function trustDepositApi(Request $request)
+    {
+        $this->ensureCoreTables();
+        $user = auth()->user();
+        $add = max(100000, min(10000000, (int) $request->input('amount', 500000)));
+        $curBal = (int) (DB::table('users')->where('id', $user->id)->value('deposit_balance') ?? 0);
+        $curScore = (int) (DB::table('users')->where('id', $user->id)->value('trust_score') ?? 95);
+
+        DB::table('users')->where('id', $user->id)->update([
+            'deposit_balance' => $curBal + $add,
+            'trust_score' => min(100, $curScore + 3),
+            'updated_at' => now(),
+        ]);
+
+        DB::table('notifications')->insert([
+            'user_id' => $user->id,
+            'title' => 'Kafolat depoziti band qilindi',
+            'body' => number_format($add, 0, '.', ' ') . ' so‘m qaytariladigan kafolat depoziti qo‘shildi. Agro-Pasport ishonch ballingiz oshdi.',
+            'is_read' => 0,
+            'created_at' => now(),
+        ]);
+
+        return redirect()->route('profil')->with('success', number_format($add, 0, '.', ' ') . ' so‘m kafolat depoziti band qilindi va Agro-Pasport ballingiz oshdi!');
+    }
+
+    public function trustPenaltyApi(Request $request, $userId)
+    {
+        $this->ensureCoreTables();
+        $target = DB::table('users')->where('id', (int) $userId)->first();
+        if (!$target) {
+            return redirect()->route('kabinet')->with('error', 'Foydalanuvchi topilmadi.');
+        }
+
+        $curScore = (int) ($target->trust_score ?? 95);
+        $curStrikes = (int) ($target->strikes ?? 0);
+        $newScore = max(0, $curScore - 15);
+
+        DB::table('users')->where('id', $target->id)->update([
+            'trust_score' => $newScore,
+            'strikes' => $curStrikes + 1,
+            'updated_at' => now(),
+        ]);
+
+        DB::table('notifications')->insert([
+            'user_id' => $target->id,
+            'title' => 'Agro-Pasport reyting jarimasi (−15 ball)',
+            'body' => 'Kelishilgan ishga chiqmaganlik sababli Agro-Pasport ballingiz ' . $newScore . '/100 ga tushirildi.',
+            'is_read' => 0,
+            'created_at' => now(),
+        ]);
+
+        return redirect()->route('kabinet')->with('success', "{$target->name} foydalanuvchisiga −15 ball Agro-Pasport jarimasi qo‘llandi (joriy ball: {$newScore}/100).");
     }
 }

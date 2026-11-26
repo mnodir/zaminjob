@@ -17,21 +17,27 @@
 </head>
 <body class="bg-[#f7f9f5] text-slate-800 min-h-screen pb-24">
     @php
-        $subPhotos = [
-            'Pomidor' => asset('images/listings/pomidor.jpg'),
-            'Sovutkichli refrijerator' => asset('images/listings/fura.jpg'),
-            'Fura (20t)' => asset('images/listings/fura.jpg'),
-            'Traktor' => asset('images/listings/traktor.jpg'),
-            'Issiqxona' => asset('images/listings/issiqxona.jpg'),
-            'Uzum' => asset('images/listings/uzum.jpg'),
-            'Olma' => asset('images/listings/olma.jpg'),
+        $subMap = [
+            'Pomidor' => ['img' => 'images/listings/pomidor.jpg', 'vid' => 'videos/15909400-uhd_3840_2160_25fps.mp4#t=2'],
+            'Sovutkichli refrijerator' => ['img' => 'images/listings/fura.jpg', 'vid' => 'videos/180618-864656629.mp4#t=3'],
+            'Fura (20t)' => ['img' => 'images/listings/fura.jpg', 'vid' => 'videos/180618-864656629.mp4#t=6'],
+            'Traktor' => ['img' => 'images/listings/traktor.jpg', 'vid' => 'videos/14571969_2560_1440_24fps.mp4#t=3'],
+            'Issiqxona' => ['img' => 'images/listings/issiqxona.jpg', 'vid' => 'videos/14571969_2560_1440_24fps.mp4#t=8'],
+            'Uzum' => ['img' => 'images/listings/uzum.jpg', 'vid' => 'videos/15909400-uhd_3840_2160_25fps.mp4#t=7'],
+            'Olma' => ['img' => 'images/listings/olma.jpg', 'vid' => 'videos/15909400-uhd_3840_2160_25fps.mp4#t=11'],
         ];
-        $defaultImg = $subPhotos[$item->subcategory] ?? asset('images/listings/olma.jpg');
-        $imgs = json_decode((string)$item->images_json, true) ?: [$defaultImg];
+        $meta = $subMap[$item->subcategory] ?? ['img' => 'images/listings/olma.jpg', 'vid' => 'videos/15909400-uhd_3840_2160_25fps.mp4#t=4'];
+        $rawImgs = json_decode((string)$item->images_json, true) ?: [];
+        $hasRealImg = !empty($rawImgs[0]) || file_exists(public_path($meta['img']));
+        $imgs = !empty($rawImgs) ? $rawImgs : [asset($meta['img'])];
+        $vidFallback = asset($meta['vid']);
         $months = [1=>'yanvar','fevral','mart','aprel','may','iyun','iyul','avgust','sentabr','oktabr','noyabr','dekabr'];
         $ts = strtotime($item->created_at ?? 'now');
         $uzDate = date('j', $ts) . ' ' . ($months[(int)date('n', $ts)] ?? 'noyabr') . ' ' . date('Y', $ts);
         $telClean = preg_replace('/[^\d+]/', '', (string)$item->seller_phone);
+        $waRaw = ($seller && !empty($seller->whatsapp)) ? $seller->whatsapp : ($item->seller_phone ?: '+998904047170');
+        $waDigits = preg_replace('/[^\d]/', '', (string)$waRaw) ?: '998904047170';
+        $waText = rawurlencode('Assalomu alaykum! ZaminJob platformasidagi «' . $item->title . '» e’loningiz bo‘yicha yozayapman.');
         $handleClean = ltrim(trim((string)($item->seller_handle ?? '')), '@');
     @endphp
 
@@ -49,7 +55,11 @@
 
         <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
             <div class="relative bg-slate-950 h-[340px] sm:h-[440px]">
-                <img id="mainImg" src="{{ $imgs[0] }}" alt="{{ $item->title }}" class="w-full h-full object-cover">
+                @if($hasRealImg)
+                    <img id="mainImg" src="{{ $imgs[0] }}" alt="{{ $item->title }}" class="w-full h-full object-cover">
+                @else
+                    <video muted playsinline autoplay loop class="w-full h-full object-cover" src="{{ $vidFallback }}"></video>
+                @endif
                 <span id="imgCnt" class="absolute bottom-4 left-4 px-3 py-1 rounded-full bg-black/70 text-white text-xs font-bold">1 / {{ count($imgs) }}</span>
             </div>
             @if(count($imgs) > 1)
@@ -77,6 +87,18 @@
                     @if($item->spec_2)<span class="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-700">{{ $item->spec_2 }}</span>@endif
                 </div>
 
+                @php
+                    $isPhotoOk = (int)($item->photo_verified ?? 1) === 1;
+                    $metaLabel = $item->photo_meta ?: ('GPS: ' . ($item->region ?: 'O‘zbekiston') . ' · ' . $uzDate);
+                @endphp
+                <div class="mt-4 p-3.5 rounded-2xl border {{ $isPhotoOk ? 'bg-emerald-50/70 border-emerald-200 text-emerald-900' : 'bg-amber-50 border-amber-200 text-amber-900' }} flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <div class="text-xs font-extrabold">{{ $isPhotoOk ? '1-qavat himoya: GPS + Vaqt metadatasi tasdiqlangan' : '1-qavat himoya: Rasm metadatasi moderatsiyada' }}</div>
+                        <div class="text-[11.5px] opacity-85 mt-0.5">{{ $metaLabel }}</div>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-full text-[11px] font-extrabold {{ $isPhotoOk ? 'bg-emerald-600 text-white' : 'bg-amber-400 text-slate-950' }}">{{ $isPhotoOk ? 'Real dala ✓' : 'Tekshirilmoqda' }}</span>
+                </div>
+
                 <div class="mt-6 pt-5 border-t border-slate-100">
                     <div class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-2">TAVSIF</div>
                     <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{{ $item->description }}</p>
@@ -84,8 +106,93 @@
             </div>
         </div>
 
+        <!-- 3-QAVAT HIMOYA: ZAMINJOB ESCROW (XAVFSIZ BITIM) -->
+        @php $isPerKg = mb_strpos(mb_strtolower((string)$item->unit), 'kg') !== false; @endphp
+        <div class="bg-gradient-to-br from-[#0e3223] to-[#102c20] text-white rounded-3xl p-6 shadow-md border border-emerald-800/60 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                    <div class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-300">3-QAVAT HIMOYA · ZAMINJOB ESCROW</div>
+                    <h2 class="text-lg font-extrabold mt-0.5">Xavfsiz bitim va 3% kafolat depoziti</h2>
+                </div>
+                <span class="px-3 py-1 rounded-full bg-emerald-400/20 border border-emerald-400/40 text-emerald-200 text-xs font-extrabold">100% pul himoyasi</span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 text-[11px]">
+                @php $st = $escrowDeal->status ?? ''; @endphp
+                <div class="rounded-xl p-2.5 border {{ in_array($st, ['funded','shipped','completed','disputed']) ? 'bg-emerald-500/25 border-emerald-400 text-white' : 'bg-white/5 border-white/15 text-emerald-100/80' }}">
+                    <div class="font-extrabold">1. Pul muzlatiladi</div>
+                    <div class="opacity-75 mt-0.5">3% kafolat + summa</div>
+                </div>
+                <div class="rounded-xl p-2.5 border {{ in_array($st, ['shipped','completed','disputed']) ? 'bg-emerald-500/25 border-emerald-400 text-white' : 'bg-white/5 border-white/15 text-emerald-100/80' }}">
+                    <div class="font-extrabold">2. GPS bilan yuklash</div>
+                    <div class="opacity-75 mt-0.5">Foto + fura dalili</div>
+                </div>
+                <div class="rounded-xl p-2.5 border {{ $st === 'completed' ? 'bg-emerald-500/25 border-emerald-400 text-white' : 'bg-white/5 border-white/15 text-emerald-100/80' }}">
+                    <div class="font-extrabold">3. To‘lov ochiladi</div>
+                    <div class="opacity-75 mt-0.5">Yuk qabul qilingach</div>
+                </div>
+            </div>
+
+            @if($escrowDeal && $escrowDeal->status !== 'completed')
+                <div class="bg-white/10 border border-white/15 rounded-2xl p-4 space-y-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+                        <div>
+                            <span class="text-emerald-200">Bitim #{{ $escrowDeal->id }} · Hajm: <b>{{ (float)$escrowDeal->qty_tons }} {{ $isPerKg ? 'tonna' : 'birlik' }}</b></span>
+                            <div class="text-base font-extrabold text-white mt-0.5">{{ number_format((int)$escrowDeal->amount, 0, '.', ' ') }} so‘m <span class="text-xs font-semibold text-emerald-300">(3% depozit: {{ number_format((int)$escrowDeal->deposit_amount, 0, '.', ' ') }} so‘m)</span></div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full text-[11px] font-extrabold {{ $escrowDeal->status === 'disputed' ? 'bg-rose-500 text-white' : 'bg-amber-400 text-slate-950' }}">
+                            {{ $escrowDeal->status === 'funded' ? '1-bosqich: Pul muzlatilgan' : ($escrowDeal->status === 'shipped' ? '2-bosqich: Yo‘lda (GPS)' : 'Nizo — Hakamlikda') }}
+                        </span>
+                    </div>
+                    @if($escrowDeal->gps_proof)
+                        <div class="text-xs bg-emerald-950/60 border border-emerald-400/30 rounded-xl px-3 py-2 text-emerald-200 font-semibold">{{ $escrowDeal->gps_proof }}</div>
+                    @endif
+                    @auth
+                        <div class="flex flex-wrap gap-2">
+                            @if($escrowDeal->status === 'funded')
+                                <form action="{{ route('escrow.step', $escrowDeal->id) }}" method="POST">@csrf<input type="hidden" name="action" value="shipped"><button class="px-4 py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs font-extrabold transition">2-bosqich: Yuk GPS + foto bilan jo‘natildi</button></form>
+                            @elseif($escrowDeal->status === 'shipped')
+                                <form action="{{ route('escrow.step', $escrowDeal->id) }}" method="POST">@csrf<input type="hidden" name="action" value="completed"><button class="px-4 py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs font-extrabold transition">3-bosqich: Yukni qabul qildim — to‘lovni ochish</button></form>
+                                <form action="{{ route('escrow.step', $escrowDeal->id) }}" method="POST">@csrf<input type="hidden" name="action" value="disputed"><button class="px-4 py-2 rounded-xl bg-rose-500/85 hover:bg-rose-500 text-white text-xs font-bold transition">Nizo ochish (Arbitraj)</button></form>
+                            @else
+                                <form action="{{ route('escrow.step', $escrowDeal->id) }}" method="POST">@csrf<input type="hidden" name="action" value="completed"><button class="px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition">Nizoni yopish va to‘lovni ochish</button></form>
+                            @endif
+                        </div>
+                    @endauth
+                </div>
+            @else
+                @if($escrowDeal && $escrowDeal->status === 'completed')
+                    <div class="rounded-xl bg-emerald-500/20 border border-emerald-400/40 px-3.5 py-2.5 text-xs font-bold text-emerald-100">
+                        Oxirgi Escrow bitimi (#{{ $escrowDeal->id }}) muvaffaqiyatli yakunlandi — to‘lov sotuvchiga o‘tkazildi (+2 Agro-Pasport ball).
+                    </div>
+                @endif
+                @auth
+                    <form action="{{ route('bozor.escrow', $item->id) }}" method="POST" class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-end">
+                        @csrf
+                        <div class="sm:col-span-4">
+                            <label class="block text-[11px] font-bold text-emerald-200 mb-1">Buyurtma hajmi ({{ $isPerKg ? 'tonna' : 'birlik' }})</label>
+                            <input type="number" name="qty_tons" id="escrowQty" value="5" min="1" max="500" step="1" oninput="calcEscrow()" class="w-full text-sm text-slate-900 font-bold rounded-xl px-3.5 py-2.5 bg-white">
+                        </div>
+                        <div class="sm:col-span-4 rounded-xl bg-white/10 border border-white/15 px-3.5 py-2 text-xs">
+                            <div class="text-emerald-200/80">Escrow + 3% depozit:</div>
+                            <div id="escrowPreview" class="font-extrabold text-sm text-white mt-0.5">—</div>
+                        </div>
+                        <div class="sm:col-span-4">
+                            <button type="submit" class="w-full py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs font-extrabold transition">Escrow bitim ochish</button>
+                        </div>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="inline-block px-5 py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs font-extrabold transition">Escrow xavfsiz bitim uchun kiring</a>
+                @endauth
+            @endif
+        </div>
+
+        @php $sellerTrust = (int)($seller->trust_score ?? 95); @endphp
         <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-            <div class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-4">FOYDALANUVCHI</div>
+            <div class="flex items-center justify-between gap-2 mb-4">
+                <div class="text-xs font-extrabold uppercase tracking-wider text-slate-400">FOYDALANUVCHI · AGRO-PASPORT</div>
+                <span class="px-2.5 py-1 rounded-full text-xs font-extrabold {{ $sellerTrust >= 80 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">Ishonch balli: {{ $sellerTrust }}/100</span>
+            </div>
             <div class="flex items-center gap-4">
                 <div class="w-14 h-14 rounded-full bg-[#102c20] text-white font-extrabold text-xl flex items-center justify-center overflow-hidden shrink-0">
                     @if($seller && !empty($seller->avatar_path))
@@ -100,7 +207,7 @@
                 </div>
             </div>
             <div class="mt-4 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-sm text-emerald-900">
-                <strong>A’lo:</strong> Tasdiqlangan Agro-Pasport foydalanuvchisi — aksariyat xaridorlar bu e’lon egasidan mamnun.
+                <strong>Agro-Pasport ({{ $sellerTrust }}/100):</strong> Tasdiqlangan hamkor — har bir muvaffaqiyatli Escrow bitimi reytingni oshiradi, shart buzilishi avtomatik jarima beradi.
             </div>
         </div>
 
@@ -153,14 +260,15 @@
     </main>
 
     <div class="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur border-t border-slate-200 p-3 z-40">
-        <div class="max-w-3xl mx-auto grid grid-cols-3 gap-2.5">
+        <div class="max-w-3xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-2">
             @if($telClean)
-                <a href="tel:{{ $telClean }}" class="py-3 rounded-xl border-2 border-slate-900 text-slate-900 font-extrabold text-xs sm:text-sm text-center hover:bg-slate-900 hover:text-white transition">Qo‘ng‘iroq qilish</a>
+                <a href="tel:{{ $telClean }}" class="py-2.5 rounded-xl border-2 border-slate-900 text-slate-900 font-extrabold text-xs sm:text-sm text-center hover:bg-slate-900 hover:text-white transition">Qo‘ng‘iroq</a>
             @else
-                <button type="button" onclick="const b=document.getElementById('msgBox');b.classList.remove('hidden');b.scrollIntoView({behavior:'smooth'});" class="py-3 rounded-xl border-2 border-slate-900 text-slate-900 font-extrabold text-xs sm:text-sm text-center hover:bg-slate-900 hover:text-white transition">Bog‘lanish</button>
+                <button type="button" onclick="const b=document.getElementById('msgBox');b.classList.remove('hidden');b.scrollIntoView({behavior:'smooth'});" class="py-2.5 rounded-xl border-2 border-slate-900 text-slate-900 font-extrabold text-xs sm:text-sm text-center hover:bg-slate-900 hover:text-white transition">Bog‘lanish</button>
             @endif
-            <button type="button" onclick="const b=document.getElementById('msgBox');b.classList.remove('hidden');b.scrollIntoView({behavior:'smooth'});" class="py-3 rounded-xl bg-emerald-600 text-white font-extrabold text-xs sm:text-sm text-center hover:bg-emerald-700 transition">Xabar yozish</button>
-            <a href="https://telegram.me/{{ $handleClean ?: 'zaminjob_uz' }}" target="_blank" rel="noopener" class="py-3 rounded-xl bg-sky-600 text-white font-extrabold text-xs sm:text-sm text-center hover:bg-sky-700 transition">Telegram</a>
+            <button type="button" onclick="const b=document.getElementById('msgBox');b.classList.remove('hidden');b.scrollIntoView({behavior:'smooth'});" class="py-2.5 rounded-xl bg-emerald-700 text-white font-extrabold text-xs sm:text-sm text-center hover:bg-emerald-800 transition">Saytdan yozish</button>
+            <a href="https://wa.me/{{ $waDigits }}?text={{ $waText }}" target="_blank" rel="noopener" class="py-2.5 rounded-xl bg-[#25D366] text-white font-extrabold text-xs sm:text-sm text-center hover:bg-[#1ebe5d] transition">WhatsApp</a>
+            <a href="https://telegram.me/{{ $handleClean ?: 'zaminjob_uz' }}" target="_blank" rel="noopener" class="py-2.5 rounded-xl bg-sky-600 text-white font-extrabold text-xs sm:text-sm text-center hover:bg-sky-700 transition">Telegram</a>
         </div>
     </div>
 
@@ -174,6 +282,17 @@
                 el.classList.toggle('opacity-70', k !== i);
             });
         }
+        function calcEscrow() {
+            const qEl = document.getElementById('escrowQty'), out = document.getElementById('escrowPreview');
+            if (!qEl || !out) return;
+            const qty = Math.max(1, Number(qEl.value) || 1);
+            const unitPrice = {{ (int)$item->price }};
+            const perKg = {{ $isPerKg ? 'true' : 'false' }};
+            const total = perKg ? qty * 1000 * unitPrice : qty * unitPrice;
+            const dep = Math.max(100000, Math.round(total * 0.03));
+            out.textContent = total.toLocaleString('ru-RU') + ' so‘m (3%: ' + dep.toLocaleString('ru-RU') + ')';
+        }
+        calcEscrow();
     </script>
 </body>
 </html>

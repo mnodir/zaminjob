@@ -81,7 +81,34 @@
                     <p class="text-xs text-slate-600 mt-3 leading-relaxed">{{ $user->bio }}</p>
                 @endif
 
-                <a href="{{ $isAdmin ? route('admin') : route('kabinet') }}" class="mt-5 inline-flex items-center justify-center w-full py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition">
+                @php
+                    $tScore = (int)($user->trust_score ?? 95);
+                    $tStrikes = (int)($user->strikes ?? 0);
+                    $tDeposit = (int)($user->deposit_balance ?? 0);
+                    $barClr = $tScore >= 80 ? 'bg-emerald-600' : ($tScore >= 50 ? 'bg-amber-500' : 'bg-rose-600');
+                @endphp
+                <div class="mt-5 pt-4 border-t border-slate-100 text-left space-y-2.5">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="font-extrabold text-slate-700">Agro-Pasport ishonch balli</span>
+                        <span class="font-extrabold {{ $tScore >= 80 ? 'text-emerald-700' : 'text-amber-700' }}">{{ $tScore }} / 100</span>
+                    </div>
+                    <div class="h-2 rounded-full bg-slate-100 overflow-hidden">
+                        <div class="h-full rounded-full {{ $barClr }}" style="width:{{ max(4, min(100, $tScore)) }}%"></div>
+                    </div>
+                    <div class="flex items-center justify-between text-[11.5px] text-slate-500">
+                        <span>Qoidabuzarlik (strike): <b class="{{ $tStrikes > 0 ? 'text-rose-600' : 'text-slate-700' }}">{{ $tStrikes }}</b></span>
+                        <span>Depozit: <b class="text-emerald-700">{{ number_format($tDeposit, 0, '.', ' ') }} so‘m</b></span>
+                    </div>
+                    <form action="{{ route('trust.deposit') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="amount" value="500000">
+                        <button type="submit" class="w-full py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-xs font-extrabold transition">
+                            +500 000 so‘m kafolat depoziti band qilish
+                        </button>
+                    </form>
+                </div>
+
+                <a href="{{ $isAdmin ? route('admin') : route('kabinet') }}" class="mt-4 inline-flex items-center justify-center w-full py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition">
                     {{ $isAdmin ? 'Admin panelga qaytish' : 'Mening kabinetimga o‘tish' }}
                 </a>
             </div>
@@ -216,9 +243,15 @@
                         <textarea name="bio" rows="3" class="w-full text-sm border border-slate-300 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-emerald-600">{{ $user->bio ?? '' }}</textarea>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Telegram (@username yoki Chat ID)</label>
-                        <input type="text" name="telegram" value="{{ $user->telegram ?? '' }}" class="w-full text-sm border border-slate-300 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-emerald-600">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Telegram (@username yoki Chat ID)</label>
+                            <input type="text" name="telegram" value="{{ $user->telegram ?? '' }}" placeholder="@username" class="w-full text-sm border border-slate-300 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-emerald-600">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">WhatsApp raqami (xalqaro aloqa uchun)</label>
+                            <input type="text" name="whatsapp" value="{{ $user->whatsapp ?? ($user->phone ?? '') }}" placeholder="+998 90 123 45 67" class="w-full text-sm border border-slate-300 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-emerald-600">
+                        </div>
                     </div>
 
                     <button type="submit" class="w-full sm:w-auto px-7 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold transition shadow-sm">

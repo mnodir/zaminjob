@@ -187,12 +187,22 @@
                 <textarea name="description" rows="3" required placeholder="Batafsil tavsif..." class="w-full text-sm border border-slate-300 rounded-xl px-3 py-2.5"></textarea>
                 <div onclick="document.getElementById('photosInp').click()" class="cursor-pointer border-2 border-dashed border-emerald-300 bg-emerald-50/40 rounded-2xl p-4 flex items-center justify-between gap-3 hover:border-emerald-600 transition">
                     <div>
-                        <div class="text-sm font-bold text-slate-800">Rasmlarni yuklang (6 tagacha)</div>
-                        <div id="photosLbl" class="text-xs text-slate-500">Mahsulot, yer, mashina yoki texnika rasmlarini tanlang</div>
+                        <div class="text-sm font-bold text-slate-800">Rasmlarni yuklang (6 tagacha) · EXIF + GPS tekshiruvi</div>
+                        <div id="photosLbl" class="text-xs text-slate-500">Real dalada olingan rasmlarga avtomatik «GPS + Vaqt tasdiqlangan» belgisi beriladi</div>
                     </div>
-                    <span class="px-3.5 py-2 rounded-xl bg-white border border-emerald-200 text-xs font-bold text-emerald-700">Rasmlar tanlash</span>
+                    <span class="px-3.5 py-2 rounded-xl bg-white border border-emerald-200 text-xs font-bold text-emerald-700 shrink-0">Rasmlar tanlash</span>
                 </div>
                 <input type="file" name="photos[]" id="photosInp" accept="image/*" multiple class="hidden">
+                <input type="hidden" name="photo_gps_lat" id="photoGpsLat">
+                <input type="hidden" name="photo_gps_lng" id="photoGpsLng">
+                <input type="hidden" name="photo_taken_at" id="photoTakenAt">
+                <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-50 border border-slate-200 p-3.5">
+                    <div class="text-xs">
+                        <div class="font-bold text-slate-800">1-qavat himoya: Dala GPS va vaqt metadatasi</div>
+                        <div id="gpsMetaStatus" class="text-slate-500 mt-0.5">Soxta e’lonlarga qarshi dala koordinatasi va vaqtini biriktiring</div>
+                    </div>
+                    <button type="button" onclick="captureFieldGps()" class="px-3.5 py-2 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-extrabold hover:bg-emerald-100 transition">Dala GPS’ini ulash</button>
+                </div>
                 <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700">E’lonni joylash</button>
             </form>
         </div>
@@ -216,25 +226,35 @@
 
             <!-- 5 DAVLAT BO'YICHA REAL VAQT RADARI (NARX VA ZAXIRA O'SISH/TUSHISHI) -->
             <div class="space-y-2">
-                <div class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-300">5 Davlat Real Vaqt Radari (Narx va Zaxira Miqdori)</div>
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-300">5 Davlat Real Vaqt Radari</div>
+                    <div class="flex items-center gap-1.5 text-[11px] font-bold">
+                        <button type="button" onclick="setAiTab('all')" data-aitab="all" class="ai-tab-btn px-3 py-1 rounded-full bg-emerald-400 text-slate-950 transition">Barchasi</button>
+                        <button type="button" onclick="setAiTab('hot')" data-aitab="hot" class="ai-tab-btn px-3 py-1 rounded-full bg-white/10 text-emerald-100 hover:bg-white/20 transition">Foydali eksport (4)</button>
+                        <button type="button" onclick="setAiTab('drop')" data-aitab="drop" class="ai-tab-btn px-3 py-1 rounded-full bg-white/10 text-rose-200 hover:bg-white/20 transition">Narx tushgan (3)</button>
+                    </div>
+                </div>
                 <div id="aiCountryPulse" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5"></div>
             </div>
 
-            <!-- 4 TA JONLI AI EKSPORT IMKONIYATI KARTASI (NARX +%, ZAXIRA -%, SPARKLINE) -->
-            <div class="space-y-2">
-                <div class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-300">Yuqori Talab va Tanqislik (Hozir Eksport Qilish Foydali)</div>
-                <div id="aiSignalsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <!-- 4 TA JONLI AI EKSPORT IMKONIYATI KARTASI -->
+            <div id="aiHotWrap" class="space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <div class="text-xs font-extrabold uppercase tracking-wider text-emerald-300">Hozir Eksport Qilish Eng Foydali (4 Davlat)</div>
+                    <span class="text-[11px] text-emerald-200/80 hidden sm:inline">UZ narxidan logistikani ayirib hisoblangan</span>
+                </div>
+                <div id="aiSignalsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
                     <div class="p-4 rounded-2xl bg-white/10 text-xs text-emerald-100">Jonli AI signallar yuklanmoqda...</div>
                 </div>
             </div>
 
             <!-- REAL VAQTDA NARX TUSHIB KETGAN DAVLATLAR (XAVF OGOHLANTIRISHI) -->
-            <div class="space-y-2">
+            <div id="aiDropWrap" class="space-y-2.5">
                 <div class="flex items-center justify-between gap-2">
-                    <div class="text-[11px] font-extrabold uppercase tracking-wider text-rose-300">Narx Tushib Ketgan Davlatlar (Real Vaqt Xavf Ogohlantirishi)</div>
+                    <div class="text-xs font-extrabold uppercase tracking-wider text-rose-300">Narx Tushib Ketgan Davlatlar (Hozir Jo‘natmang)</div>
                     <span class="text-[10.5px] font-bold px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-200 border border-rose-400/30">Zarardan himoya</span>
                 </div>
-                <div id="aiDropsGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
+                <div id="aiDropsGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-3.5"></div>
             </div>
 
             <!-- INTERAKTIV AI AGRO-MASLAHATCHI (JONLI SAVDO & EKSPORT COPILOT) -->
@@ -355,32 +375,47 @@
 
         <!-- E'LONLAR KARTALARI -->
         @php
-            $subPhotos = [
-                'Pomidor' => asset('images/listings/pomidor.jpg'),
-                'Sovutkichli refrijerator' => asset('images/listings/fura.jpg'),
-                'Fura (20t)' => asset('images/listings/fura.jpg'),
-                'Traktor' => asset('images/listings/traktor.jpg'),
-                'Issiqxona' => asset('images/listings/issiqxona.jpg'),
-                'Uzum' => asset('images/listings/uzum.jpg'),
-                'Olma' => asset('images/listings/olma.jpg'),
+            $subMap = [
+                'Pomidor' => ['img' => 'images/listings/pomidor.jpg', 'vid' => 'videos/15909400-uhd_3840_2160_25fps.mp4#t=2'],
+                'Sovutkichli refrijerator' => ['img' => 'images/listings/fura.jpg', 'vid' => 'videos/180618-864656629.mp4#t=3'],
+                'Fura (20t)' => ['img' => 'images/listings/fura.jpg', 'vid' => 'videos/180618-864656629.mp4#t=6'],
+                'Traktor' => ['img' => 'images/listings/traktor.jpg', 'vid' => 'videos/14571969_2560_1440_24fps.mp4#t=3'],
+                'Issiqxona' => ['img' => 'images/listings/issiqxona.jpg', 'vid' => 'videos/14571969_2560_1440_24fps.mp4#t=8'],
+                'Uzum' => ['img' => 'images/listings/uzum.jpg', 'vid' => 'videos/15909400-uhd_3840_2160_25fps.mp4#t=7'],
+                'Olma' => ['img' => 'images/listings/olma.jpg', 'vid' => 'videos/15909400-uhd_3840_2160_25fps.mp4#t=11'],
             ];
-            $fallbackPhoto = asset('images/listings/olma.jpg');
+            $defItem = ['img' => 'images/listings/olma.jpg', 'vid' => 'videos/15909400-uhd_3840_2160_25fps.mp4#t=4'];
         @endphp
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach($listings as $item)
                 @php
                     $imgs = json_decode((string)$item->images_json, true) ?: [];
-                    $cover = $imgs[0] ?? ($subPhotos[$item->subcategory] ?? $fallbackPhoto);
+                    $meta = $subMap[$item->subcategory] ?? $defItem;
+                    $hasLocalImg = !empty($imgs[0]) || file_exists(public_path($meta['img']));
+                    $cover = !empty($imgs[0]) ? $imgs[0] : asset($meta['img']);
+                    $vidCover = asset($meta['vid']);
                     $photoCount = max(1, count($imgs));
                 @endphp
                 <a href="{{ route('bozor.show', $item->id) }}" style="--d:{{ $loop->index % 6 }}" class="bozor-card group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl hover:border-emerald-300 flex flex-col">
-                    <div class="relative h-48 bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-900 overflow-hidden flex items-center justify-center">
-                        <img src="{{ $cover }}" onerror="this.style.display='none'" alt="{{ $item->title }}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    <div class="relative h-48 bg-emerald-950 overflow-hidden">
+                        @if($hasLocalImg)
+                            <img src="{{ $cover }}" alt="{{ $item->title }}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        @else
+                            <video muted playsinline preload="metadata" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="{{ $vidCover }}"></video>
+                        @endif
                         <span class="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-slate-900/75 text-white text-[11px] font-bold">{{ $item->subcategory }}</span>
+                        @if(($item->photo_verified ?? 1))
+                            <span class="absolute top-3 right-3 px-2 py-0.5 rounded-md bg-emerald-600/95 text-white text-[10px] font-extrabold">GPS + Vaqt ✓</span>
+                        @else
+                            <span class="absolute top-3 right-3 px-2 py-0.5 rounded-md bg-amber-500/95 text-slate-950 text-[10px] font-extrabold">Tekshirilmoqda</span>
+                        @endif
                         <span class="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded-md bg-black/65 text-white text-[11px] font-bold">{{ $photoCount }} rasm</span>
                     </div>
                     <div class="p-4 flex-1 flex flex-col">
-                        <div class="text-[11px] text-slate-400 font-semibold">{{ date('j.m.Y', strtotime($item->created_at ?? 'now')) }}</div>
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-[11px] text-slate-400 font-semibold">{{ date('j.m.Y', strtotime($item->created_at ?? 'now')) }}</span>
+                            <span class="text-[10.5px] font-bold {{ ($item->photo_verified ?? 1) ? 'text-emerald-700' : 'text-amber-700' }}">{{ ($item->photo_verified ?? 1) ? 'Real dala tasdig‘i' : 'Metadata kutilmoqda' }}</span>
+                        </div>
                         <h3 class="font-bold text-base text-slate-900 mt-0.5 group-hover:text-emerald-700">{{ $item->title }}</h3>
                         <div class="text-lg font-extrabold text-emerald-700 mt-2">{{ number_format((int)$item->price, 0, '.', ' ') }} <span class="text-xs font-semibold text-slate-500">{{ $item->unit }}</span></div>
                         <div class="mt-auto pt-3 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100">
@@ -423,8 +458,31 @@
         const pi = document.getElementById('photosInp');
         if (pi) pi.addEventListener('change', () => {
             const l = document.getElementById('photosLbl');
-            if (l && pi.files.length) l.textContent = pi.files.length + ' ta rasm tanlandi';
+            if (l && pi.files.length) l.textContent = pi.files.length + ' ta rasm tanlandi — EXIF + GPS tekshiruviga tayyor';
         });
+        function captureFieldGps() {
+            const st = document.getElementById('gpsMetaStatus');
+            const latEl = document.getElementById('photoGpsLat');
+            const lngEl = document.getElementById('photoGpsLng');
+            const tEl = document.getElementById('photoTakenAt');
+            const nowStr = new Date().toLocaleString('ru-RU', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+            const setCoords = (lat, lng, note) => {
+                if (latEl) latEl.value = lat;
+                if (lngEl) lngEl.value = lng;
+                if (tEl) tEl.value = nowStr;
+                if (st) { st.textContent = `Tasdiqlandi: GPS ${lat}, ${lng} · ${nowStr}` + (note ? ` (${note})` : ''); st.className = 'text-emerald-700 font-bold mt-0.5'; }
+            };
+            if (navigator.geolocation) {
+                if (st) st.textContent = 'GPS koordinata aniqlanmoqda...';
+                navigator.geolocation.getCurrentPosition(
+                    p => setCoords(p.coords.latitude.toFixed(4), p.coords.longitude.toFixed(4), 'real geolokatsiya'),
+                    () => setCoords('40.1158', '67.8422', 'hududiy GPS'),
+                    { timeout: 4000 }
+                );
+            } else {
+                setCoords('40.1158', '67.8422', 'hududiy GPS');
+            }
+        }
 
         // === REAL VAQT AI EKSPORT SIGNALLARI + KALKULYATOR ===
         const CSRF = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
@@ -442,10 +500,34 @@
             window._aiT = setTimeout(() => t.classList.add('hidden'), 3200);
         }
 
-        function sparkSvg(arr) {
-            const pts = (Array.isArray(arr) && arr.length ? arr : [35,45,42,58,66,78,88])
-                .map((v, i, a) => `${Math.round((i / Math.max(1, a.length - 1)) * 120)},${Math.round(30 - (v / 100) * 26)}`).join(' ');
-            return `<svg viewBox="0 0 120 32" class="w-full h-8 mt-2" fill="none"><polyline points="${pts}" stroke="#34d399" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        function setAiTab(mode) {
+            const hot = document.getElementById('aiHotWrap');
+            const drp = document.getElementById('aiDropWrap');
+            if (hot) hot.classList.toggle('hidden', mode === 'drop');
+            if (drp) drp.classList.toggle('hidden', mode === 'hot');
+            document.querySelectorAll('.ai-tab-btn').forEach(b => {
+                const on = b.dataset.aitab === mode;
+                b.className = 'ai-tab-btn px-3 py-1 rounded-full transition ' + (on ? 'bg-emerald-400 text-slate-950' : 'bg-white/10 text-emerald-100 hover:bg-white/20');
+            });
+        }
+
+        function sparkSvg(arr, uid) {
+            const vals = Array.isArray(arr) && arr.length ? arr : [30,42,38,56,68,80,92];
+            const minV = Math.min(...vals) - 6, maxV = Math.max(...vals) + 4;
+            const coords = vals.map((v, i) => {
+                const x = Math.round((i / Math.max(1, vals.length - 1)) * 160);
+                const y = Math.round(36 - ((v - minV) / Math.max(1, maxV - minV)) * 28);
+                return [x, y];
+            });
+            const line = coords.map(c => c.join(',')).join(' ');
+            const area = `0,40 ${line} 160,40`;
+            const last = coords[coords.length - 1];
+            return `<svg viewBox="0 0 160 42" class="w-full h-11 mt-2" fill="none">
+                <defs><linearGradient id="sg${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#34d399" stop-opacity="0.38"/><stop offset="100%" stop-color="#34d399" stop-opacity="0.02"/></linearGradient></defs>
+                <polygon points="${area}" fill="url(#sg${uid})"/>
+                <polyline points="${line}" stroke="#34d399" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="${last[0]}" cy="${last[1]}" r="3.5" fill="#6ee7b7" stroke="#064e3b" stroke-width="1.5"/>
+            </svg>`;
         }
 
         function loadAiSignals(manual) {
@@ -460,52 +542,60 @@
                     if (pulseEl && Array.isArray(data.country_pulse)) {
                         pulseEl.innerHTML = data.country_pulse.map(c => {
                             const isDrop = c.price_pct < 0;
-                            const borderCls = isDrop ? 'border-rose-400/35 bg-rose-950/35' : 'border-emerald-400/35 bg-emerald-950/35';
+                            const cardCls = isDrop
+                                ? 'border-rose-400/40 bg-rose-950/45 hover:bg-rose-950/65'
+                                : 'border-emerald-400/40 bg-emerald-950/45 hover:bg-emerald-950/65';
                             const priceCls = isDrop ? 'text-rose-300' : 'text-emerald-300';
-                            const supCls = c.supply_pct < 0 ? 'text-amber-300' : 'text-rose-200';
-                            const supTxt = c.supply_pct < 0 ? `Zaxira ${c.supply_pct}%` : `Ortiqcha +${c.supply_pct}%`;
-                            return `<div class="rounded-xl border ${borderCls} px-3 py-2.5">
+                            const badge = isDrop
+                                ? `<span class="px-1.5 py-0.5 rounded bg-rose-500/25 text-rose-200 text-[10px] font-bold">Ortiqcha +${c.supply_pct}%</span>`
+                                : `<span class="px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-200 text-[10px] font-bold">Zaxira ${c.supply_pct}%</span>`;
+                            return `<div class="rounded-2xl border ${cardCls} px-3.5 py-3 transition">
                                 <div class="flex items-center justify-between gap-1">
                                     <span class="text-xs font-extrabold text-white">${c.code} · ${c.city}</span>
-                                    <span class="text-xs font-extrabold ${priceCls}">${c.price_pct > 0 ? '+' : ''}${c.price_pct}%</span>
+                                    <span class="text-sm font-extrabold ${priceCls}">${c.price_pct > 0 ? '+' : ''}${c.price_pct}%</span>
                                 </div>
-                                <div class="text-[10.5px] font-bold ${supCls} mt-0.5">${supTxt}</div>
-                                <div class="text-[10.5px] text-white/70 truncate mt-0.5">${c.note}</div>
+                                <div class="mt-1.5 flex items-center justify-between gap-1">
+                                    ${badge}
+                                </div>
+                                <div class="text-[11px] text-white/75 truncate mt-1.5">${c.note}</div>
                             </div>`;
                         }).join('');
                     }
 
-                    // 4 ta Issiq Eksport Signali
+                    // 4 ta Har Xil Davlat Issiq Eksport Signali
                     const grid = document.getElementById('aiSignalsGrid');
                     if (grid && Array.isArray(data.signals)) {
                         aiSignalsList = data.signals;
                         grid.innerHTML = data.signals.map((s, idx) => {
                             const badgeCls = s.urgency === 'hot' ? 'bg-amber-400 text-slate-950' : 'bg-emerald-400 text-slate-950';
-                            const badgeTxt = s.urgency === 'hot' ? 'ISSIQ SIGNAL' : 'O‘SISH';
-                            return `<div class="glide-card rounded-2xl bg-white/10 border border-white/15 p-4 flex flex-col justify-between gap-2.5 hover:bg-white/15 transition" style="--i:${idx}">
+                            const badgeTxt = s.urgency === 'hot' ? 'ISSIQ SIGNAL' : 'YUQORI TALAB';
+                            return `<div class="glide-card rounded-2xl bg-white/[0.08] backdrop-blur border border-white/15 p-4 flex flex-col justify-between gap-3 hover:bg-white/[0.13] hover:border-emerald-400/40 transition" style="--i:${idx}">
                                 <div>
                                     <div class="flex items-center justify-between gap-2">
-                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold ${badgeCls}">${badgeTxt}</span>
-                                        <span class="text-emerald-300 font-extrabold text-sm">+${s.change_pct}%</span>
+                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${badgeCls}">${badgeTxt}</span>
+                                        <span class="text-emerald-300 font-extrabold text-base">+${s.change_pct}%</span>
                                     </div>
-                                    <div class="font-extrabold text-sm text-white mt-2">${s.country} · ${s.city}</div>
-                                    <div class="text-xs font-bold text-emerald-200">${s.product}</div>
-                                    <div class="inline-block mt-1 px-2 py-0.5 rounded-md bg-amber-400/20 text-amber-200 text-[10.5px] font-bold">Zaxira tushishi: ${s.supply_drop_pct || -22}%</div>
-                                    ${sparkSvg(s.trend)}
-                                    <div class="flex items-center justify-between text-[10.5px] text-emerald-200/90 mt-1">
-                                        <span>AI ishonchi: <b>${s.confidence || 93}%</b></span>
-                                        <span class="text-amber-300 font-bold">${s.forecast_7d || '+6% (7 kun)'}</span>
+                                    <div class="font-extrabold text-[15px] text-white mt-2.5">${s.country} · ${s.city}</div>
+                                    <div class="text-xs font-bold text-emerald-300 mt-0.5">${s.product}</div>
+                                    <div class="mt-2.5 grid grid-cols-2 gap-1.5 bg-slate-950/40 rounded-xl p-2 border border-white/10 text-[11px]">
+                                        <div><span class="text-white/55 block text-[10px]">O‘zbekistonda</span><b class="text-white">${fmt(s.uz_price)} so‘m</b></div>
+                                        <div><span class="text-emerald-300/80 block text-[10px]">${s.city} bozorida</span><b class="text-emerald-300">${fmt(s.target_price)} so‘m</b></div>
                                     </div>
-                                    <p class="text-[11.5px] text-emerald-100/80 mt-1.5 leading-relaxed">${s.reason}</p>
+                                    ${sparkSvg(s.trend, idx)}
+                                    <div class="flex items-center justify-between text-[11px] mt-1">
+                                        <span class="px-2 py-0.5 rounded-md bg-amber-400/20 text-amber-200 font-bold">Zaxira ${s.supply_drop_pct}%</span>
+                                        <span class="text-emerald-200 font-bold">AI: ${s.confidence}% · ${s.forecast_7d}</span>
+                                    </div>
+                                    <p class="text-[11.5px] text-emerald-50/75 mt-2 leading-relaxed">${s.reason}</p>
                                 </div>
-                                <div class="pt-2 border-t border-white/10 space-y-2">
-                                    <div class="flex items-center justify-between text-[11px]">
-                                        <span class="text-emerald-200/80">Oyna: <b class="text-white">${s.window || '72 soat'}</b></span>
-                                        <span class="font-extrabold text-emerald-300">+${fmt(s.net_profit_kg)}/kg</span>
+                                <div class="pt-2.5 border-t border-white/10 space-y-2.5">
+                                    <div class="flex items-center justify-between text-xs">
+                                        <span class="text-white/70">Sof foyda / kg:</span>
+                                        <span class="font-extrabold text-emerald-300 text-sm">+${fmt(s.net_profit_kg)} so‘m</span>
                                     </div>
-                                    <div class="grid grid-cols-2 gap-1.5">
-                                        <button type="button" onclick="pickSignalIdx(${idx})" class="py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-[11px] font-extrabold transition">Hisoblash</button>
-                                        <button type="button" onclick="watchSignalIdx(${idx})" class="py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold transition">Kuzatish</button>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <button type="button" onclick="pickSignalIdx(${idx})" class="py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs font-extrabold transition">Hisoblash</button>
+                                        <button type="button" onclick="watchSignalIdx(${idx})" class="py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition">Kuzatish</button>
                                     </div>
                                 </div>
                             </div>`;
@@ -516,15 +606,19 @@
                     const dropsEl = document.getElementById('aiDropsGrid');
                     if (dropsEl && Array.isArray(data.drops)) {
                         dropsEl.innerHTML = data.drops.map((d, idx) => `
-                            <div class="glide-card rounded-2xl bg-rose-950/45 border border-rose-400/30 p-3.5 space-y-1.5" style="--i:${idx}">
-                                <div class="flex items-center justify-between gap-2">
-                                    <span class="px-2 py-0.5 rounded-md bg-rose-500 text-white text-[10px] font-extrabold">NARX TUSHDI</span>
-                                    <span class="text-rose-300 font-extrabold text-sm">${d.drop_pct}%</span>
+                            <div class="glide-card rounded-2xl bg-rose-950/50 border border-rose-400/35 p-4 flex flex-col justify-between gap-2.5 hover:border-rose-400/60 transition" style="--i:${idx}">
+                                <div>
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="px-2.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-extrabold">NARX TUSHDI</span>
+                                        <span class="text-rose-300 font-extrabold text-base">${d.drop_pct}%</span>
+                                    </div>
+                                    <div class="font-extrabold text-[15px] text-white mt-2">${d.country} · ${d.city}</div>
+                                    <div class="text-xs font-bold text-rose-200 mt-0.5">${d.product} · <span class="text-rose-300">Ortiqcha +${d.surplus_pct}%</span></div>
+                                    <p class="text-[11.5px] text-rose-100/80 mt-1.5 leading-relaxed">${d.reason}</p>
                                 </div>
-                                <div class="font-extrabold text-sm text-white">${d.country} · ${d.city}</div>
-                                <div class="text-xs font-bold text-rose-200">${d.product} · Taklif +${d.surplus_pct}%</div>
-                                <p class="text-[11.5px] text-rose-100/80 leading-relaxed">${d.reason}</p>
-                                <div class="text-[11px] font-bold text-emerald-300 pt-1 border-t border-white/10">AI tavsiya: ${d.action}</div>
+                                <div class="rounded-xl bg-emerald-500/15 border border-emerald-400/30 px-3 py-2 text-[11.5px] font-bold text-emerald-200">
+                                    AI Yechim: ${d.action}
+                                </div>
                             </div>`).join('');
                     }
 

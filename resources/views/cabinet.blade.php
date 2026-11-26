@@ -155,15 +155,21 @@
                                     @forelse($apps as $a)
                                         <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-50 p-3 rounded-xl">
                                             <div>
-                                                <div class="font-bold text-xs text-slate-900">{{ $a->worker_name }}</div>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="font-bold text-xs text-slate-900">{{ $a->worker_name }}</span>
+                                                    <span class="text-[10.5px] font-extrabold px-2 py-0.5 rounded-full {{ ((int)($a->worker_trust ?? 95)) >= 80 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-700' }}">Agro-Pasport: {{ (int)($a->worker_trust ?? 95) }}/100</span>
+                                                </div>
                                                 <div class="text-xs text-blue-600 font-semibold">{{ $a->worker_phone }}</div>
                                             </div>
-                                            <div class="flex gap-2">
+                                            <div class="flex flex-wrap items-center gap-2">
                                                 @if($a->status === 'pending')
                                                     <form action="{{ route('kabinet.app', $a->id) }}" method="POST">@csrf<input type="hidden" name="status" value="accepted"><button class="bg-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Qabul</button></form>
                                                     <form action="{{ route('kabinet.app', $a->id) }}" method="POST">@csrf<input type="hidden" name="status" value="rejected"><button class="bg-red-100 text-red-700 text-xs font-bold px-3 py-1.5 rounded-lg">Rad etish</button></form>
                                                 @else
                                                     <span class="text-xs font-bold px-3 py-1 rounded-lg {{ $a->status === 'accepted' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700' }}">{{ $a->status === 'accepted' ? 'Qabul qilingan' : 'Rad etilgan' }}</span>
+                                                    @if($a->status === 'accepted')
+                                                        <form action="{{ route('trust.penalty', $a->worker_id) }}" method="POST">@csrf<button class="bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-[11px] font-extrabold px-2.5 py-1 rounded-lg transition">Ishga chiqmadi (−15 ball)</button></form>
+                                                    @endif
                                                 @endif
                                             </div>
                                         </div>
@@ -185,8 +191,11 @@
                                     <div class="w-11 h-11 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold shrink-0 overflow-hidden">
                                         @if(!empty($w->avatar_path))<img src="{{ asset($w->avatar_path) }}" class="w-full h-full object-cover">@else{{ mb_strtoupper(mb_substr($w->name ?? 'Z', 0, 1)) }}@endif
                                     </div>
-                                    <div class="min-w-0">
-                                        <div class="font-bold text-sm text-slate-900">{{ $w->name }}</div>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex items-center justify-between gap-2">
+                                            <span class="font-bold text-sm text-slate-900 truncate">{{ $w->name }}</span>
+                                            <span class="text-[10.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0 {{ ((int)($w->trust_score ?? 95)) >= 80 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700' }}">{{ (int)($w->trust_score ?? 95) }}/100</span>
+                                        </div>
                                         <div class="text-xs font-bold text-emerald-700">{{ $w->profession ?: ($roleLabels[$w->role] ?? 'Mutaxassis') }}</div>
                                         @if(!empty($w->region))<div class="text-xs text-slate-500">{{ $w->region }}{{ !empty($w->district) ? ', '.$w->district : '' }}</div>@endif
                                         <div class="text-xs font-semibold text-blue-600 mt-1">{{ $w->phone }}</div>

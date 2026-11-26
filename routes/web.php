@@ -37,6 +37,14 @@ Route::post('/api/ai-watch', 'HomeController@aiWatchApi');
 Route::post('/api/ai-chat', 'HomeController@aiChatApi');
 Route::post('/api/ai-price-suggest', 'HomeController@aiPriceSuggestApi');
 
+// 3-qavatli Ishonch va Xavfsizlik: Escrow (Xavfsiz bitim), Agro-Pasport jarima va Kafolat depoziti
+Route::middleware('auth')->group(function () {
+    Route::post('/bozor/{id}/escrow', 'HomeController@escrowCreate')->where('id', '[0-9]+')->name('bozor.escrow');
+    Route::post('/escrow/{dealId}/step', 'HomeController@escrowStep')->where('dealId', '[0-9]+')->name('escrow.step');
+    Route::post('/api/trust/deposit', 'HomeController@trustDepositApi')->name('trust.deposit');
+    Route::post('/api/trust/penalty/{userId}', 'HomeController@trustPenaltyApi')->where('userId', '[0-9]+')->name('trust.penalty');
+});
+
 // Jonli username band/bosh tekshiruvi
 Route::get('/api/check-username', function (Request $request) {
     $raw = strtolower(ltrim(trim((string) $request->query('u', '')), '@'));
