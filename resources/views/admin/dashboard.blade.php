@@ -250,7 +250,9 @@
         <h1>ZaminJob Admin Panel</h1>
         <p>Eksport 20t konsolidatsiya, bo‘sh qaytish furalari, Agro-Pasport verifikatsiya va bozor narxlari boshqaruvi.</p>
       </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <a class="btn ghost" href="{{ route('profil') }}"><i data-lucide="user"></i> Profilim</a>
+        <a class="btn ghost" href="{{ route('bozor') }}"><i data-lucide="shopping-bag"></i> Mahsulot qidirish</a>
         <a class="btn ghost" href="{{ url('/') }}"><i data-lucide="external-link"></i> Bosh sahifa</a>
         <button class="btn" onclick="addDemoLot()"><i data-lucide="plus"></i> Yangi eksport lot</button>
       </div>

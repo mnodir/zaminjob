@@ -263,8 +263,196 @@
     .nav-actions {
       display: flex;
       align-items: center;
-      gap: 10px
+      gap: 10px;
+      position: relative;
     }
+    /* Mahsulotlar hover mega-menyusi (1-rasm uslubida) */
+    .mega-wrap { position: relative; }
+    .mega-menu {
+      position: fixed;
+      top: 74px;
+      left: 50%;
+      transform: translate3d(-50%, 18px, 0) scale(.97);
+      transform-origin: top center;
+      width: min(980px, calc(100vw - 32px));
+      background: rgba(255, 255, 255, .98);
+      backdrop-filter: saturate(180%) blur(18px);
+      -webkit-backdrop-filter: saturate(180%) blur(18px);
+      border: 1px solid #dfeae0;
+      border-radius: 22px;
+      box-shadow: 0 28px 68px rgba(16, 44, 32, .16);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity .62s cubic-bezier(.16, 1, .3, 1), transform .74s cubic-bezier(.16, 1, .3, 1), visibility .62s;
+      z-index: 80;
+      overflow: hidden;
+      will-change: transform, opacity;
+    }
+    .mega-wrap.open .mega-menu {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translate3d(-50%, 0, 0) scale(1);
+    }
+    .mega-wrap.open::after {
+      content: "";
+      position: absolute;
+      left: -20px;
+      right: -20px;
+      top: 100%;
+      height: 28px;
+    }
+    .mega-grid { display: grid; grid-template-columns: 260px 1fr; min-height: 360px; overflow: hidden; }
+    .mega-left {
+      background: #f8fbf8; border-right: 1px solid #e7efe8; padding: 14px;
+      display: flex; flex-direction: column; gap: 4px;
+      opacity: 0;
+      transform: translate3d(-38px, 0, 0);
+      transition: opacity .68s cubic-bezier(.16, 1, .3, 1), transform .78s cubic-bezier(.16, 1, .3, 1);
+      will-change: transform, opacity;
+    }
+    .mega-right {
+      position: relative;
+      padding: 18px 22px; background: #fff;
+      min-height: 360px;
+      opacity: 0;
+      transform: translate3d(38px, 0, 0);
+      transition: opacity .7s cubic-bezier(.16, 1, .3, 1) .06s, transform .82s cubic-bezier(.16, 1, .3, 1) .06s;
+      will-change: transform, opacity;
+      overflow: hidden;
+    }
+    .mega-wrap.open .mega-left,
+    .mega-wrap.open .mega-right {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+    .mega-left-title { font-size: 11px; font-weight: 800; letter-spacing: .08em; color: #7c8d82; text-transform: uppercase; padding: 4px 10px 8px; }
+    .mega-cat {
+      width: 100%; text-align: left; background: transparent; border: 0; border-radius: 11px;
+      padding: 10px 12px; font-size: 13.5px; font-weight: 700; color: #1b3428;
+      display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+      transition: background .3s ease, color .3s ease, transform .38s cubic-bezier(.16, 1, .3, 1);
+    }
+    .mega-cat.on, .mega-cat:hover { background: #e8f5ea; color: #15803d; transform: translate3d(6px, 0, 0); }
+    .mega-panel {
+      position: absolute;
+      inset: 18px 22px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-content: start;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translate3d(36px, 0, 0) scale(.985);
+      transition: opacity .56s cubic-bezier(.16, 1, .3, 1), transform .68s cubic-bezier(.16, 1, .3, 1), visibility .56s;
+      will-change: transform, opacity;
+    }
+    .mega-panel.on {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    .mega-sub {
+      display: flex; align-items: center; gap: 9px; padding: 9px 11px; border-radius: 11px;
+      font-size: 13px; font-weight: 600; color: #243b2e;
+      opacity: 0;
+      transform: translate3d(20px, 0, 0);
+      transition: opacity .52s cubic-bezier(.16, 1, .3, 1), transform .64s cubic-bezier(.16, 1, .3, 1), background .24s ease, color .24s ease;
+    }
+    .mega-panel.on .mega-sub {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+      transition-delay: calc(var(--i, 0) * 32ms), calc(var(--i, 0) * 32ms), 0ms, 0ms;
+    }
+    .mega-panel.on .mega-sub:hover { background: #eef7ef; color: #15803d; transform: translate3d(6px, 0, 0); transition-delay: 0ms; }
+    .mega-dot { width: 7px; height: 7px; border-radius: 50%; background: #16a34a; flex-shrink: 0; }
+    @media(max-width: 900px) { .mega-menu { display: none !important; } }
+    /* GitHub / YouTube uslubidagi qongiroqcha va dumaloq profil rasmi */
+    .gh-bell {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .86);
+      border: 1px solid #cbd9ce;
+      color: #102c20;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color .2s, transform .2s, background .2s;
+    }
+    .gh-bell:hover { border-color: #15803d; background: #fff; transform: translateY(-1px); }
+    .gh-bell-dot {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      border-radius: 999px;
+      background: #dc2626;
+      color: #fff;
+      font: 800 10px/18px Manrope, sans-serif;
+      text-align: center;
+      display: none;
+      box-shadow: 0 2px 6px rgba(220, 38, 38, .35);
+    }
+    .gh-bell-dot.show { display: inline-block; }
+    .gh-avatar-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      padding: 0;
+      overflow: hidden;
+      border: 2px solid #15803d;
+      background: #102c20;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font: 800 15px Manrope, sans-serif;
+      box-shadow: 0 4px 14px rgba(16, 44, 32, .18);
+      transition: transform .22s ease, box-shadow .22s ease;
+    }
+    .gh-avatar-btn:hover { transform: scale(1.06); box-shadow: 0 6px 18px rgba(21, 128, 61, .28); }
+    .gh-avatar-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .gh-drop {
+      position: absolute;
+      top: 52px;
+      right: 0;
+      width: 260px;
+      background: #fff;
+      border: 1px solid #dfeae0;
+      border-radius: 16px;
+      box-shadow: 0 18px 45px rgba(16, 44, 32, .14);
+      padding: 8px;
+      z-index: 60;
+      display: none;
+    }
+    .gh-drop.open { display: block; animation: dropPop .2s ease-out both; }
+    @keyframes dropPop { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+    .gh-drop-head { padding: 10px 12px; border-bottom: 1px solid #eef4ee; margin-bottom: 6px; }
+    .gh-drop-head strong { display: block; font-size: 13.5px; color: #102c20; }
+    .gh-drop-head small { font-size: 12px; color: #64746a; }
+    .gh-drop a, .gh-drop button.gh-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1f372a;
+      background: transparent;
+      text-align: left;
+    }
+    .gh-drop a:hover, .gh-drop button.gh-link:hover { background: #f2f8f3; color: #15803d; }
+    .gh-notif-item { padding: 9px 11px; border-radius: 10px; background: #f7faf7; margin-bottom: 6px; font-size: 12px; line-height: 1.45; color: #243b2e; }
+    .gh-notif-item strong { display: block; color: #102c20; margin-bottom: 2px; }
 
     .btn {
       display: inline-flex;
@@ -314,7 +502,7 @@
       align-items: center;
       overflow: hidden;
       padding-top: 76px;
-      background: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=2000&q=85') center/cover;
+      background: linear-gradient(135deg, #eaf5ec 0%, #d8eedc 45%, #c5e6cc 100%);
     }
 
     .hero-videos {
@@ -1014,7 +1202,18 @@
       background: #f6faf6;
       border: 1px solid #e4efe5;
       font-size: 13px;
+      cursor: pointer;
+      transition: transform .24s cubic-bezier(.16, 1, .3, 1), border-color .22s ease, background .22s ease, box-shadow .24s ease;
     }
+    .route-item:hover {
+      transform: translateX(4px);
+      border-color: #16a34a;
+      background: #edf8ef;
+      box-shadow: 0 8px 20px rgba(21, 128, 61, .10);
+    }
+    .arc-path { transition: stroke-width .25s ease, opacity .25s ease; }
+    .trade-map-card.hl-arc .arc-path { opacity: .28; }
+    .trade-map-card.hl-arc .arc-path.focus { opacity: 1; stroke-width: 4; }
     .route-item b { font-family: Manrope, sans-serif; color: #102c20; }
     .route-badge {
       padding: 4px 10px;
@@ -1429,8 +1628,76 @@
           <button type="button" class="on" data-lang="uz">UZ</button>
           <button type="button" data-lang="ru">RU</button>
         </div>
+        @php
+          $megaCats = [
+            'Mevalar' => ['Barcha mevalar', 'Olma', 'Nok', 'Uzum', 'Anor', 'Gilos', 'O‘rik', 'Shaftoli', 'Qovun', 'Tarvuz', 'Xurmo', 'Behi', 'Qulupnay', 'Limon'],
+            'Sabzavotlar' => ['Barcha sabzavotlar', 'Pomidor', 'Bodring', 'Kartoshka', 'Piyoz', 'Sabzi', 'Karam', 'Bulgor qalampiri', 'Sarimsoq', 'Baqlajon'],
+            'Quruq meva va yong‘oq' => ['Mayiz', 'Turshak', 'Yong‘oq', 'Bodom', 'Pista', 'Yeryong‘oq'],
+            'Don va dukkaklilar' => ['Bug‘doy', 'Guruch', 'Mosh', 'Loviya', 'No‘xat', 'Makkajo‘xori', 'Arpa'],
+            'Asal va sut mahsulotlari' => ['Tog‘ asali', 'Gul asali', 'Pishloq', 'Sariyog‘', 'Qaymoq', 'Tvorog'],
+            'Qishloq xo‘jaligi yerlari' => ['Dehqonchilik yeri', 'Bog‘ yeri', 'Issiqxona', 'Chorva fermasi', 'Ijara yerlar'],
+            'Qishloq xo‘jaligi texnikasi' => ['Traktor', 'Kombayn', 'Kultivator', 'Plug', 'Purkagich', 'Ekskavator', 'Suv nasosi'],
+            'Yuk tashish va logistika' => ['Fura (20t)', 'Sovutkichli refrijerator', 'Isuzu / Gazel', 'Samasval', 'Eksport logistikasi'],
+          ];
+        @endphp
+        <div class="mega-wrap" id="homeMegaWrap">
+          <a class="btn btn-soft" id="homeMegaTrigger" href="{{ route('bozor') }}" style="padding:10px 15px;font-size:12.5px">Mahsulotlar ▾</a>
+          <div class="mega-menu" id="homeMegaMenu">
+            <div class="mega-grid">
+              <div class="mega-left">
+                <div class="mega-left-title">Mahsulot toifalari</div>
+                @foreach($megaCats as $mcName => $mcSubs)
+                  <button type="button" class="mega-cat {{ $loop->first ? 'on' : '' }}" data-mcat="{{ $mcName }}" onmouseenter="openHomeMegaCat(this)">
+                    <span>{{ $mcName }}</span><span>›</span>
+                  </button>
+                @endforeach
+              </div>
+              <div class="mega-right">
+                @foreach($megaCats as $mcName => $mcSubs)
+                  <div class="mega-panel {{ $loop->first ? 'on' : '' }}" data-mpanel="{{ $mcName }}">
+                    @foreach($mcSubs as $ms)
+                      <a class="mega-sub" style="--i:{{ $loop->index }}" href="{{ route('bozor', ['cat' => $mcName, 'sub' => $ms]) }}">
+                        <span class="mega-dot"></span><span>{{ $ms }}</span>
+                      </a>
+                    @endforeach
+                  </div>
+                @endforeach
+              </div>
+            </div>
+          </div>
+        </div>
         @auth
-          <a class="btn btn-green btn-wave" href="{{ route('home') }}"><span data-i="btn_cab">Kabinet</span></a>
+          @php
+            $me = auth()->user();
+            $isAdm = $me && ($me->role === 'admin' || preg_replace('/\s+/', '', (string)$me->phone) === '+998904047170' || $me->phone === 'mnodir');
+          @endphp
+          <button type="button" class="gh-bell" id="bellBtn" aria-label="Bildirishnomalar">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            <span class="gh-bell-dot" id="bellDot">0</span>
+          </button>
+          <button type="button" class="gh-avatar-btn" id="avatarBtn" aria-label="Profil">
+            @if(!empty($me->avatar_path))
+              <img src="{{ asset($me->avatar_path) }}" alt="Profil">
+            @else
+              {{ mb_strtoupper(mb_substr($me->name ?? 'Z', 0, 1)) }}
+            @endif
+          </button>
+          <div class="gh-drop" id="bellDrop">
+            <div class="gh-drop-head"><strong>Bildirishnomalar</strong><small>Yangi ariza va buyurtmalar</small></div>
+            <div id="bellList" style="max-height:240px;overflow:auto"><div class="gh-notif-item">Hozircha yangi xabar yo‘q.</div></div>
+          </div>
+          <div class="gh-drop" id="avatarDrop">
+            <div class="gh-drop-head">
+              <strong>{{ $me->name }}</strong>
+              <small>{{ !empty($me->username) ? '@'.$me->username : $me->phone }}</small>
+            </div>
+            <a href="{{ route('profil') }}">Profil va sozlamalar</a>
+            <a href="{{ route('kabinet') }}">{{ $isAdm ? 'Admin Panel' : 'Mening kabinetim' }}</a>
+            <a href="{{ route('bozor') }}">Mahsulot qidirish</a>
+            <form action="{{ route('logout') }}" method="POST" style="margin:0">@csrf
+              <button type="submit" class="gh-link" style="color:#dc2626">Chiqish</button>
+            </form>
+          </div>
         @else
           <a class="btn btn-outline btn-wave" href="{{ route('login') }}"><span data-i="btn_login">Kirish</span></a>
           <a class="btn btn-green btn-wave" href="#platforma"><i data-lucide="arrow-up-right"></i> <span data-i="btn_explore">Platformani ko‘rish</span></a>
@@ -1452,12 +1719,8 @@
   <main>
     <header class="hero" id="home">
       <div class="hero-videos" aria-hidden="true">
-        <video class="hero-video active" muted playsinline preload="auto" data-hero-video>
-          <source src="{{ asset('videos/15909400-uhd_3840_2160_25fps.mp4') }}" type="video/mp4">
-        </video>
-        <video class="hero-video" muted playsinline preload="metadata" data-hero-video>
-          <source src="{{ asset('videos/14571969_2560_1440_24fps.mp4') }}" type="video/mp4">
-        </video>
+        <video class="hero-video active" muted playsinline preload="none" data-hero-video data-src="{{ asset('videos/15909400-uhd_3840_2160_25fps.mp4') }}"></video>
+        <video class="hero-video" muted playsinline preload="none" data-hero-video data-src="{{ asset('videos/14571969_2560_1440_24fps.mp4') }}"></video>
       </div>
       <div class="hero-overlay" aria-hidden="true"></div>
       <div class="container hero-inner">
@@ -1646,35 +1909,66 @@
           <p data-i="exp_p">Kichik fermerlar hosilini 20 tonnalik sovutkichli furalarga jamlab, Qozog‘iston, Rossiya va BAA bozorlariga yuqori narxda chiqaramiz.</p>
         </div>
         <div class="trade-map-card reveal">
-          <svg viewBox="0 0 640 270" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="640" height="270" rx="18" fill="#F5FAF6"/>
+          <svg viewBox="0 0 680 340" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="680" height="340" rx="18" fill="#F5FAF6"/>
             <g stroke="#DCEADC" stroke-width="1">
-              <path d="M0 68H640M0 135H640M0 202H640M160 0V270M320 0V270M480 0V270"/>
+              <path d="M0 85H680M0 170H680M0 255H680M170 0V340M340 0V340M510 0V340"/>
             </g>
-            <!-- Animated Trade Arcs -->
-            <path id="arcKZ" class="arc-path" d="M125 185 Q 250 75 430 92" stroke="#15803D" stroke-width="2.4" stroke-linecap="round"/>
-            <path id="arcRU" class="arc-path" d="M125 185 Q 270 30 535 58" stroke="#0F766E" stroke-width="2.4" stroke-linecap="round"/>
-            <path id="arcUAE" class="arc-path" d="M125 185 Q 335 235 545 198" stroke="#16A34A" stroke-width="2.6" stroke-linecap="round"/>
+            <!-- Animated Asia & Export Trade Arcs -->
+            <path id="arcTR" class="arc-path" d="M245 180 Q 150 100 88 126" stroke="#0D9488" stroke-width="2.2" stroke-linecap="round"/>
+            <path id="arcRU" class="arc-path" d="M245 180 Q 210 75 180 54" stroke="#0F766E" stroke-width="2.3" stroke-linecap="round"/>
+            <path id="arcKZ" class="arc-path" d="M245 180 Q 320 92 382 104" stroke="#15803D" stroke-width="2.3" stroke-linecap="round"/>
+            <path id="arcCN" class="arc-path" d="M245 180 Q 415 110 520 148" stroke="#16A34A" stroke-width="2.4" stroke-linecap="round"/>
+            <path id="arcKR" class="arc-path" d="M245 180 Q 460 60 605 112" stroke="#059669" stroke-width="2.5" stroke-linecap="round"/>
+            <path id="arcUAE" class="arc-path" d="M245 180 Q 355 268 468 258" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round"/>
+            <path id="arcSA" class="arc-path" d="M245 180 Q 250 285 335 292" stroke="#15803D" stroke-width="2.2" stroke-linecap="round"/>
             <!-- Moving Light Pulses -->
-            <circle r="5" fill="#15803D"><animateMotion dur="2.6s" repeatCount="indefinite"><mpath href="#arcKZ"/></animateMotion></circle>
-            <circle r="5" fill="#0F766E"><animateMotion dur="3.2s" repeatCount="indefinite"><mpath href="#arcRU"/></animateMotion></circle>
-            <circle r="5.5" fill="#16A34A"><animateMotion dur="2.9s" repeatCount="indefinite"><mpath href="#arcUAE"/></animateMotion></circle>
-            <!-- Origin Hub -->
-            <circle cx="125" cy="185" r="16" fill="#15803D" fill-opacity="0.14"/>
-            <circle cx="125" cy="185" r="7" fill="#102C20"/>
-            <text x="46" y="218" fill="#102C20" font-family="Manrope,sans-serif" font-weight="800" font-size="13">UZ · Samarqand / Farg‘ona</text>
+            <circle r="4.5" fill="#0D9488"><animateMotion dur="2.7s" repeatCount="indefinite"><mpath href="#arcTR"/></animateMotion></circle>
+            <circle r="4.5" fill="#0F766E"><animateMotion dur="3.0s" repeatCount="indefinite"><mpath href="#arcRU"/></animateMotion></circle>
+            <circle r="4.5" fill="#15803D"><animateMotion dur="2.4s" repeatCount="indefinite"><mpath href="#arcKZ"/></animateMotion></circle>
+            <circle r="5" fill="#16A34A"><animateMotion dur="3.1s" repeatCount="indefinite"><mpath href="#arcCN"/></animateMotion></circle>
+            <circle r="5" fill="#059669"><animateMotion dur="3.4s" repeatCount="indefinite"><mpath href="#arcKR"/></animateMotion></circle>
+            <circle r="5" fill="#16A34A"><animateMotion dur="2.8s" repeatCount="indefinite"><mpath href="#arcUAE"/></animateMotion></circle>
+            <circle r="4.5" fill="#15803D"><animateMotion dur="2.9s" repeatCount="indefinite"><mpath href="#arcSA"/></animateMotion></circle>
+            <!-- O'zbekiston aniq xaritasi (ZaminJob yashil dizaynida) -->
+            <defs>
+              <linearGradient id="uzMapGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#16A34A" stop-opacity="0.26"/>
+                <stop offset="100%" stop-color="#065F46" stop-opacity="0.38"/>
+              </linearGradient>
+            </defs>
+            <g transform="translate(148, 124) scale(0.68)">
+              <path d="M16 14 L56 4 L92 34 L110 56 L144 52 L162 48 L178 66 L192 64 L198 94 L212 108 L226 102 L240 84 L268 74 L274 84 L256 96 L262 110 L282 106 L298 112 L288 126 L268 134 L244 128 L226 116 L208 130 L196 142 L204 166 L196 184 L182 192 L164 176 L146 164 L126 154 L104 134 L90 108 L72 106 L58 92 L46 76 L34 86 L24 76 L16 88 L6 84 Z" fill="url(#uzMapGrad)" stroke="#15803D" stroke-width="2.6" stroke-linejoin="round"/>
+              <!-- Viloyat chegaralari (nozik chiziqlar) -->
+              <path d="M110 56 L98 76 L104 104 L90 108 M104 104 L132 108 L156 122 L168 112 M156 122 L146 164 M168 112 L198 94 M168 112 L196 142 M226 102 L244 128 M256 96 L278 118" stroke="#ffffff" stroke-width="1.4" stroke-opacity="0.75" fill="none" stroke-linecap="round"/>
+              <circle cx="142" cy="84" r="16" fill="#15803D" fill-opacity="0.20"/>
+              <circle cx="142" cy="84" r="6.5" fill="#102C20"/>
+            </g>
+            <text x="212" y="256" fill="#102C20" font-family="Manrope,sans-serif" font-weight="800" font-size="13.5">O‘zbekiston</text>
             <!-- Destination Nodes -->
-            <circle cx="430" cy="92" r="6" fill="#15803D"/>
-            <text x="442" y="96" fill="#102C20" font-family="Manrope,sans-serif" font-weight="800" font-size="13">KZ · Olmaota</text>
-            <circle cx="535" cy="58" r="6" fill="#0F766E"/>
-            <text x="546" y="62" fill="#102C20" font-family="Manrope,sans-serif" font-weight="800" font-size="13">RU · Moskva</text>
-            <circle cx="545" cy="198" r="7" fill="#16A34A"/>
-            <text x="512" y="222" fill="#102C20" font-family="Manrope,sans-serif" font-weight="800" font-size="13">BAA · Dubay</text>
+            <circle cx="88" cy="126" r="5.5" fill="#0D9488"/>
+            <text x="24" y="114" fill="#102C20" font-family="Manrope,sans-serif" font-weight="800" font-size="12">TR · Istanbul</text>
+            <circle cx="180" cy="54" r="5.5" fill="#0F766E"/>
+            <text x="192" y="58" fill="#102C20" font-family="Manrope,sans-serif" font-weight="800" font-size="12">RU · Moskva</text>
+            <circle cx="382" cy="104" r="5.5" fill="#15803D"/>
+            <text x="393" y="108" fill="#102C20" font-family="Manrope,sans-serif" font-weight="800" font-size="12">KZ · Olmaota</text>
+            <circle cx="520" cy="148" r="6" fill="#16A34A"/>
+            <text x="492" y="174" fill="#102C20" font-family="Manrope,sans-serif" font-weight="800" font-size="12">CN · Xitoy</text>
+            <circle cx="605" cy="112" r="6.5" fill="#059669"/>
+            <text x="556" y="96" fill="#102C20" font-family="Manrope,sans-serif" font-weight="800" font-size="12">KR · Seul</text>
+            <circle cx="468" cy="258" r="6.5" fill="#16A34A"/>
+            <text x="480" y="262" fill="#102C20" font-family="Manrope,sans-serif" font-weight="800" font-size="12">BAA · Dubay</text>
+            <circle cx="335" cy="292" r="5.5" fill="#15803D"/>
+            <text x="282" y="315" fill="#102C20" font-family="Manrope,sans-serif" font-weight="800" font-size="12">SA · Ar-Riyod</text>
           </svg>
           <div class="route-list">
-            <div class="route-item"><div><b>UZ → BAA (Dubay)</b><div style="font-size:11.5px;color:#64746a">Uzum Kishmish · 43 300 so‘m/kg</div></div><span class="route-badge">+150%</span></div>
-            <div class="route-item"><div><b>UZ → RU (Moskva)</b><div style="font-size:11.5px;color:#64746a">Gilos 26mm+ · 68 800 so‘m/kg</div></div><span class="route-badge">+95%</span></div>
-            <div class="route-item"><div><b>UZ → KZ (Olmaota)</b><div style="font-size:11.5px;color:#64746a">Baxmal olmasi · 15 900 so‘m/kg</div></div><span class="route-badge">+65%</span></div>
+            <a href="{{ route('bozor') }}" class="route-item" onmouseenter="focusArc('arcKR')" onmouseleave="focusArc('')"><div><b>UZ → Janubiy Koreya (Seul)</b><div style="font-size:11.5px;color:#64746a">Farg‘ona gilosi · 92 000 so‘m/kg</div></div><span class="route-badge">+165%</span></a>
+            <a href="{{ route('bozor') }}" class="route-item" onmouseenter="focusArc('arcUAE')" onmouseleave="focusArc('')"><div><b>UZ → BAA (Dubay)</b><div style="font-size:11.5px;color:#64746a">Uzum Kishmish · 43 300 so‘m/kg</div></div><span class="route-badge">+150%</span></a>
+            <a href="{{ route('bozor') }}" class="route-item" onmouseenter="focusArc('arcSA')" onmouseleave="focusArc('')"><div><b>UZ → Saudiya Arabistoni (Ar-Riyod)</b><div style="font-size:11.5px;color:#64746a">Quva anori · 46 500 so‘m/kg</div></div><span class="route-badge">+145%</span></a>
+            <a href="{{ route('bozor') }}" class="route-item" onmouseenter="focusArc('arcCN')" onmouseleave="focusArc('')"><div><b>UZ → Xitoy (Urumchi / Pekin)</b><div style="font-size:11.5px;color:#64746a">Qora mayiz &amp; Mosh · 71 000 so‘m/kg</div></div><span class="route-badge">+110%</span></a>
+            <a href="{{ route('bozor') }}" class="route-item" onmouseenter="focusArc('arcRU')" onmouseleave="focusArc('')"><div><b>UZ → Rossiya (Moskva)</b><div style="font-size:11.5px;color:#64746a">Gilos 26mm+ · 68 800 so‘m/kg</div></div><span class="route-badge">+95%</span></a>
+            <a href="{{ route('bozor') }}" class="route-item" onmouseenter="focusArc('arcTR')" onmouseleave="focusArc('')"><div><b>UZ → Turkiya (Istanbul)</b><div style="font-size:11.5px;color:#64746a">Yong‘oq &amp; Turshak · 58 000 so‘m/kg</div></div><span class="route-badge">+85%</span></a>
+            <a href="{{ route('bozor') }}" class="route-item" onmouseenter="focusArc('arcKZ')" onmouseleave="focusArc('')"><div><b>UZ → Qozog‘iston (Olmaota)</b><div style="font-size:11.5px;color:#64746a">Baxmal olmasi · 15 900 so‘m/kg</div></div><span class="route-badge">+65%</span></a>
           </div>
         </div>
       </div>
@@ -1900,10 +2194,18 @@
         });
       }
 
+      function ensureSrc(v) {
+        if (v && !v.getAttribute('src') && v.dataset.src) {
+          v.setAttribute('src', v.dataset.src);
+          v.load();
+        }
+      }
+
       function switchTo(nextIdx) {
         const prev = vids[idx];
         const next = vids[nextIdx];
         idx = nextIdx;
+        ensureSrc(next);
         next.currentTime = 0;
         if (inView) next.play().catch(() => {});
         next.classList.add('active');
@@ -1921,17 +2223,118 @@
       const heroObs = new IntersectionObserver(entries => {
         inView = entries[0].isIntersecting;
         const cur = vids[idx];
-        if (!cur) return;
+        if (!cur || !cur.getAttribute('src')) return;
         if (inView) cur.play().catch(() => {});
         else vids.forEach(v => v.pause());
       }, { threshold: 0.05 });
       if (heroEl) heroObs.observe(heroEl);
 
-      vids[0].play().catch(() => {});
-      restartBar(0);
-      timer = setTimeout(() => switchTo(1 % vids.length), SLIDE_MS);
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          ensureSrc(vids[0]);
+          if (inView) vids[0].play().catch(() => {});
+          restartBar(0);
+          timer = setTimeout(() => switchTo(1 % vids.length), SLIDE_MS);
+        }, 450);
+      });
     })();
 
+    // 10. GitHub / YouTube uslubidagi Qongiroqcha va Dumaloq Profil menyusi
+    (function () {
+      const bellBtn = document.getElementById('bellBtn');
+      const bellDrop = document.getElementById('bellDrop');
+      const bellDot = document.getElementById('bellDot');
+      const bellList = document.getElementById('bellList');
+      const avatarBtn = document.getElementById('avatarBtn');
+      const avatarDrop = document.getElementById('avatarDrop');
+      if (!avatarBtn && !bellBtn) return;
+
+      const closeAll = () => {
+        if (bellDrop) bellDrop.classList.remove('open');
+        if (avatarDrop) avatarDrop.classList.remove('open');
+      };
+
+      if (avatarBtn && avatarDrop) {
+        avatarBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          const willOpen = !avatarDrop.classList.contains('open');
+          closeAll();
+          if (willOpen) avatarDrop.classList.add('open');
+        });
+      }
+      if (bellBtn && bellDrop) {
+        bellBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          const willOpen = !bellDrop.classList.contains('open');
+          closeAll();
+          if (willOpen) {
+            bellDrop.classList.add('open');
+            fetch('/api/notifications/read', { credentials: 'same-origin' })
+              .then(() => { if (bellDot) bellDot.classList.remove('show'); })
+              .catch(() => {});
+          }
+        });
+      }
+      document.addEventListener('click', closeAll);
+
+      function pollNotifs() {
+        if (!bellList) return;
+        fetch('/api/notifications', { credentials: 'same-origin' })
+          .then(r => r.ok ? r.json() : null)
+          .then(data => {
+            if (!data || !Array.isArray(data.items)) return;
+            if (bellDot) {
+              if (data.unread > 0) {
+                bellDot.textContent = data.unread > 9 ? '9+' : String(data.unread);
+                bellDot.classList.add('show');
+              } else {
+                bellDot.classList.remove('show');
+              }
+            }
+            if (data.items.length === 0) {
+              bellList.innerHTML = '<div class="gh-notif-item">Hozircha yangi xabar yo‘q.</div>';
+            } else {
+              bellList.innerHTML = data.items.map(n =>
+                `<div class="gh-notif-item"><strong>${n.title}</strong>${n.body}<div style="font-size:10.5px;color:#74867b;margin-top:3px">${n.created_at}</div></div>`
+              ).join('');
+            }
+          })
+          .catch(() => {});
+      }
+      setTimeout(() => {
+        pollNotifs();
+        setInterval(pollNotifs, 25000);
+      }, 2200);
+    })();
+
+    // Mahsulotlar mega-menyusi: faqat Mahsulotlar tugmasiga sichqoncha borganida ochiladi, ichiga o'tganda yopilib ketmaydi
+    (function () {
+      const wrap = document.getElementById('homeMegaWrap');
+      const menu = document.getElementById('homeMegaMenu');
+      const trig = document.getElementById('homeMegaTrigger');
+      if (!wrap || !menu || !trig) return;
+      let closeTmr = null;
+      const openMenu = () => { clearTimeout(closeTmr); wrap.classList.add('open'); };
+      const keepOpen = () => { if (wrap.classList.contains('open')) clearTimeout(closeTmr); };
+      const schedClose = () => { clearTimeout(closeTmr); closeTmr = setTimeout(() => wrap.classList.remove('open'), 320); };
+      trig.addEventListener('mouseenter', openMenu);
+      trig.addEventListener('mouseleave', schedClose);
+      menu.addEventListener('mouseenter', keepOpen);
+      menu.addEventListener('mouseleave', schedClose);
+      document.addEventListener('click', e => { if (!wrap.contains(e.target)) wrap.classList.remove('open'); });
+    })();
+
+    function openHomeMegaCat(btn) {
+      const name = btn.dataset.mcat;
+      document.querySelectorAll('#homeMegaMenu .mega-cat').forEach(b => b.classList.toggle('on', b === btn));
+      document.querySelectorAll('#homeMegaMenu .mega-panel').forEach(p => p.classList.toggle('on', p.dataset.mpanel === name));
+    }
+    function focusArc(id) {
+      const card = document.querySelector('.trade-map-card');
+      if (!card) return;
+      card.classList.toggle('hl-arc', !!id);
+      card.querySelectorAll('.arc-path').forEach(p => p.classList.toggle('focus', p.id === id));
+    }
     function notify(message) { const toast = document.getElementById('toast'); toast.textContent = message; toast.classList.add('show'); clearTimeout(window.toastTimer); window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2600); }
   </script>
 </body>
