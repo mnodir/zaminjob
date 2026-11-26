@@ -555,10 +555,32 @@
     .hero-vbar {
       position: absolute;
       left: max(32px, calc((100% - 1600px) / 2));
-      bottom: 24px;
+      bottom: 22px;
       z-index: 3;
       display: flex;
+      align-items: center;
       gap: 8px;
+    }
+    .hero-varrow {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .82);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(16, 44, 32, .14);
+      color: #102c20;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1;
+      transition: background .2s, transform .2s, color .2s;
+    }
+    .hero-varrow:hover {
+      background: #15803d;
+      color: #fff;
+      transform: scale(1.06);
     }
     .hero-vbar span {
       width: 38px;
@@ -1352,22 +1374,77 @@
 
     @media(max-width:720px) {
       .container {
-        width: min(100% - 30px, 560px)
+        width: 100%;
+        max-width: 100%;
+        padding: 0 16px;
+        margin: 0 auto;
       }
       .reveal,
-      .reveal.from-left {
-        transform: translate3d(-24px, 0, 0);
-      }
+      .reveal.from-left,
       .reveal.from-right {
-        transform: translate3d(24px, 0, 0);
+        transform: translate3d(0, 18px, 0);
+      }
+      .reveal.visible,
+      .reveal.from-left.visible,
+      .reveal.from-right.visible {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+      }
+      .feature,
+      .stat,
+      .step,
+      .audience,
+      .route-item,
+      .cta-box,
+      .trade-map-card,
+      .trust-item,
+      .trust-panel {
+        min-width: 0;
       }
       .trade-map-card {
-        padding: 16px;
+        padding: 14px;
         border-radius: 18px;
+        overflow: hidden;
+        gap: 16px;
+      }
+      .route-item {
+        padding: 11px 12px;
+        font-size: 12.5px;
+      }
+      .route-item:hover {
+        transform: none;
+      }
+      .route-badge {
+        flex-shrink: 0;
+        white-space: nowrap;
       }
       .nav,
       .nav-wrap.scrolled .nav {
-        height: 66px
+        height: 64px;
+        gap: 8px;
+      }
+      .zj-logo svg {
+        width: 118px;
+        height: auto;
+      }
+      .nav-actions {
+        gap: 6px;
+        flex-shrink: 0;
+      }
+      .lang-sw button {
+        padding: 4px 7px;
+        font-size: 10.5px;
+      }
+      #homeMegaTrigger {
+        white-space: nowrap;
+        padding: 7px 11px !important;
+        font-size: 11.5px !important;
+      }
+      .gh-bell,
+      .gh-avatar-btn {
+        width: 34px;
+        height: 34px;
+        font-size: 13px;
       }
 
       .brand-name {
@@ -1381,24 +1458,27 @@
       }
 
       .mobile-menu {
-        display: block
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px;
       }
 
       .mobile-panel {
         display: none;
         position: absolute;
-        top: 66px;
+        top: 64px;
         left: 0;
         right: 0;
         background: white;
-        padding: 15px 22px 20px;
+        padding: 16px 20px 20px;
         border-bottom: 1px solid var(--line);
         box-shadow: var(--shadow)
       }
 
       .mobile-panel.open {
         display: grid;
-        gap: 15px
+        gap: 14px
       }
 
       .mobile-panel a {
@@ -1412,32 +1492,35 @@
         background-position: 58% bottom
       }
       .hero-overlay {
-        background: linear-gradient(180deg, rgba(247, 250, 246, .96) 0%, rgba(247, 250, 246, .86) 46%, rgba(247, 250, 246, .22) 100%);
+        background: linear-gradient(180deg, rgba(247, 250, 246, .90) 0%, rgba(247, 250, 246, .74) 48%, rgba(247, 250, 246, .20) 100%);
       }
       .hero-vbar {
-        display: none;
+        display: flex;
+        left: 16px;
+        bottom: 102px;
       }
 
       .hero-inner {
-        padding: 46px 0 190px
+        padding: 42px 16px 205px;
       }
 
       .hero h1 {
-        font-size: 43px;
-        letter-spacing: -2px
+        font-size: 40px;
+        letter-spacing: -1.8px
       }
 
       .hero-copy {
         font-size: 15px;
-        max-width: 420px
+        max-width: 100%
       }
 
       .hero-side {
-        left: 15px;
-        right: 15px;
-        bottom: 22px;
+        left: 16px;
+        right: 16px;
+        bottom: 20px;
         justify-content: space-around;
-        padding: 13px 8px
+        padding: 13px 10px;
+        gap: 8px;
       }
 
       .hero-stat {
@@ -1446,7 +1529,7 @@
       }
 
       .hero-stat strong {
-        font-size: 20px
+        font-size: 19px
       }
 
       .hero-stat small {
@@ -1462,31 +1545,35 @@
       }
 
       .section-head p {
-        margin-top: 12px
+        margin-top: 10px
       }
 
       .features {
         grid-template-columns: 1fr 1fr;
-        gap: 10px
+        gap: 12px
       }
 
       .feature {
-        padding: 17px;
-        min-height: 200px
+        padding: 18px;
+        min-height: 185px
       }
 
       .feature h3 {
-        font-size: 14px
+        font-size: 15px
       }
 
       .feature p {
-        font-size: 12px
+        font-size: 12.5px
       }
 
       .steps {
         grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        padding: 18px 10px
+        gap: 18px 12px;
+        padding: 20px 12px
+      }
+
+      .step {
+        padding: 6px 8px;
       }
 
       .step:not(:last-child):after {
@@ -1498,22 +1585,23 @@
       }
 
       .audience {
-        height: 165px
+        height: 160px
       }
 
       .audience span {
-        font-size: 15px;
-        left: 13px;
-        bottom: 14px
+        font-size: 14.5px;
+        left: 12px;
+        right: 12px;
+        bottom: 13px
       }
 
       .trust-panel {
-        padding: 12px;
-        gap: 3px
+        padding: 14px 10px;
+        gap: 6px
       }
 
       .trust-item {
-        padding: 10px 3px
+        padding: 10px 4px
       }
 
       .trust-item strong {
@@ -1525,20 +1613,25 @@
       }
 
       .stats {
-        grid-template-columns: 1fr 1fr
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .stat {
+        padding: 16px 14px;
       }
 
       .stat strong {
-        font-size: 25px
+        font-size: 24px
       }
 
       .cta-box {
         display: block;
-        padding: 28px 23px
+        padding: 26px 20px
       }
 
       .cta-box .btn {
-        margin-top: 22px
+        margin-top: 20px
       }
 
       .footer-top {
@@ -1546,8 +1639,8 @@
       }
 
       .footer-links {
-        gap: 30px;
-        margin-top: 28px;
+        gap: 28px;
+        margin-top: 26px;
         flex-wrap: wrap
       }
 
@@ -1557,30 +1650,38 @@
       }
 
       section {
-        padding: 48px 0
+        padding: 44px 0
       }
     }
 
-    @media(max-width:390px) {
+    @media(max-width:560px) {
+      .features {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .feature {
+        min-height: auto;
+        padding: 18px;
+      }
+    }
+
+    @media(max-width:420px) {
+      .mega-wrap {
+        display: none;
+      }
+
       .hero h1 {
-        font-size: 37px
+        font-size: 35px;
       }
 
       .hero-buttons .btn {
         padding: 12px 15px;
-        font-size: 12px
-      }
-
-      .features {
-        grid-template-columns: 1fr
-      }
-
-      .feature {
-        min-height: 0
+        font-size: 12px;
       }
 
       .audience {
-        height: 145px
+        height: 145px;
       }
     }
 
@@ -1711,7 +1812,12 @@
         <a href="#eksport" data-i="nav_exp">Eksport</a>
         <a href="#kimlar" data-i="nav_who">Kimlar uchun?</a>
         <a href="#about" data-i="nav_about">Biz haqimizda</a>
-        <a href="{{ route('login') }}" style="color:var(--green)" data-i="btn_login">Kirish</a>
+        <a href="{{ route('bozor') }}" style="color:var(--green)">Mahsulotlar bozori</a>
+        @auth
+          <a href="{{ route('kabinet') }}" style="color:var(--green)">Mening kabinetim</a>
+        @else
+          <a href="{{ route('login') }}" style="color:var(--green)" data-i="btn_login">Kirish</a>
+        @endauth
       </div>
     </div>
   </div>
@@ -1721,6 +1827,7 @@
       <div class="hero-videos" aria-hidden="true">
         <video class="hero-video active" muted playsinline preload="none" data-hero-video data-src="{{ asset('videos/15909400-uhd_3840_2160_25fps.mp4') }}"></video>
         <video class="hero-video" muted playsinline preload="none" data-hero-video data-src="{{ asset('videos/14571969_2560_1440_24fps.mp4') }}"></video>
+        <video class="hero-video" muted playsinline preload="none" data-hero-video data-src="{{ asset('videos/180618-864656629.mp4') }}"></video>
       </div>
       <div class="hero-overlay" aria-hidden="true"></div>
       <div class="container hero-inner">
@@ -1745,9 +1852,12 @@
         <div class="hero-stat"><strong data-count="12000" data-suffix="+">0</strong><small>Faol e’lonlar</small></div>
         <div class="hero-stat"><strong data-count="8" data-suffix="+">0</strong><small>Hududlar</small></div>
       </div>
-      <div class="hero-vbar" id="heroVbar" aria-hidden="true">
+      <div class="hero-vbar" id="heroVbar">
+        <button type="button" class="hero-varrow" id="heroPrev" aria-label="Oldingi video">‹</button>
         <span class="on"><i></i></span>
         <span><i></i></span>
+        <span><i></i></span>
+        <button type="button" class="hero-varrow" id="heroNext" aria-label="Keyingi video">›</button>
       </div>
     </header>
 
@@ -1835,7 +1945,8 @@
         </div>
         <div class="audience-grid">
           <a class="audience reveal" href="#platforma"><img loading="lazy"
-              src="https://images.unsplash.com/photo-1592982537447-6f2a6a0f8b1f?auto=format&fit=crop&w=700&q=80"
+              src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=700&q=80"
+              onerror="this.src='https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=700&q=80'"
               alt="Fermer dalada"><span>Fermerlar</span></a>
           <a class="audience reveal" href="#platforma"><img loading="lazy"
               src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=700&q=80"
@@ -2122,8 +2233,12 @@
     });
     const revealObserver = new IntersectionObserver(entries => entries.forEach(entry => {
       if (entry.isIntersecting) { entry.target.classList.add('visible'); revealObserver.unobserve(entry.target); }
-    }), { threshold: .14, rootMargin: '0px 0px -40px 0px' });
-    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+    }), { threshold: 0.02, rootMargin: '0px 0px -10px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.96) { el.classList.add('visible'); }
+      else { revealObserver.observe(el); }
+    });
 
     // 7. Animated Counters
     const countObserver = new IntersectionObserver(entries => entries.forEach(entry => {
@@ -2218,7 +2333,53 @@
         timer = setTimeout(() => switchTo((idx + 1) % vids.length), SLIDE_MS);
       }
 
+      const stepVideo = dir => switchTo((idx + dir + vids.length) % vids.length);
       bars.forEach((b, k) => b.addEventListener('click', () => { if (k !== idx) switchTo(k); }));
+      const prevBtn = document.getElementById('heroPrev'), nextBtn = document.getElementById('heroNext');
+      if (prevBtn) prevBtn.addEventListener('click', () => stepVideo(-1));
+      if (nextBtn) nextBtn.addEventListener('click', () => stepVideo(1));
+
+      if (heroEl) {
+        // 1. Mobil touch swipe (chapga / o'ngga surish)
+        let tx = 0, ty = 0;
+        heroEl.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+        heroEl.addEventListener('touchend', e => {
+          const dx = e.changedTouches[0].clientX - tx;
+          const dy = e.changedTouches[0].clientY - ty;
+          if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) stepVideo(dx < 0 ? 1 : -1);
+        }, { passive: true });
+
+        // 2. MacBook trackpad gorizontal scroll (2 barmoq bilan yon tomonga surish)
+        let wheelLock = 0;
+        heroEl.addEventListener('wheel', e => {
+          if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 22) {
+            const now = Date.now();
+            if (now - wheelLock > 650) {
+              wheelLock = now;
+              stepVideo(e.deltaX > 0 ? 1 : -1);
+            }
+          }
+        }, { passive: true });
+
+        // 3. Sichqoncha bilan yon tomonga tortish (drag)
+        let mdx = null;
+        heroEl.addEventListener('mousedown', e => {
+          if (e.target.closest('a, button, input, select')) return;
+          mdx = e.clientX;
+        });
+        heroEl.addEventListener('mouseup', e => {
+          if (mdx === null) return;
+          const dx = e.clientX - mdx;
+          mdx = null;
+          if (Math.abs(dx) > 60) stepVideo(dx < 0 ? 1 : -1);
+        });
+      }
+      // 4. Klaviatura chap / o'ng strelkalari
+      document.addEventListener('keydown', e => {
+        if (!inView || e.target.closest('input, textarea, select')) return;
+        if (e.key === 'ArrowRight') stepVideo(1);
+        if (e.key === 'ArrowLeft') stepVideo(-1);
+      });
 
       const heroObs = new IntersectionObserver(entries => {
         inView = entries[0].isIntersecting;

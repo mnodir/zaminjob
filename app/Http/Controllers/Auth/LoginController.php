@@ -45,17 +45,47 @@ class LoginController extends Controller
                 CREATE TABLE IF NOT EXISTS `users` (
                     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                     `name` VARCHAR(255) NOT NULL,
+                    `username` VARCHAR(60) NULL UNIQUE,
                     `email` VARCHAR(255) NULL UNIQUE,
                     `phone` VARCHAR(30) NULL UNIQUE,
                     `email_verified_at` TIMESTAMP NULL,
                     `password` VARCHAR(255) NOT NULL,
                     `role` VARCHAR(30) NULL,
-                    `is_onboarded` TINYINT(1) NOT NULL DEFAULT 0,
+                    `is_onboarded` TINYINT(1) NOT NULL DEFAULT 1,
+                    `avatar_path` VARCHAR(255) NULL,
+                    `bio` TEXT NULL,
+                    `region` VARCHAR(100) NULL,
+                    `district` VARCHAR(120) NULL,
+                    `telegram` VARCHAR(100) NULL,
                     `remember_token` VARCHAR(100) NULL,
                     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
                     `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             ");
+
+            // Agar users jadvali eski Laravel migratsiyasidan qolgan bo'lsa, yetishmayotgan ustunlarni avtomatik qo'shamiz
+            $cols = [
+                'username' => 'VARCHAR(60) NULL UNIQUE',
+                'phone' => 'VARCHAR(30) NULL UNIQUE',
+                'role' => 'VARCHAR(30) NULL',
+                'is_onboarded' => 'TINYINT(1) NOT NULL DEFAULT 1',
+                'avatar_path' => 'VARCHAR(255) NULL',
+                'bio' => 'TEXT NULL',
+                'region' => 'VARCHAR(100) NULL',
+                'district' => 'VARCHAR(120) NULL',
+                'telegram' => 'VARCHAR(100) NULL',
+            ];
+            foreach ($cols as $col => $def) {
+                $chkCol = $pdo->prepare("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = ?");
+                $chkCol->execute([$col]);
+                if (!$chkCol->fetch()) {
+                    $pdo->exec("ALTER TABLE `users` ADD COLUMN `{$col}` {$def}");
+                }
+            }
+            try {
+                $pdo->exec("ALTER TABLE `users` MODIFY `email` VARCHAR(255) NULL");
+            } catch (\Throwable $ignore) {
+            }
 
             // 1. Asosiy Admin: +998 90 404 71 70 (parol: nodir12345)
             $updAdmin = $pdo->prepare("UPDATE `users` SET `role` = 'admin', `is_onboarded` = 1 WHERE REPLACE(`phone`, ' ', '') = '+998904047170'");

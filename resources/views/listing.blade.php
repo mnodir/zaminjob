@@ -4,11 +4,30 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $item->title }} — ZaminJob</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%23102c20'/%3E%3Cpath d='M9 11h22v4.4L16.2 26.6H31V31H9v-4.4L23.8 15.4H9V11z' fill='%23ffffff'/%3E%3Cpath d='M12 24.5c2.2-6 8.2-9.2 15.5-8.5-2.6 5.6-7.8 9.2-15.5 8.5z' fill='%2316a34a'/%3E%3C/svg%3E">
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes sideIn { from { opacity: 0; transform: translate3d(26px, 0, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+        main > * { animation: sideIn .62s cubic-bezier(.16, 1, .3, 1) both; }
+        main > *:nth-child(2) { animation-delay: 70ms; }
+        main > *:nth-child(3) { animation-delay: 140ms; }
+        main > *:nth-child(4) { animation-delay: 210ms; }
+        main > *:nth-child(5) { animation-delay: 280ms; }
+    </style>
 </head>
 <body class="bg-[#f7f9f5] text-slate-800 min-h-screen pb-24">
     @php
-        $imgs = json_decode((string)$item->images_json, true) ?: ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1000&q=80'];
+        $subPhotos = [
+            'Pomidor' => asset('images/listings/pomidor.jpg'),
+            'Sovutkichli refrijerator' => asset('images/listings/fura.jpg'),
+            'Fura (20t)' => asset('images/listings/fura.jpg'),
+            'Traktor' => asset('images/listings/traktor.jpg'),
+            'Issiqxona' => asset('images/listings/issiqxona.jpg'),
+            'Uzum' => asset('images/listings/uzum.jpg'),
+            'Olma' => asset('images/listings/olma.jpg'),
+        ];
+        $defaultImg = $subPhotos[$item->subcategory] ?? asset('images/listings/olma.jpg');
+        $imgs = json_decode((string)$item->images_json, true) ?: [$defaultImg];
         $months = [1=>'yanvar','fevral','mart','aprel','may','iyun','iyul','avgust','sentabr','oktabr','noyabr','dekabr'];
         $ts = strtotime($item->created_at ?? 'now');
         $uzDate = date('j', $ts) . ' ' . ($months[(int)date('n', $ts)] ?? 'noyabr') . ' ' . date('Y', $ts);

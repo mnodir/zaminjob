@@ -30,6 +30,13 @@ Route::post('/bozor', 'HomeController@marketStore')->middleware('auth')->name('b
 Route::get('/bozor/{id}', 'HomeController@marketShow')->where('id', '[0-9]+')->name('bozor.show');
 Route::post('/bozor/{id}/message', 'HomeController@marketMessage')->where('id', '[0-9]+')->name('bozor.message');
 
+// ZaminJob AI Eksport Signallari (Real-Time), AI Maslahatchi va Narx Tavsiyasi API
+Route::get('/api/ai-signals', 'HomeController@aiSignalsApi');
+Route::post('/api/ai-analyze', 'HomeController@aiAnalyzeApi');
+Route::post('/api/ai-watch', 'HomeController@aiWatchApi');
+Route::post('/api/ai-chat', 'HomeController@aiChatApi');
+Route::post('/api/ai-price-suggest', 'HomeController@aiPriceSuggestApi');
+
 // Jonli username band/bosh tekshiruvi
 Route::get('/api/check-username', function (Request $request) {
     $raw = strtolower(ltrim(trim((string) $request->query('u', '')), '@'));

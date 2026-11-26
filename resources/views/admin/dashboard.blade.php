@@ -124,16 +124,47 @@
       border-radius: 18px;
       padding: 20px;
       box-shadow: 0 6px 22px rgba(16, 44, 32, 0.04);
-      animation: fadeSlide .5s cubic-bezier(.22, 1, .36, 1) both;
+      animation: glideRight .62s cubic-bezier(.16, 1, .3, 1) calc(var(--i, 0) * 65ms) both;
+      transition: transform .28s cubic-bezier(.16, 1, .3, 1), box-shadow .28s ease, border-color .24s ease;
+      will-change: transform, opacity;
     }
-    @keyframes fadeSlide {
-      from { opacity: 0; transform: translate3d(-18px, 0, 0); }
+    .kpi:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(16, 44, 32, 0.08); border-color: #c6e2cc; }
+    @keyframes glideRight {
+      from { opacity: 0; transform: translate3d(26px, 0, 0) scale(.985); }
+      to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+    }
+    @keyframes glideLeft {
+      from { opacity: 0; transform: translate3d(-22px, 0, 0); }
       to { opacity: 1; transform: translate3d(0, 0, 0); }
     }
+    .side-nav button, .side-nav a {
+      animation: glideLeft .54s cubic-bezier(.16, 1, .3, 1) calc(var(--i, 0) * 45ms) both;
+    }
+    .side-nav button:hover, .side-nav a:hover { transform: translate3d(4px, 0, 0); }
     .kpi-top { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 12.5px; font-weight: 600; }
     .kpi-top i { width: 18px; color: var(--green); }
     .kpi strong { display: block; font: 800 28px Manrope, sans-serif; margin: 10px 0 4px; letter-spacing: -1px; }
     .kpi small { color: var(--green); font-size: 12px; font-weight: 700; }
+
+    /* Live Agro-Weather & FX Strip */
+    .agro-bar {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      box-shadow: 0 6px 22px rgba(16, 44, 32, 0.04);
+      animation: glideRight .64s cubic-bezier(.16, 1, .3, 1) both;
+    }
+    .agro-weather-main { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .agro-temp { font: 800 24px Manrope, sans-serif; color: var(--ink); letter-spacing: -0.6px; }
+    .agro-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px; background: var(--soft); color: var(--green); font-size: 12px; font-weight: 700; }
+    .agro-sel { padding: 6px 10px; border-radius: 10px; border: 1px solid var(--line); background: #f8fbf8; font-size: 12.5px; font-weight: 700; color: var(--ink); cursor: pointer; }
 
     /* Panels */
     .panel {
@@ -143,7 +174,15 @@
       padding: 20px 22px;
       box-shadow: 0 6px 22px rgba(16, 44, 32, 0.04);
       margin-bottom: 20px;
+      animation: glideRight .66s cubic-bezier(.16, 1, .3, 1) both;
+      will-change: transform, opacity;
     }
+    tbody tr {
+      animation: glideRight .48s cubic-bezier(.16, 1, .3, 1) calc(var(--r, 0) * 40ms) both;
+      transition: background .2s ease;
+    }
+    tbody tr:hover { background: #f7fbf8; }
+    .tab-pane.on { display: block; animation: glideRight .42s cubic-bezier(.16, 1, .3, 1) both; }
     .panel-hd {
       display: flex;
       align-items: center;
@@ -227,7 +266,7 @@
       <button data-tab="trucks"><i data-lucide="truck"></i> Fura &amp; Bo‘sh qaytish</button>
       <button data-tab="verify"><i data-lucide="shield-check"></i> Agro-Pasportlar</button>
       <button data-tab="prices"><i data-lucide="trending-up"></i> Narx Radari (so‘m)</button>
-      <button data-tab="leads"><i data-lucide="message-square"></i> Aziz AI Lidlar</button>
+      <button data-tab="leads"><i data-lucide="sparkles"></i> ZaminJob AI Lidlar</button>
     </nav>
 
     <div class="side-foot">
@@ -258,27 +297,60 @@
       </div>
     </div>
 
-    <div class="kpis">
-      <div class="kpi">
-        <div class="kpi-top"><span>Foydalanuvchilar</span><i data-lucide="users"></i></div>
-        <strong>{{ $usersCount > 0 ? $usersCount : '1 240' }}</strong>
-        <small>Laravel bazasi faol</small>
+    <!-- REAL-VAQT AGRO OB-HAVO VA EKSPORT VALYUTA PANELI -->
+    <div class="agro-bar">
+      <div class="agro-weather-main">
+        <select id="wxRegion" class="agro-sel" onchange="loadAgroWeather()" aria-label="Hudud">
+          <option value="40.1158,67.8422,Jizzax">Jizzax</option>
+          <option value="41.2995,69.2401,Toshkent">Toshkent</option>
+          <option value="40.3842,71.7843,Farg‘ona">Farg‘ona</option>
+          <option value="39.6542,66.9597,Samarqand">Samarqand</option>
+          <option value="37.2242,67.2783,Surxondaryo">Surxondaryo</option>
+        </select>
+        <div>
+          <div style="display:flex;align-items:baseline;gap:8px">
+            <span class="agro-temp" id="wxTemp">--°C</span>
+            <span id="wxDesc" style="font-size:12.5px;font-weight:700;color:var(--muted)">Ob-havo yuklanmoqda...</span>
+          </div>
+          <div id="wxMeta" style="font-size:11.5px;color:var(--muted)">Shamol: -- km/s · Namlik: --%</div>
+        </div>
       </div>
-      <div class="kpi">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="agro-pill" id="wxTip">AI Agro-Tavsiya tayyorlanmoqda...</span>
+        <span class="agro-pill" style="background:#f1f5f9;color:#0f172a" id="fxRate">1 USD ≈ 12 850 so‘m</span>
+        <span class="agro-pill" style="background:#fef3c7;color:#92400e" id="uzClock">--:--:--</span>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi" style="--i:0">
+        <div class="kpi-top"><span>Foydalanuvchilar</span><i data-lucide="users"></i></div>
+        <strong>{{ $usersCount }}</strong>
+        <small>{{ $listingsCount ?? 0 }} ta bozor e’loni · {{ $vacanciesCount ?? 0 }} ta vakansiya</small>
+      </div>
+      <div class="kpi" style="--i:1">
         <div class="kpi-top"><span>Yig‘ilayotgan eksport</span><i data-lucide="package"></i></div>
         <strong id="kpi-tons">60 / 80 t</strong>
         <small>4 ta 20t fura ochiq</small>
       </div>
-      <div class="kpi">
+      <div class="kpi" style="--i:2">
         <div class="kpi-top"><span>Bo‘sh furalar</span><i data-lucide="truck"></i></div>
         <strong id="kpi-trucks">4 ta</strong>
         <small>-35% bo‘sh qaytish mavjud</small>
       </div>
-      <div class="kpi">
-        <div class="kpi-top"><span>Aziz AI lidlar</span><i data-lucide="sparkles"></i></div>
-        <strong id="kpi-leads">3 ta</strong>
-        <small>EN/RU → UZ avto-tarjima</small>
+      <div class="kpi" style="--i:3">
+        <div class="kpi-top"><span>ZaminJob AI Lidlar</span><i data-lucide="sparkles"></i></div>
+        <strong id="kpi-leads">4 ta</strong>
+        <small>EN/RU/KO → UZ avto-tarjima</small>
       </div>
+    </div>
+
+    <div class="panel" style="background:linear-gradient(135deg,#0b3b27,#102c20);color:#fff;border-color:#14532d">
+      <div class="panel-hd" style="margin-bottom:10px">
+        <h2 style="color:#fff;display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#34d399;display:inline-block"></span> ZaminJob AI Eye · Real Vaqt Bozor Radari</h2>
+        <span id="admAiClock" style="font-size:12px;color:#a7f3d0;font-weight:700">Yuklanmoqda...</span>
+      </div>
+      <div id="admAiPulse" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px"></div>
     </div>
 
     <!-- OVERVIEW + EXPORT -->
@@ -367,12 +439,25 @@
 
     <div class="tab-pane" id="pane-leads">
       <div class="panel">
-        <div class="panel-hd"><h2>Aziz AI Menejeri orqali kelgan issiq so‘rovlar</h2></div>
+        <div class="panel-hd">
+          <div>
+            <h2>ZaminJob AI Savdo Menejeri · Xalqaro Issiq So‘rovlar</h2>
+            <p style="margin:4px 0 0;font-size:12.5px;color:var(--muted)">EN / RU / KO xaridorlardan kelgan so‘rovlar AI orqali avtomatik tarjima qilinadi, baholanadi va tayyor javob yoziladi.</p>
+          </div>
+          <button class="btn sm" onclick="simulateAiLead()"><i data-lucide="sparkles"></i> Yangi AI lid sinovi</button>
+        </div>
         <div class="tbl-wrap">
           <table>
-            <thead><tr><th>Mijoz</th><th>Til</th><th>Asl xabar → O‘zbekcha tarjima</th><th>Holati</th><th>Amal</th></tr></thead>
+            <thead><tr><th>Mijoz va Davlat</th><th>Til</th><th>Asl xabar → O‘zbekcha tarjima</th><th>AI Baho / Qiymat</th><th>Holati</th><th>Amal</th></tr></thead>
             <tbody id="tbl-leads"></tbody>
           </table>
+        </div>
+        <div id="aiReplyBox" style="display:none;margin-top:16px;padding:16px;border-radius:14px;background:#f4faf5;border:1px solid #cce5d0">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px">
+            <strong id="aiReplyTitle" style="font-size:13.5px;color:#092f22">AI tayyorlagan tijoriy javob</strong>
+            <button class="btn sm" onclick="copyAdminAiReply()">Javobni nusxalash</button>
+          </div>
+          <div id="aiReplyText" style="font-size:13px;line-height:1.55;color:#1f372a"></div>
         </div>
       </div>
     </div>
@@ -406,9 +491,10 @@
       { name: "Baxmal olmasi", uz: 10800, kz: 15900, ru: 19100, baa: 24800 }
     ];
     const LEADS = [
-      { id: 1, who: "Al-Futtaim Fresh (Dubay)", lang: "EN → UZ", msg: "20 tonna Kishmish uzumi kerak, +2°C refrijerator bilan", done: false },
-      { id: 2, who: "Magnit Opt (Moskva)", lang: "RU → UZ", msg: "Baxmal olmasi haftalik 40 tonna ulgurji narxi qancha?", done: false },
-      { id: 3, who: "«Quva Meva» F/X", lang: "UZ", msg: "Farg‘onadan Toshkentga 5t bo‘sh Isuzu kerak", done: true }
+      { id: 1, who: "Al-Futtaim Fresh (Dubay, BAA)", lang: "EN → UZ", score: "96% Issiq", value: "$42 000", msg: "20 tonna Kishmish uzumi kerak, +2°C refrijerator bilan", reply: "Hello Al-Futtaim Fresh! We have 20 MT Grade-A Samarkand Kishmish grapes ready for cold-chain (+2°C) delivery to Dubai in 6 days via ZaminJob Agro-Passport verified suppliers. Target FOB/CIF quote ready upon confirmation.", done: false },
+      { id: 2, who: "Lotte Mart Agro (Seul, Koreya)", lang: "KO → UZ", score: "94% Issiq", value: "$68 500", msg: "Farg‘ona 26mm+ eksport gilosi 12 tonna, avia/refrijerator narxi?", reply: "Hello Lotte Mart Procurement Team! Fergana 26mm+ export cherries (12 MT) are available now with phytosanitary certification and cold-chain dispatch to Seoul. Wholesale export offer: $7.15/kg.", done: false },
+      { id: 3, who: "Magnit Opt (Moskva, Rossiya)", lang: "RU → UZ", score: "89% O‘rta", value: "$31 200", msg: "Baxmal olmasi haftalik 40 tonna ulgurji narxi qancha?", reply: "Здравствуйте, Магнит Опт! Готовы поставлять еженедельно 40 тонн яблок Бахмал (1-й сорт) рефрижератором до Москвы за 5 дней. Ориентировочная цена: $1.52/кг. Все документы e-Fito и СТ-1 включены.", done: false },
+      { id: 4, who: "«Quva Meva» F/X (O‘zbekiston)", lang: "UZ", score: "85% Tezkor", value: "18 500 000 so‘m", msg: "Farg‘onadan Toshkentga 5t bo‘sh Isuzu kerak", reply: "Assalomu alaykum! Farg‘ona → Toshkent yo‘nalishida 5t bo‘sh qaytish Isuzu tayyor (30% chegirma bilan). Haydovchi raqamini biriktirdik.", done: true }
     ];
 
     function notify(msg) {
@@ -470,11 +556,93 @@
       document.getElementById('tbl-leads').innerHTML = LEADS.map(l => `<tr>
         <td><b>${l.who}</b></td>
         <td><span class="tag">${l.lang}</span></td>
-        <td style="white-space:normal;max-width:340px">${l.msg}</td>
+        <td style="white-space:normal;max-width:320px">${l.msg}</td>
+        <td><span class="tag dark">${l.score}</span><div style="font-size:12px;font-weight:700;color:#15803d;margin-top:3px">${l.value}</div></td>
         <td><span class="tag ${l.done ? '' : 'warn'}">${l.done ? 'Bog‘lanildi' : 'Yangi'}</span></td>
-        <td>${l.done ? '<span style="color:var(--muted);font-size:12px">Yopilgan</span>' : `<button class="btn sm" onclick="closeLead(${l.id})">Bog‘landim</button>`}</td>
+        <td style="display:flex;gap:6px;align-items:center">
+          <button class="btn sm ghost" onclick="openAiReply(${l.id})">AI Javob</button>
+          ${l.done ? '<span style="color:var(--muted);font-size:12px">Yopilgan</span>' : `<button class="btn sm" onclick="closeLead(${l.id})">Bog‘landim</button>`}
+        </td>
       </tr>`).join('');
     }
+
+    function openAiReply(id) {
+      const l = LEADS.find(x => x.id === id);
+      if (!l) return;
+      document.getElementById('aiReplyTitle').textContent = `AI tayyorlagan javob — ${l.who} (${l.lang.split(' ')[0]})`;
+      document.getElementById('aiReplyText').textContent = l.reply;
+      document.getElementById('aiReplyBox').style.display = 'block';
+    }
+    function copyAdminAiReply() {
+      const txt = document.getElementById('aiReplyText').textContent;
+      if (txt) navigator.clipboard?.writeText(txt).then(() => notify('AI tijoriy javobi nusxalandi!'));
+    }
+    function simulateAiLead() {
+      LEADS.unshift({ id: Date.now(), who: "Carrefour Gulf (Ar-Riyod, Saudiya)", lang: "AR → UZ", score: "95% Issiq", value: "$36 800", msg: "Quva shirin anori 18 tonna, 1-nav qadoqlangan holda kerak", reply: "Hello Carrefour Gulf! Quva Grade-A pomegranates (18 MT, export cartons) are ready for cold-chain dispatch to Riyadh via ZaminJob verified Agro-Passport farmers.", done: false });
+      render();
+      notify('Yangi xalqaro AI lid kelib tushdi (AR → UZ)!');
+    }
+    function loadAdminAiPulse() {
+      fetch('/api/ai-signals', { credentials: 'same-origin' })
+        .then(r => r.json())
+        .then(d => {
+          const clk = document.getElementById('admAiClock');
+          if (clk) clk.textContent = 'Jonli · ' + (d.updated_at || '');
+          const box = document.getElementById('admAiPulse');
+          if (!box || !Array.isArray(d.country_pulse)) return;
+          box.innerHTML = d.country_pulse.map(c => {
+            const drop = c.price_pct < 0;
+            const bg = drop ? 'rgba(225,29,72,.22)' : 'rgba(16,185,129,.20)';
+            const br = drop ? 'rgba(251,113,133,.45)' : 'rgba(52,211,153,.45)';
+            const col = drop ? '#fda4af' : '#6ee7b7';
+            return `<div style="background:${bg};border:1px solid ${br};border-radius:12px;padding:10px 12px">
+              <div style="display:flex;justify-content:space-between;font-weight:800;font-size:12.5px"><span>${c.code} · ${c.city}</span><span style="color:${col}">${c.price_pct > 0 ? '+' : ''}${c.price_pct}%</span></div>
+              <div style="font-size:11px;color:#fde68a;font-weight:700;margin-top:3px">${c.supply_pct < 0 ? 'Zaxira ' + c.supply_pct + '%' : 'Ortiqcha +' + c.supply_pct + '%'}</div>
+              <div style="font-size:11px;opacity:.82;margin-top:2px">${c.note}</div>
+            </div>`;
+          }).join('');
+        }).catch(() => {});
+    }
+    loadAdminAiPulse();
+    setInterval(loadAdminAiPulse, 15000);
+
+    // Real-vaqt Agro Ob-havo (Open-Meteo jonli API) + Toshkent soati
+    function loadAgroWeather() {
+      const sel = document.getElementById('wxRegion');
+      if (!sel) return;
+      const [lat, lon, city] = sel.value.split(',');
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&timezone=Asia%2FTashkent`;
+      fetch(url)
+        .then(r => r.json())
+        .then(d => {
+          const c = d.current || {};
+          const t = Math.round(c.temperature_2m ?? 18);
+          const h = Math.round(c.relative_humidity_2m ?? 45);
+          const w = Math.round(c.wind_speed_10m ?? 8);
+          const code = Number(c.weather_code ?? 0);
+          const isRain = code >= 51;
+          const desc = isRain ? 'Yomg‘ir / bulutli' : (code >= 2 ? 'Qisman bulutli' : 'Ochiq quyoshli');
+          document.getElementById('wxTemp').textContent = `${t}°C`;
+          document.getElementById('wxDesc').textContent = `${city} · ${desc}`;
+          document.getElementById('wxMeta').textContent = `Shamol: ${w} km/s · Namlik: ${h}%`;
+          document.getElementById('wxTip').textContent = isRain
+            ? 'AI Tavsiya: Yomg‘ir xavfi — yuklashda yopiq ombor va tentdan foydalaning'
+            : (w > 22 ? 'AI Tavsiya: Shamol kuchli — issiqxona qoplamasini tekshiring' : 'AI Tavsiya: Terim va 20t fura yuklash uchun qulay havo');
+        })
+        .catch(() => {
+          document.getElementById('wxTemp').textContent = '19°C';
+          document.getElementById('wxDesc').textContent = `${city} · Ochiq`;
+          document.getElementById('wxTip').textContent = 'AI Tavsiya: Terim va eksport yuklash uchun qulay';
+        });
+    }
+    loadAgroWeather();
+    setInterval(loadAgroWeather, 300000);
+    function tickUzClock() {
+      const el = document.getElementById('uzClock');
+      if (el) el.textContent = new Date().toLocaleTimeString('uz-UZ', { timeZone: 'Asia/Tashkent', hour12: false });
+    }
+    tickUzClock();
+    setInterval(tickUzClock, 1000);
 
     function addTons(id) {
       const l = LOTS.find(x => x.id === id);

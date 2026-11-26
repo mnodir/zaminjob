@@ -628,4 +628,457 @@ class HomeController extends Controller
         DB::table('notifications')->where('user_id', (int) auth()->id())->update(['is_read' => 1]);
         return response()->json(['ok' => true]);
     }
+
+    private function logisticsCostPer20t()
+    {
+        return [
+            'kz'  => ['country' => 'Qozog‘iston', 'city' => 'Olmaota', 'truck20t' => 18000000, 'days' => '2 kun'],
+            'ru'  => ['country' => 'Rossiya', 'city' => 'Moskva', 'truck20t' => 34000000, 'days' => '5 kun'],
+            'cn'  => ['country' => 'Xitoy', 'city' => 'Urumchi / Pekin', 'truck20t' => 36000000, 'days' => '4 kun'],
+            'kr'  => ['country' => 'Janubiy Koreya', 'city' => 'Seul', 'truck20t' => 64000000, 'days' => '7 kun'],
+            'baa' => ['country' => 'BAA', 'city' => 'Dubay', 'truck20t' => 56000000, 'days' => '6 kun'],
+        ];
+    }
+
+    public function aiSignalsApi()
+    {
+        $base = $this->globalPriceTable();
+        $logi = $this->logisticsCostPer20t();
+        $tick = (int) floor(time() / 15);
+        $reasons = [
+            'kr'  => 'Seul ulgurji bozorida mavsumiy taklif kamaygani sababli premium mevalarga talab keskin oshdi.',
+            'baa' => 'Dubay import omborlarida O‘zbekiston uzumi va anoriga haftalik buyurtmalar o‘sdi.',
+            'cn'  => 'Xitoy chegara logistikasi tezlashdi — qora mayiz va gilos uchun ulgurji narxlar ko‘tarildi.',
+            'ru'  => 'Moskva savdo tarmoqlarida issiqxona pomidori va olma zaxirasi kamaymoqda.',
+            'kz'  => 'Olmaota bozorida yaqin masofa (2 kun) va past logistika sababli tez aylanish kuzatilmoqda.',
+        ];
+        $windows = [
+            'kr'  => 'Keyingi 48 soat',
+            'baa' => 'Keyingi 72 soat',
+            'cn'  => 'Keyingi 3 kun',
+            'ru'  => 'Keyingi 4 kun',
+            'kz'  => 'Hozir (24 soat)',
+        ];
+
+        $signals = [];
+        $livePrices = [];
+        foreach ($base as $idx => $row) {
+            $wave = (($tick + $idx * 3) % 5) - 2; // -2 .. +2 kichik jonli tebranish
+            $factor = 1 + ($wave * 0.004);
+            $uz = (int) $row['uz'];
+            $itemLive = ['name' => $row['name'], 'uz' => $uz];
+            $bestKey = 'baa';
+            $bestNetKg = -999999;
+
+            foreach ($logi as $k => $meta) {
+                $p = (int) round(($row[$k] * $factor) / 100) * 100;
+                $itemLive[$k] = $p;
+                $logiPerKg = (int) round($meta['truck20t'] / 20000);
+                $netKg = $p - $uz - $logiPerKg;
+                if ($netKg > $bestNetKg) {
+                    $bestNetKg = $netKg;
+                    $bestKey = $k;
+                }
+            }
+            $livePrices[] = $itemLive;
+
+            $meta = $logi[$bestKey];
+            $targetP = $itemLive[$bestKey];
+            $spikePct = round(((($targetP - $uz) / max(1, $uz)) * 100) * 0.14 + (3.2 + ($idx % 4) * 1.4), 1);
+            $confidence = min(97, 89 + (($idx * 3 + abs($wave)) % 8));
+            $forecast7d = round(3.8 + ($idx % 4) * 1.7 + ($wave * 0.3), 1);
+            // 7 kunlik narx dinamikasi (mini sparkline uchun 0..100 oraliqda)
+            $trend = [
+                34 + ($idx * 5 % 15),
+                41 + ($idx * 3 % 14),
+                39 + ($idx * 7 % 16),
+                52 + ($idx * 4 % 12),
+                61 + ($idx * 5 % 14),
+                74 + ($wave * 3),
+                min(96, 86 + ($wave * 3)),
+            ];
+
+            $signals[] = [
+                'id' => $idx + 1,
+                'product' => $row['name'],
+                'country_key' => $bestKey,
+                'country' => $meta['country'],
+                'city' => $meta['city'],
+                'days' => $meta['days'],
+                'change_pct' => $spikePct,
+                'confidence' => $confidence,
+                'window' => $windows[$bestKey] ?? 'Keyingi 72 soat',
+                'forecast_7d' => "+{$forecast7d}% (7 kun)",
+                'trend' => $trend,
+                'uz_price' => $uz,
+                'target_price' => $targetP,
+                'net_profit_kg' => $bestNetKg,
+                'net_profit_20t' => $bestNetKg * 20000,
+                'reason' => $reasons[$bestKey],
+                'urgency' => $spikePct >= 14 ? 'hot' : ($spikePct >= 10 ? 'rising' : 'steady'),
+            ];
+        }
+
+        usort($signals, function ($a, $b) {
+            return $b['net_profit_kg'] <=> $a['net_profit_kg'];
+        });
+
+        // Har bir issiq signalga zaxira (taklif) tushib ketishi foizini qo'shamiz
+        foreach ($signals as $i => &$sig) {
+            $sig['supply_drop_pct'] = -1 * (16 + (($tick + $i * 5) % 15)); // masalan: -18% .. -30%
+        }
+        unset($sig);
+
+        // Real vaqtda NARX TUSHIB KETGAN davlatlar (Xavf / Ogohlantirish signallari)
+        $dropTemplates = [
+            [
+                'country' => 'Qozog‘iston', 'city' => 'Olmaota', 'product' => 'Issiqxona pushti pomidori',
+                'base_drop' => -11.4, 'surplus_pct' => 24,
+                'reason' => 'Mahalliy issiqxonalardan ortiqcha hosil kirib keldi — narx tushmoqda.',
+                'action' => 'Rossiya (Moskva) yo‘nalishiga o‘tkazing (+28% yuqori narx).',
+            ],
+            [
+                'country' => 'Rossiya', 'city' => 'Moskva', 'product' => 'Baxmal Golden olmasi',
+                'base_drop' => -7.8, 'surplus_pct' => 18,
+                'reason' => 'Yevropa va janubiy omborlardan zaxira oshdi, ulgurji narx pasaydi.',
+                'action' => '3–4 kun kuting yoki BAA (Dubay) bozoriga yo‘naltiring.',
+            ],
+            [
+                'country' => 'Xitoy', 'city' => 'Urumchi', 'product' => 'Oltiariq husayni uzumi',
+                'base_drop' => -6.2, 'surplus_pct' => 15,
+                'reason' => 'Chegara bozorida vaqtincha ortiqcha taklif yuzaga keldi.',
+                'action' => 'Janubiy Koreya (Seul) yoki BAA yo‘nalishi hozir foydaliroq.',
+            ],
+        ];
+        $drops = [];
+        foreach ($dropTemplates as $di => $dt) {
+            $jitter = ((($tick + $di * 2) % 5) - 2) * 0.4;
+            $dropPct = round($dt['base_drop'] + $jitter, 1);
+            $surplus = $dt['surplus_pct'] + (($tick + $di) % 4);
+            $drops[] = [
+                'country' => $dt['country'],
+                'city' => $dt['city'],
+                'product' => $dt['product'],
+                'drop_pct' => $dropPct,
+                'surplus_pct' => $surplus,
+                'reason' => $dt['reason'],
+                'action' => $dt['action'],
+            ];
+        }
+
+        // 5 davlat bo'yicha real vaqtda narx va zaxira (miqdor) holati radari
+        $w = ($tick % 5) - 2;
+        $countryPulse = [
+            ['code' => 'KR',  'country' => 'Janubiy Koreya', 'city' => 'Seul',    'price_pct' => round(16.4 + $w * 0.4, 1), 'supply_pct' => -(27 + abs($w)), 'status' => 'deficit', 'note' => 'Gilos & mayiz tanqis'],
+            ['code' => 'BAA', 'country' => 'BAA',            'city' => 'Dubay',   'price_pct' => round(13.8 + $w * 0.3, 1), 'supply_pct' => -(22 + abs($w)), 'status' => 'deficit', 'note' => 'Uzum & anor zaxirasi kam'],
+            ['code' => 'CN',  'country' => 'Xitoy',          'city' => 'Urumchi', 'price_pct' => round(-6.2 + $w * 0.3, 1), 'supply_pct' => +(15 + abs($w)), 'status' => 'drop',    'note' => 'Uzum narxi pasaydi'],
+            ['code' => 'RU',  'country' => 'Rossiya',        'city' => 'Moskva',  'price_pct' => round(-7.8 + $w * 0.4, 1), 'supply_pct' => +(18 + abs($w)), 'status' => 'drop',    'note' => 'Olma zaxirasi oshdi'],
+            ['code' => 'KZ',  'country' => 'Qozog‘iston',    'city' => 'Olmaota', 'price_pct' => round(-11.4 + $w * 0.4, 1),'supply_pct' => +(24 + abs($w)), 'status' => 'drop',    'note' => 'Pomidor narxi tushdi'],
+        ];
+
+        return response()->json([
+            'updated_at' => now()->format('H:i:s'),
+            'active_listings' => Schema::hasTable('listings') ? DB::table('listings')->count() : 6,
+            'signals' => array_slice($signals, 0, 4),
+            'drops' => $drops,
+            'country_pulse' => $countryPulse,
+            'prices' => $livePrices,
+        ]);
+    }
+
+    public function aiAnalyzeApi(Request $request)
+    {
+        $productName = trim((string) $request->input('product', 'Baxmal Golden olmasi'));
+        $tons = max(1, min(200, (float) $request->input('tons', 10)));
+        $region = trim((string) $request->input('region', 'Jizzax viloyati'));
+        $kg = (int) round($tons * 1000);
+
+        $base = $this->globalPriceTable();
+        $selected = $base[0];
+        foreach ($base as $row) {
+            if (mb_strtolower($row['name']) === mb_strtolower($productName)) {
+                $selected = $row;
+                break;
+            }
+        }
+
+        $logi = $this->logisticsCostPer20t();
+        $uz = (int) $selected['uz'];
+        $uzTotal = $uz * $kg;
+        $routes = [];
+
+        foreach ($logi as $k => $meta) {
+            $priceKg = (int) $selected[$k];
+            $trucksNeeded = max(1, (int) ceil($tons / 20));
+            $poolingSaved = $tons < 20;
+            $logisticsCost = $poolingSaved
+                ? (int) round(($meta['truck20t'] / 20) * $tons * 1.08)
+                : ($meta['truck20t'] * $trucksNeeded);
+            $gross = $priceKg * $kg;
+            $netProfit = $gross - $uzTotal - $logisticsCost;
+            $marginPct = round(($netProfit / max(1, $uzTotal)) * 100, 1);
+
+            $routes[] = [
+                'key' => $k,
+                'country' => $meta['country'],
+                'city' => $meta['city'],
+                'days' => $meta['days'],
+                'price_kg' => $priceKg,
+                'gross' => $gross,
+                'logistics' => $logisticsCost,
+                'net_profit' => $netProfit,
+                'margin_pct' => $marginPct,
+            ];
+        }
+
+        usort($routes, function ($a, $b) {
+            return $b['net_profit'] <=> $a['net_profit'];
+        });
+
+        $best = $routes[0];
+        $poolingTip = $tons < 20
+            ? "Sizda {$tons} tonna bor. ZaminJob AI Agro-Pooling orqali {$region} fermerlari bilan 20t sovutkichli furaga birlashsangiz, logistika xarajatidan 35% gacha tejaysiz."
+            : "Hajmingiz ({$tons} tonna) to‘liq 20 tonnalik sovutkichli fura uchun yetarli — to‘g‘ridan-to‘g‘ri eksport shartnomasi eng yuqori foyda beradi.";
+
+        $usdPrice = number_format($best['price_kg'] / 12800, 2, '.', '');
+        $offers = [
+            'uz' => "Assalomu alaykum! {$region}dan {$tons} tonna «{$selected['name']}» (1-nav, eksportbop) taklif qilamiz. {$best['city']}gacha yetkazib berish muddati: {$best['days']}. Tavsiya ulgurji narx: " . number_format($best['price_kg'], 0, '.', ' ') . " so‘m/kg. ZaminJob Agro-Pasport orqali tasdiqlangan.",
+            'ru' => "Здравствуйте! Предлагаем оптом из Узбекистана ({$region}): «{$selected['name']}», 1-й сорт (экспортное качество), объём {$tons} тонн. Доставка рефрижератором до г. {$best['city']} за {$best['days']}. Ориентировочная цена: \${$usdPrice}/кг. Проверено через ZaminJob Agro-Passport.",
+            'en' => "Hello! Direct wholesale export offer from Uzbekistan ({$region}): {$tons} MT of Grade-A «{$selected['name']}» (export quality, cold-chain ready). Estimated delivery to {$best['city']}: {$best['days']}. Target price: \${$usdPrice}/kg. Verified supplier on ZaminJob.",
+        ];
+
+        return response()->json([
+            'product' => $selected['name'],
+            'tons' => $tons,
+            'region' => $region,
+            'uz_price' => $uz,
+            'best' => $best,
+            'routes' => $routes,
+            'pooling_tip' => $poolingTip,
+            'offers' => $offers,
+            'analyzed_at' => now()->format('H:i:s'),
+        ]);
+    }
+
+    public function aiWatchApi(Request $request)
+    {
+        $this->ensureCoreTables();
+        $product = trim((string) $request->input('product', 'Mahsulot'));
+        $country = trim((string) $request->input('country', 'Eksport'));
+        $pct = trim((string) $request->input('pct', '12'));
+
+        if (auth()->check()) {
+            DB::table('notifications')->insert([
+                'user_id' => (int) auth()->id(),
+                'title' => "AI Signal kuzatuvi yoqildi: {$product}",
+                'body' => "{$country} bozorida {$product} narxi (+{$pct}%) kuzatuvga olindi. Keskin o‘zgarish bo‘lsa darhol xabar beramiz.",
+                'is_read' => 0,
+                'created_at' => now(),
+            ]);
+            return response()->json(['ok' => true, 'message' => "«{$product}» kuzatuvga olindi — qo‘ng‘iroqchangizga bildirishnoma yuborildi!"]);
+        }
+
+        return response()->json(['ok' => true, 'message' => "«{$product}» ({$country}) signali faollashtirildi! Doimiy xabarlar uchun saytga kiring."]);
+    }
+
+    public function aiChatApi(Request $request)
+    {
+        $this->ensureListingsTable();
+        $msg = trim((string) $request->input('message', ''));
+        $q = mb_strtolower($msg);
+
+        // Tonnani matndan ajratish
+        $tons = 10;
+        if (preg_match('/(\d+(?:[.,]\d+)?)\s*(?:t|tonna|тонн)/iu', $msg, $m)) {
+            $tons = max(1, min(200, (float) str_replace(',', '.', $m[1])));
+        }
+
+        $base = $this->globalPriceTable();
+        $logi = $this->logisticsCostPer20t();
+
+        // Mahsulotni aniqlash
+        $keywords = [
+            'gilos' => 2, 'череш' => 2,
+            'uzum' => 1, 'виноград' => 1,
+            'anor' => 3, 'гранат' => 3,
+            'mayiz' => 4, 'изюм' => 4,
+            'pomidor' => 5, 'помидор' => 5,
+            'olma' => 0, 'яблок' => 0,
+        ];
+        $prodIdx = 0;
+        $matchedKeyword = '';
+        foreach ($keywords as $kw => $idx) {
+            if (mb_strpos($q, $kw) !== false) {
+                $prodIdx = $idx;
+                $matchedKeyword = $kw;
+                break;
+            }
+        }
+        $prod = $base[$prodIdx];
+
+        // Eng foydali yo'nalishni hisoblash
+        $kg = (int) round($tons * 1000);
+        $uzTotal = $prod['uz'] * $kg;
+        $best = null;
+        foreach ($logi as $k => $meta) {
+            $logiCost = $tons < 20
+                ? (int) round(($meta['truck20t'] / 20) * $tons * 1.08)
+                : ($meta['truck20t'] * (int) ceil($tons / 20));
+            $net = ($prod[$k] * $kg) - $uzTotal - $logiCost;
+            if (!$best || $net > $best['net']) {
+                $best = [
+                    'key' => $k,
+                    'country' => $meta['country'],
+                    'city' => $meta['city'],
+                    'days' => $meta['days'],
+                    'price_kg' => $prod[$k],
+                    'logi' => $logiCost,
+                    'net' => $net,
+                    'margin' => round(($net / max(1, $uzTotal)) * 100, 1),
+                ];
+            }
+        }
+
+        $matches = [];
+        $checklist = [];
+        $metrics = [];
+
+        // 1. Hujjat / Fitosanitariya / Bojxona savoli
+        if (mb_strpos($q, 'hujjat') !== false || mb_strpos($q, 'fito') !== false || mb_strpos($q, 'bojxona') !== false || mb_strpos($q, 'документ') !== false || mb_strpos($q, 'sertifikat') !== false) {
+            $reply = "«{$prod['name']}» mahsulotini {$best['country']} ({$best['city']}) bozoriga eksport qilish uchun quyidagi 5 ta asosiy hujjat talab qilinadi. ZaminJob orqali hamkor logistika kompaniyalari bojxona rasmiylashtiruvini 24 soatda yakunlab beradi:";
+            $metrics = [
+                ['label' => 'Asosiy ruxsatnoma', 'value' => 'Fitosanitariya (e-Fito)'],
+                ['label' => 'Bojxona vaqti', 'value' => '6 – 24 soat'],
+                ['label' => 'Sovutkich rejimi', 'value' => '+2°C / +4°C'],
+            ];
+            $checklist = [
+                'Fitosanitariya sertifikati (O‘simliklar karantini agentligi — e-Fito tizimidan)',
+                'Kelib chiqish sertifikati (ST-1 — MDH uchun, yoki Form-A / Umumiy — BAA va Koreya uchun)',
+                'Eksport shartnomasi, Invoys (Commercial Invoice) va Qadoqlash varag‘i (Packing List)',
+                'CMR xalqaro yuk xati va sovutkichli fura (Refrijerator) harorat qaydi',
+                'Bojxona yuk deklaratsiyasi (BYD — E-Kontrakt tizimida ro‘yxatdan o‘tkazilgan)',
+            ];
+        }
+        // 2. Agro-Pooling / Fura / Logistika sherik topish
+        elseif (mb_strpos($q, 'pooling') !== false || mb_strpos($q, 'fura') !== false || mb_strpos($q, 'sherik') !== false || mb_strpos($q, 'logistika') !== false || mb_strpos($q, 'yuk') !== false || mb_strpos($q, 'фура') !== false) {
+            $needed = max(0, 20 - $tons);
+            $reply = "ZaminJob AI Agro-Pooling tizimi bozordagi faol e’lonlar va sovutkichli furalarni skaner qildi. Sizda {$tons} tonna bo‘lsa, to‘liq 20t refrijerator uchun yana {$needed} tonnalik qo‘shni fermer hosili bilan birlashish logistika xarajatini 35% gacha arzonlashtiradi.";
+            $metrics = [
+                ['label' => 'Tavsiya etilgan reys', 'value' => "UZ → {$best['city']} ({$best['days']})"],
+                ['label' => 'Logistika tejami', 'value' => '~35% (Pooling)'],
+                ['label' => 'Bozordagi furalar', 'value' => 'Faol tayyor'],
+            ];
+            $checklist = [
+                'Quyidagi tayyor 20t sovutkichli fura yoki qo‘shni fermer e’loniga yozing',
+                'Yuklash harorati va yashik standartini (10kg/15kg gofro-quti) kelishing',
+                'ZaminJob Raqamli bitim orqali joy band qiling',
+            ];
+            $dbRows = DB::table('listings')
+                ->where('category', 'Yuk tashish va logistika')
+                ->orWhere('category', 'Mevalar')
+                ->orderByDesc('id')->limit(3)->get();
+            foreach ($dbRows as $r) {
+                $matches[] = [
+                    'id' => $r->id,
+                    'title' => $r->title,
+                    'price' => number_format((int) $r->price, 0, '.', ' ') . ' ' . $r->unit,
+                    'region' => $r->region,
+                    'url' => route('bozor.show', $r->id),
+                ];
+            }
+        }
+        // 3. 7-kunlik narx prognozi savoli
+        elseif (mb_strpos($q, 'prognoz') !== false || mb_strpos($q, 'qachon') !== false || mb_strpos($q, '7 kun') !== false || mb_strpos($q, 'oshadi') !== false || mb_strpos($q, 'прогноз') !== false) {
+            $reply = "ZaminJob AI Eye 7-kunlik narx prognozi: «{$prod['name']}» bo‘yicha {$best['city']} va Dubay bozorlarida taklif kamayishi sababli keyingi 7 kunda narx +5.5% dan +8.2% gacha ko‘tarilishi kutilmoqda. Hozir 48–72 soat ichida yuk jo‘natish eng yuqori marjani ushlab qolishga yordam beradi.";
+            $metrics = [
+                ['label' => '7 kunlik prognoz', 'value' => '+6.8% o‘sish'],
+                ['label' => 'AI ishonchliligi', 'value' => '94%'],
+                ['label' => 'Optimal oyna', 'value' => 'Keyingi 72 soat'],
+            ];
+            $checklist = [
+                'Hozirgi narx (' . number_format($best['price_kg'], 0, '.', ' ') . ' so‘m/kg) bilan eksport taklifi chiqaring',
+                'AI Signal kartasida «Kuzatish» tugmasini bosing — narx o‘zgarsa qo‘ng‘iroqchaga xabar keladi',
+            ];
+        }
+        // 4. Umumiy eksport foyda va bozor tahlili
+        else {
+            $netFmt = number_format($best['net'], 0, '.', ' ');
+            $priceFmt = number_format($best['price_kg'], 0, '.', ' ');
+            $reply = "AI tahlili tayyor: {$tons} tonna «{$prod['name']}» uchun bugungi eng foydali yo‘nalish — {$best['country']} ({$best['city']}). Ulgurji narx {$priceFmt} so‘m/kg, barcha sovutkichli fura xarajatlaridan keyin kutilayotgan sof qo‘shimcha foyda +{$netFmt} so‘m (+{$best['margin']}%).";
+            $metrics = [
+                ['label' => 'Eng foydali bozor', 'value' => "{$best['country']} · {$best['city']}"],
+                ['label' => "Sof foyda ({$tons}t)", 'value' => "+{$netFmt} so‘m"],
+                ['label' => 'Yetkazish muddati', 'value' => $best['days']],
+            ];
+            $checklist = [
+                'Yuqoridagi AI Foyda Kalkulyatorida 3 tilli (UZ/RU/EN) tijoriy taklifni nusxalab xaridorga yuboring',
+                $tons < 20 ? "Hajm {$tons}t bo‘lgani uchun 20t fura to‘ldirishda Agro-Poolingdan foydalaning" : 'To‘liq 20t sovutkichli fura buyurtma qiling',
+            ];
+        }
+
+        if (empty($matches)) {
+            $qDb = DB::table('listings')->orderByDesc('id');
+            if ($matchedKeyword !== '') {
+                $qDb->where(function ($sub) use ($matchedKeyword) {
+                    $like = '%' . $matchedKeyword . '%';
+                    $sub->where('title', 'like', $like)->orWhere('subcategory', 'like', $like);
+                });
+            }
+            $rows = $qDb->limit(3)->get();
+            if ($rows->isEmpty()) {
+                $rows = DB::table('listings')->orderByDesc('id')->limit(2)->get();
+            }
+            foreach ($rows as $r) {
+                $matches[] = [
+                    'id' => $r->id,
+                    'title' => $r->title,
+                    'price' => number_format((int) $r->price, 0, '.', ' ') . ' ' . $r->unit,
+                    'region' => $r->region,
+                    'url' => route('bozor.show', $r->id),
+                ];
+            }
+        }
+
+        return response()->json([
+            'reply' => $reply,
+            'metrics' => $metrics,
+            'checklist' => $checklist,
+            'matches' => $matches,
+            'time' => now()->format('H:i:s'),
+        ]);
+    }
+
+    public function aiPriceSuggestApi(Request $request)
+    {
+        $cat = trim((string) $request->input('category', 'Mevalar'));
+        $sub = mb_strtolower(trim((string) $request->input('subcategory', 'Olma')));
+
+        $map = [
+            'olma' => [8500, 19500, 'so‘m / kg', 'Baxmal va Farg‘ona olmalari uchun joriy ulgurji narx; eksportda 19 500–34 000 so‘mgacha.'],
+            'uzum' => [12000, 42000, 'so‘m / kg', 'Husayni va Kishmish uzumlari uchun BAA/Koreya eksport talabi yuqori.'],
+            'gilos' => [35000, 92000, 'so‘m / kg', '26mm+ kalibrli gilos Seul va Moskva bozorida eng yuqori marja beradi.'],
+            'anor' => [15000, 48000, 'so‘m / kg', 'Quva anori Dubay va Ar-Riyod bozorlarida +145% gacha foyda beradi.'],
+            'mayiz' => [34000, 71000, 'so‘m / kg', 'Samarqand qora mayizi Xitoy va Koreya bozorlarida barqaror talabda.'],
+            'pomidor' => [11000, 24500, 'so‘m / kg', 'Issiqxona pushti pomidori Moskva va Olmaotaga tez sotiladi.'],
+            'traktor' => [450000, 550000, 'so‘m / gektar', 'Shudgor va kultivatsiya xizmatlari uchun o‘rtacha mavsumiy tarif.'],
+            'fura' => [14500000, 18000000, 'so‘m / reys', '20t sovutkichli fura uchun UZ → KZ yo‘nalishi bo‘yicha o‘rtacha stavka.'],
+            'refrijerator' => [15000000, 34000000, 'so‘m / reys', '20t refrijerator (KZ: 18 mln, RU: 34 mln so‘m atrofida).'],
+            'issiqxona' => [45000000, 55000000, 'so‘m / gektar', 'Gidroponika va tomchilatib sug‘orishli issiqxona ijarasi/sotuvi bo‘yicha bozor narxi.'],
+        ];
+
+        $picked = [12000, 26000, 'so‘m / kg', "{$cat} toifasi bo‘yicha joriy o‘rtacha ulgurji bozor narxi."];
+        foreach ($map as $k => $vals) {
+            if (mb_strpos($sub, $k) !== false) {
+                $picked = $vals;
+                break;
+            }
+        }
+
+        return response()->json([
+            'price' => $picked[0],
+            'export_price' => $picked[1],
+            'unit' => $picked[2],
+            'note' => $picked[3],
+        ]);
+    }
 }

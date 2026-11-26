@@ -4,7 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Profil va sozlamalar — ZaminJob</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%23102c20'/%3E%3Cpath d='M9 11h22v4.4L16.2 26.6H31V31H9v-4.4L23.8 15.4H9V11z' fill='%23ffffff'/%3E%3Cpath d='M12 24.5c2.2-6 8.2-9.2 15.5-8.5-2.6 5.6-7.8 9.2-15.5 8.5z' fill='%2316a34a'/%3E%3C/svg%3E">
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes glideL { from { opacity: 0; transform: translate3d(-28px, 0, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+        @keyframes glideR { from { opacity: 0; transform: translate3d(28px, 0, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+        main .grid > *:first-child { animation: glideL .62s cubic-bezier(.16, 1, .3, 1) both; }
+        main .grid > *:last-child { animation: glideR .66s cubic-bezier(.16, 1, .3, 1) 70ms both; }
+    </style>
 </head>
 <body class="bg-[#f7f9f5] text-slate-800 min-h-screen flex flex-col">
     @php

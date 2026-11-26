@@ -27,15 +27,25 @@ class AdminController extends Controller
         }
 
         $usersCount = 0;
+        $listingsCount = 0;
+        $vacanciesCount = 0;
         $recentUsers = collect();
         try {
             $usersCount = User::count();
-            $recentUsers = User::latest()->take(6)->get();
+            $recentUsers = User::latest()->take(8)->get();
+            if (\Illuminate\Support\Facades\Schema::hasTable('listings')) {
+                $listingsCount = \Illuminate\Support\Facades\DB::table('listings')->count();
+            }
+            if (\Illuminate\Support\Facades\Schema::hasTable('vacancies')) {
+                $vacanciesCount = \Illuminate\Support\Facades\DB::table('vacancies')->count();
+            }
         } catch (\Throwable $e) {
         }
 
         return view('admin.dashboard', [
             'usersCount' => $usersCount,
+            'listingsCount' => $listingsCount,
+            'vacanciesCount' => $vacanciesCount,
             'recentUsers' => $recentUsers,
         ]);
     }
